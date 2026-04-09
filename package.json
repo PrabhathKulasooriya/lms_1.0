@@ -1,0 +1,35 @@
+{
+  "name": "lms",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.7.0",
+    "@prisma/client": "^7.7.0",
+    "bcryptjs": "^3.0.3",
+    "jsonwebtoken": "^9.0.3",
+    "lucide-react": "^1.7.0",
+    "next": "16.2.2",
+    "next-auth": "^5.0.0-beta.30",
+    "pg": "^8.20.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "swiper": "^12.1.3",
+    "validator": "^13.15.35"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "babel-plugin-react-compiler": "1.0.0",
+    "dotenv": "^17.4.1",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.3",
+    "prisma": "^7.7.0",
+    "tailwindcss": "^4"
+  }
+}
