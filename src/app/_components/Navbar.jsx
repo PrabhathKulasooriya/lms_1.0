@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { Menu, X, BookOpen, LogIn, Mail, Home, LogOut } from "lucide-react";
+import toast from "react-hot-toast";
 
 const rightNavLinks = [
   { name: "Home", href: "/", icon: Home },
@@ -16,7 +17,6 @@ const Navbar = () => {
   const menuRef = useRef(null);
 
   const { data: session, status } = useSession();
-  
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const closeMenu = () => setIsOpen(false);

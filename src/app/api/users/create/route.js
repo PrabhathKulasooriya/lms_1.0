@@ -23,6 +23,17 @@ export async function POST(request) {
       );
     }
 
+    const mobilePattern = /^07\d{8}$/;
+    if (!mobilePattern.test(mobile)) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Invalid mobile format. Must be 10 digits starting with 07",
+        },
+        { status: 400 },
+      );
+    }
+
     if (!validator.isEmail(email)) {
       return NextResponse.json(
         { success: false, message: "Please enter a valid email" },
@@ -43,7 +54,7 @@ export async function POST(request) {
 
     if (existingUser) {
       return NextResponse.json(
-        { success: false, message: "User already exists" },
+        { success: false, message: "Email already exists in the system" },
         { status: 400 },
       );
     }
@@ -62,7 +73,7 @@ export async function POST(request) {
         role: "student",
       },
     });
-
+    
     const { password: _, ...userWithoutPassword } = user;
 
     return NextResponse.json(
