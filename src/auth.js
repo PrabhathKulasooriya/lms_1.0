@@ -30,6 +30,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return session;
     },
   },
+  
   // Move your authorize logic here
   providers: [
     Credentials({

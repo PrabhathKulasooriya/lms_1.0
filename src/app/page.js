@@ -3,16 +3,13 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited.
  * Proprietary and confidential.
  */
-
-import ImageSlider from "./_components/ImageSlider";
+import Home_Component from "./_components/Home_Component";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-top mt-16 font-sans w-screen h-auto overflow-x-hidden">
+    <div className="flex flex-col flex-1 items-center justify-top font-sans w-screen h-auto overflow-x-hidden ">
       
-      <div className="min-h-screen" id="section_2">
-        <ImageSlider />
-      </div>
+      <Home_Component />
 
       <div className="min-h-screen w-screen bg-red-500 pt-16" id="section_2">
         <h1 className="">Hello World</h1>

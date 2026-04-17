@@ -4,6 +4,7 @@ import React, { useRef, useState } from "react";
 import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, EffectFade, Navigation, Autoplay } from "swiper/modules";
+import { useInView } from "@/hooks/useInView";
 
 // Swiper CSS
 import "swiper/css";
@@ -12,8 +13,8 @@ import "swiper/css/navigation";
 import "swiper/css/effect-fade";
 
 // Local Images
-import image1 from "@/assets/accounting-business-banking-budge-finance-market-concept.jpg";
-import image2 from "@/assets/mbpm_u6ja_220829.jpg";
+import image1 from "@/assets/1.jpg";
+import image2 from "@/assets/2.jpg";
 import image3 from "@/assets/network-connection-graphic-overlay-laptop.jpg";
 import image4 from "@/assets/office-table-with-smartphone-it-view-from.jpg";
 
@@ -36,9 +37,27 @@ const images = [
   },
 ];
 
+//Seperate component for slide text to handle inView animation
+const SlideText = ({ text }) => {
+  const { ref, inView } = useInView();
+
+  return (
+    <div
+      ref={ref}
+      className={`block absolute top-1/2 left-1/2 md:left-1/4 transform -translate-x-1/2 -translate-y-1/2 
+        text-3xl font-bold text-center text-white z-20 transition-all duration-500
+        ${inView ? "animate-slide-in-left" : "opacity-0 -translate-x-full"}`}
+    >
+      {text}
+    </div>
+  );
+};
+
+
+// Main Component
 const ImageSlider = () => {
   return (
-    <div className="w-screen h-[300px] md:h-[400px] overflow-hidden">
+    <div className=" h-[300px] md:h-[500px] overflow-hidden">
       <Swiper
         slidesPerView={1}
         // effect={"fade"}
@@ -56,7 +75,7 @@ const ImageSlider = () => {
         {images.map((image, index) => (
           <SwiperSlide
             key={index}
-            className="relative flex items-center justify-center overflow-hidden h-full w-full"
+            className="relative flex items-center justify-center overflow-hidden h-auto"
           >
             {/* Layer 1: The Blurred Background */}
             <div className="absolute inset-0 z-0">
@@ -64,24 +83,22 @@ const ImageSlider = () => {
                 src={image.image}
                 alt=""
                 fill
-                className="object-cover blur-xl scale-110 brightness-50"
+                className="object-cover scale-110 brightness-50"
               />
             </div>
 
             {/* Layer 2: The Main Image (Preserves Aspect Ratio) */}
-            <div className="relative z-10 w-full h-full flex items-center justify-center">
+            {/* <div className="relative z-10 w-full h-full flex items-center justify-center">
               <Image
                 src={image.image}
                 alt="Slide content"
-                className="max-h-full w-auto object-contain"
+                className="max-h-full w-auto object-cover"
                 priority
               />
-            </div>
+            </div> */}
 
             {/* Layer 3: Text */}
-            <div className="block absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-3xl font-bold text-center text-white z-20 border border-red">
-              {image.text}
-            </div>
+            <SlideText text={image.text} />
           </SwiperSlide>
         ))}
       </Swiper>
