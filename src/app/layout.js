@@ -29,7 +29,9 @@ export default function RootLayout({ children }) {
         <AuthProvider>
           <Toaster position="top-center" reverseOrder={false} />
           <Navbar />
-          {children}
+          <main id="main-scroll" className="flex-1 w-full overflow-y-auto">
+            {children}
+          </main>
         </AuthProvider>
       </body>
     </html>

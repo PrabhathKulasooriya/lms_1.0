@@ -1,8 +1,8 @@
 "use client";
-import React from 'react'
-import Link from 'next/link';
-import ImageSlider from './ImageSlider';
-import { useInView } from '@/hooks/useInView';
+import React from "react";
+import Link from "next/link";
+import ImageSlider from "./ImageSlider";
+import { useInView } from "@/hooks/useInView";
 
 const Home = () => {
   const { ref, inView } = useInView();
@@ -13,7 +13,11 @@ const Home = () => {
         <ImageSlider />
       </div>
 
-      <div ref={ref} className="w-[200px] hidden md:flex md:flex-col absolute gap-6 top-30 right-10 z-20">
+      {/* Buttons on the Slider */}
+      <div
+        ref={ref}
+        className="w-[200px] hidden md:flex md:flex-col absolute gap-6 top-30 right-10 z-20"
+      >
         <Link
           href="/courses"
           className={`group flex flex-col items-center justify-center h-18 mb-6  border-2 border-white rounded-xl 
@@ -40,6 +44,8 @@ const Home = () => {
         </Link>
       </div>
 
+
+      
       <div className="flex flex-col justify-center items-center gap-6 md:gap-10 w-full flex-grow bg-background p-6">
         {/* Container for all cards to ensure consistent width across rows */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 w-full max-w-2xl">
@@ -80,6 +86,6 @@ const Home = () => {
       </div>
     </div>
   );
-}
+};
 
-export default Home
+export default Home;
