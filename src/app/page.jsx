@@ -7,7 +7,7 @@ import Home_Component from "./_components/Home_Component";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-top font-sans w-screen overflow-x-hidden ">
+    <div className="flex flex-col flex-1 items-center justify-top font-sans overflow-x-hidden ">
       
       <Home_Component />
 

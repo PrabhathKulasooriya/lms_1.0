@@ -42,14 +42,14 @@ const Navbar = () => {
     document.body.style.overflow = isOpen ? "hidden" : "unset";
   }, [isOpen]);
 
-const handleNavClick = (href) => {
-  if (pathname === href) {
-    document
-      .getElementById("main-scroll")
-      ?.scrollTo({ top: 0, behavior: "smooth" });
-  } 
-  closeMenu();
-};
+  const handleNavClick = (href) => {
+    if (pathname === href) {
+      document
+        .getElementById("main-scroll")
+        ?.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    closeMenu();
+  };
 
   const baseClasses =
     "flex items-center gap-1.5 px-3 py-2 text-white hover:text-[#FFD700] transition-all duration-300 hover:scale-105 rounded-md font-medium text-md cursor-pointer";
@@ -62,7 +62,8 @@ const handleNavClick = (href) => {
         <div className="flex flex-row items-center justify-between h-16 w-screen">
           {/* LOGO */}
           <div className="flex items-center justify-start md:w-1/4 pl-4 md:pl-8">
-            <button
+            <Link
+              href={"/"}
               onClick={() => handleNavClick("/")}
               className="flex-shrink-0"
             >
@@ -70,7 +71,7 @@ const handleNavClick = (href) => {
                 Commerce with{" "}
                 <span className="text-white font-light">Hasindu</span>
               </span>
-            </button>
+            </Link>
           </div>
 
           {/* DESKTOP NAV LINKS */}

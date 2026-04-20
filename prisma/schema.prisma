@@ -6,22 +6,135 @@ datasource db {
   provider = "postgresql"
 }
 
-/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+// --- 1. USERS & ACCOUNTS ---
+
 model users {
-  id         Int       @id @default(autoincrement())
-  first_name String    @db.VarChar(100)
-  last_name  String    @db.VarChar(100)
-  email      String    @unique @db.VarChar(255)
-  password   String    @db.VarChar(255)
-  gender     Gender?
-  mobile     String?   @db.VarChar(20)
-  role       String?   @default("student") @db.VarChar(20)
-  created_at DateTime? @default(now()) @db.Timestamptz(6)
-  updated_at DateTime? @default(now()) @db.Timestamptz(6)
+  id                 Int       @id @default(autoincrement())
+  first_name         String    @db.VarChar(100)
+  last_name          String    @db.VarChar(100)
+  email              String    @unique @db.VarChar(255)
+  password           String    @db.VarChar(255)
+  mobile             String?   @db.VarChar(20)
+  gender             Gender? 
+  role               String?   @default("student") @db.VarChar(20)
+  
+  // Verification and Blocking Flags
+  is_email_verified  Boolean   @default(false)
+  is_mobile_verified Boolean   @default(false)
+  is_blocked         Boolean   @default(false) // Toggle this to manually block the entire student account
+
+  created_at         DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime? @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  cart_items         cart_items[]
+  purchases          purchases[]
+  enrollments        enrollments[]
 }
 
 enum Gender {
   male
   female
   other
+}
+
+// --- 2. COURSES & MATERIALS ---
+
+model courses {
+  id            Int       @id @default(autoincrement())
+  title         String    @db.VarChar(255)   // e.g., "Mathematics", "Science"
+  grade         Int                          // e.g., 10 or 11
+  price         Int       @default(0) 
+  is_published  Boolean   @default(false)
+  
+  created_at    DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at    DateTime? @updatedAt @db.Timestamptz(6)
+
+  // Relations
+  lessons       lessons[]
+  cart_items    cart_items[]
+  purchases     purchase_items[]
+  enrollments   enrollments[]
+}
+
+model lessons {
+  id          Int       @id @default(autoincrement())
+  course_id   Int
+  title       String    @db.VarChar(255)
+  sequence    Int       // Used to order the lessons (1, 2, 3...)
+  
+  course      courses   @relation(fields: [course_id], references: [id], onDelete: Cascade)
+  resources   resources[]
+}
+
+model resources {
+  id          Int           @id @default(autoincrement())
+  lesson_id   Int
+  title       String        @db.VarChar(255)
+  type        String        @db.VarChar(255)
+  file_url    String        @db.VarChar(500) // The link to AWS S3, Vercel Blob, etc.
+  
+  lesson      lessons       @relation(fields: [lesson_id], references: [id], onDelete: Cascade)
+}
+
+
+// --- 3. E-COMMERCE (CART & PURCHASING) ---
+
+// A simple cart table. No need for a master "cart" table, just link items to the user.
+model cart_items {
+  id          Int       @id @default(autoincrement())
+  user_id     Int
+  course_id   Int
+  added_at    DateTime? @default(now()) @db.Timestamptz(6)
+
+  user        users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  course      courses   @relation(fields: [course_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, course_id]) // Prevents adding the same course to the cart twice
+}
+
+// The main transaction receipt
+model purchases {
+  id             Int              @id @default(autoincrement())
+  user_id        Int
+  total_amount   Decimal          @db.Decimal(10, 2)
+  status         PurchaseStatus   @default(COMPLETED)
+  purchased_at   DateTime?        @default(now()) @db.Timestamptz(6)
+
+  user           users            @relation(fields: [user_id], references: [id], onDelete: Restrict)
+  items          purchase_items[] 
+}
+
+// The individual courses bought inside a single purchase
+model purchase_items {
+  id          Int       @id @default(autoincrement())
+  purchase_id Int
+  course_id   Int
+  price_paid  Decimal   @db.Decimal(10, 2) // Saves the price at the exact moment of purchase
+
+  purchase    purchases @relation(fields: [purchase_id], references: [id], onDelete: Cascade)
+  course      courses   @relation(fields: [course_id], references: [id], onDelete: Restrict)
+}
+
+enum PurchaseStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+// --- 4. ACCESS & ENROLLMENT ---
+
+model enrollments {
+  id          Int       @id @default(autoincrement())
+  user_id     Int
+  course_id   Int
+  
+  enrolled_at DateTime? @default(now()) @db.Timestamptz(6)
+  expires_at  DateTime? @db.Timestamptz(6)   // Null = lifetime. Set a date = expires
+  is_active   Boolean   @default(true)       // Toggle to block access to this specific course
+
+  user        users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  course      courses   @relation(fields: [course_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, course_id])
 }

@@ -1,20 +1,30 @@
-"use client"
-import Sidebar from '../_components/Sidebar'
-import React,{useState} from 'react'
+import Dashboard from "./Dashboard";
+import { prisma } from "@/lib/prisma";
+import { unstable_cache } from "next/cache";
 
-const Dashboard = () => {
-  const [activeComponent, setActiveComponent] = useState("orders");
-  return (
-    <div className='flex flex-row w-screen h-screen '>
-      <Sidebar activeComponent={activeComponent} setActiveComponent={setActiveComponent}/>
-      <div className='flex h-screen items-center justify-center flex-1 bg-green-500 pt-16'>
-       {activeComponent === "orders" && <h1>Orders Component</h1>}
-       {activeComponent === "list" && <h1>List Component</h1>}
-       {activeComponent === "add" && <h1>Add Component</h1>}
-       {activeComponent === "completed" && <h1>Completed Component</h1>}
-      </div>
-    </div>
-  )
+// Wrap the Prisma call in unstable_cache
+const getCourses = unstable_cache(
+  async () => {
+    console.log("Fetching courses from database...");
+    return await prisma.courses.findMany({
+      orderBy: { created_at: "desc" },
+    });
+  },
+  ["courses-data"], 
+  {
+    tags: ["courses-data"], 
+    revalidate: 86400, // 24 hours in seconds
+  },
+);
+
+export default async function Page() {
+  let courses = [];
+
+  try {
+    courses = await getCourses();
+  } catch (error) {
+    console.error("Error fetching courses:", error);
+  }
+
+  return <Dashboard courses={courses} />;
 }
-
-export default Dashboard

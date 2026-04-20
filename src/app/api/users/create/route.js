@@ -1,13 +1,11 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import validator from "validator";
-import jwt from "jsonwebtoken";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(request) {
   try {
-    const { first_name, last_name, email, password, gender, mobile } =
-      await request.json();
+    const { first_name, last_name, email, password, gender, mobile } = await request.json();
 
     if (
       !first_name ||

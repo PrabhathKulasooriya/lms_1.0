@@ -3,13 +3,15 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ShoppingBag, LayoutList, PlusSquare, CheckCircle } from "lucide-react";
+import { ShoppingBag, LayoutList, PlusSquare, GraduationCap ,User} from "lucide-react";
 
 const navItems = [
-  { key: "orders", label: "Orders", icon: ShoppingBag },
-  { key: "list", label: "List Products", icon: LayoutList },
-  { key: "add", label: "Add Product", icon: PlusSquare },
-  { key: "completed", label: "Completed Orders", icon: CheckCircle },
+
+  { key: "account", label: "Account", icon: User },
+  { key: "courses", label: "Courses", icon: GraduationCap },
+  { key: "list", label: "List Products", icon: GraduationCap },
+  { key: "add", label: "Add Product", icon: GraduationCap },
+  { key: "completed", label: "Completed Orders", icon: GraduationCap },
 ];
 
 const Sidebar = ({ activeComponent, setActiveComponent }) => {
