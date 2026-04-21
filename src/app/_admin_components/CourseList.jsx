@@ -50,12 +50,12 @@ const CourseForm = ({
 }) => {
   const [form, setForm] = useState({
     title: initialData.title ?? "",
-    type: initialData.type ?? "regular",
+    type: initialData.type ?? "theory",
     grade: initialData.grade ?? "",
     price: initialData.price ?? "",
   });
 
-  const isRegular = form.type === "regular";
+  const istheory = form.type === "theory";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -73,11 +73,11 @@ const CourseForm = ({
       toast.error("Course title is required");
       return;
     }
-    if (isRegular && !form.grade) {
-      toast.error("Grade is required for regular courses");
+    if (istheory && !form.grade) {
+      toast.error("Grade is required for theory courses");
       return;
     }
-    if (isRegular && (Number(form.grade) < 1 || Number(form.grade) > 13)) {
+    if (istheory && (Number(form.grade) < 1 || Number(form.grade) > 13)) {
       toast.error("Grade must be between 1 and 13");
       return;
     }
@@ -88,7 +88,7 @@ const CourseForm = ({
     onSubmit({
       title: form.title.trim(),
       type: form.type,
-      grade: isRegular ? Number(form.grade) : null,
+      grade: istheory ? Number(form.grade) : null,
       price: Number(form.price),
     });
   };
@@ -121,7 +121,7 @@ const CourseForm = ({
           Course Type
         </label>
         <div className="grid grid-cols-2 gap-2">
-          {["regular", "pastpaper"].map((t) => (
+          {["theory", "pastpaper"].map((t) => (
             <button
               key={t}
               type="button"
@@ -134,7 +134,7 @@ const CourseForm = ({
                   : "bg-white text-gray-500 border-gray-200 hover:border-blue-300"
               }`}
             >
-              {t === "regular" ? "Regular" : "Past Paper"}
+              {t === "theory" ? "Theory" : "Past Paper"}
             </button>
           ))}
         </div>
@@ -142,9 +142,9 @@ const CourseForm = ({
 
       {/* Grade + Price row — grade hidden for pastpaper */}
       <div
-        className={`grid gap-3 ${isRegular ? "grid-cols-2" : "grid-cols-1"}`}
+        className={`grid gap-3 ${istheory ? "grid-cols-2" : "grid-cols-1"}`}
       >
-        {isRegular && (
+        {istheory && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
               Grade
@@ -430,7 +430,7 @@ const CourseList = ({ initialCourses }) => {
                         >
                           {course.type === "pastpaper"
                             ? "Past Paper"
-                            : "Regular"}
+                            : "theory"}
                         </span>
                       </td>
                       <td className="px-5 py-3.5 text-gray-600">

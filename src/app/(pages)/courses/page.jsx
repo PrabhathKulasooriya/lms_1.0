@@ -3,7 +3,6 @@
 import { prisma } from "@/lib/prisma";
 import { unstable_cache } from "next/cache";
 import { GraduationCap, BookOpen, FileText } from "lucide-react";
-import { auth } from "@/auth"; // ──────────────────────────────────────────────────────────Import auth to get user session in server component
 import Link from "next/link";
 import PurchaseButton from "@/app/_components/PurchaseButton";
 
@@ -21,7 +20,7 @@ const getCourses = unstable_cache(
 const GRADES = [10, 11];
 
 // ─── Course Card ─────────────────────────────────────────────────────────────
-function CourseCard({ course, isEnrolled, userId }) {
+function CourseCard({ course}) {
   const isPastPaper = course.type === "pastpaper";
 
   return (
@@ -52,13 +51,14 @@ function CourseCard({ course, isEnrolled, userId }) {
         <span className="text-base font-bold text-gray-900">
           LKR {Number(course.price).toLocaleString()}
         </span>
-        <PurchaseButton
-          courseId={course.id}
-          userId={userId}
-          price={Number(course.price)}
-          title={course.title}
-          isEnrolled={isEnrolled}
-        />
+
+        <Link
+          href={`/courses/${course.id}`}
+          className="px-4 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-colors "
+        >
+          View Details
+        </Link>
+        
       </div>
     </div>
   );
@@ -85,53 +85,41 @@ export default async function Page({ searchParams }) {
   const { grade, type } = await searchParams;
 
   const gradeParam = grade ? parseInt(grade) : null;
-  // type param: "regular" | "pastpaper" | undefined (show all)
+  // type param: "theory" | "pastpaper" | undefined (show all)
   const typeParam = type ?? null;
 
   const courses = await getCourses();
-  const session = await auth(); // ─────────────────────────────────────────────────────────────────────Get user session in server component
-  const userId = session?.user?.id;
-
-  // Fetch enrollments for logged-in user
-  let enrolledCourseIds = [];
-  if (userId) {
-    const userEnrollments = await prisma.enrollments.findMany({
-      where: { user_id: parseInt(userId) },
-      select: { course_id: true },
-    });
-    enrolledCourseIds = userEnrollments.map((e) => e.course_id);
-  }
 
   // ── Split by type ───────────────────────────────────────────────────────────
-  const regularCourses = courses.filter((c) => c.type === "regular");
+  const theoryCourses = courses.filter((c) => c.type === "theory");
   const pastPaperCourses = courses.filter((c) => c.type === "pastpaper");
 
-  // ── Apply grade filter to regular courses ───────────────────────────────────
+  // ── Apply grade filter to theory courses ───────────────────────────────────
   const gradesToShow = gradeParam ? [gradeParam] : GRADES;
   const coursesByGrade = gradesToShow.reduce((acc, g) => {
-    acc[g] = regularCourses.filter((c) => c.grade === g);
+    acc[g] = theoryCourses.filter((c) => c.grade === g);
     return acc;
   }, {});
 
   // ── Determine what sections to show ─────────────────────────────────────────
-  const showRegular = typeParam === null || typeParam === "regular";
+  const showtheory = typeParam === null || typeParam === "theory";
   const showPastPapers = typeParam === null || typeParam === "pastpaper";
 
   // ── Total count for header badge ─────────────────────────────────────────────
-  const regularCount = showRegular
+  const theoryCount = showtheory
     ? gradesToShow.reduce((sum, g) => sum + (coursesByGrade[g]?.length ?? 0), 0)
     : 0;
   const pastPaperCount = showPastPapers ? pastPaperCourses.length : 0;
-  const totalCount = regularCount + pastPaperCount;
+  const totalCount = theoryCount + pastPaperCount;
 
   // ── Page title ───────────────────────────────────────────────────────────────
   const pageTitle =
     typeParam === "pastpaper"
       ? "Past Papers"
-      : typeParam === "regular" && gradeParam
+      : typeParam === "theory" && gradeParam
         ? `Grade ${gradeParam} Courses`
-        : typeParam === "regular"
-          ? "Regular Courses"
+        : typeParam === "theory"
+          ? "theory Courses"
           : gradeParam
             ? `Grade ${gradeParam} Courses`
             : "All Courses";
@@ -165,10 +153,10 @@ export default async function Page({ searchParams }) {
               All
             </FilterPill>
             <FilterPill
-              href="/courses?type=regular"
-              active={typeParam === "regular" && !gradeParam}
+              href="/courses?type=theory"
+              active={typeParam === "theory" && !gradeParam}
             >
-              Regular
+              theory
             </FilterPill>
             <FilterPill
               href="/courses?type=pastpaper"
@@ -178,15 +166,15 @@ export default async function Page({ searchParams }) {
             </FilterPill>
 
             {/* Divider */}
-            {(typeParam === null || typeParam === "regular") && (
+            {(typeParam === null || typeParam === "theory") && (
               <>
                 <span className="text-gray-200 select-none">|</span>
                 {/* Grade filters */}
                 {GRADES.map((g) => (
                   <FilterPill
                     key={g}
-                    href={`/courses?type=regular&grade=${g}`}
-                    active={gradeParam === g && typeParam === "regular"}
+                    href={`/courses?type=theory&grade=${g}`}
+                    active={gradeParam === g && typeParam === "theory"}
                   >
                     Grade {g}
                   </FilterPill>
@@ -206,8 +194,8 @@ export default async function Page({ searchParams }) {
           </div>
         ) : (
           <>
-            {/* ── Regular Courses (grouped by grade) ── */}
-            {showRegular &&
+            {/* ── theory Courses (grouped by grade) ── */}
+            {showtheory &&
               gradesToShow.map((g) => {
                 const gradeCourses = coursesByGrade[g];
                 if (!gradeCourses || gradeCourses.length === 0) return null;
@@ -235,8 +223,6 @@ export default async function Page({ searchParams }) {
                         <CourseCard
                           key={course.id}
                           course={course}
-                          isEnrolled={enrolledCourseIds.includes(course.id)}
-                          userId={userId}
                         />
                       ))}
                     </div>
@@ -268,8 +254,6 @@ export default async function Page({ searchParams }) {
                     <CourseCard
                       key={course.id}
                       course={course}
-                      isEnrolled={enrolledCourseIds.includes(course.id)}
-                      userId={userId}
                     />
                   ))}
                 </div>

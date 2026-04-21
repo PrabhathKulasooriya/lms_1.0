@@ -38,7 +38,7 @@ export default function PurchaseButton({ courseId, price, title, isEnrolled }) {
         disabled
         className="px-4 py-1.5 text-sm font-medium text-green-700 bg-green-100 rounded-xl cursor-not-allowed"
       >
-        Purchased
+       Already Purchased
       </button>
     );
   }

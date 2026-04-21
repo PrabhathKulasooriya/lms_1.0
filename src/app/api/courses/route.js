@@ -14,18 +14,18 @@ export async function POST(request) {
       );
     }
 
-    if (!["regular", "pastpaper"].includes(type)) {
+    if (!["theory", "pastpaper"].includes(type)) {
       return NextResponse.json(
         { success: false, message: "Invalid course type" },
         { status: 400 },
       );
     }
 
-    // Grade is required for regular, must be null for pastpaper
-    if (type === "regular") {
+    // Grade is required for theory, must be null for pastpaper
+    if (type === "theory") {
       if (!grade) {
         return NextResponse.json(
-          { success: false, message: "Grade is required for regular courses" },
+          { success: false, message: "Grade is required for theory courses" },
           { status: 400 },
         );
       }
@@ -42,7 +42,7 @@ export async function POST(request) {
       data: {
         title,
         type,
-        grade: type === "regular" ? parseInt(grade) : null,
+        grade: type === "theory" ? parseInt(grade) : null,
         price: parseInt(price),
         is_published: false,
       },
@@ -75,14 +75,14 @@ export async function PUT(request) {
       );
     }
 
-    if (type && !["regular", "pastpaper"].includes(type)) {
+    if (type && !["theory", "pastpaper"].includes(type)) {
       return NextResponse.json(
         { success: false, message: "Invalid course type" },
         { status: 400 },
       );
     }
 
-    if (type === "regular" && grade !== undefined) {
+    if (type === "theory" && grade !== undefined) {
       const gradeNum = parseInt(grade);
       if (gradeNum < 1 || gradeNum > 13) {
         return NextResponse.json(

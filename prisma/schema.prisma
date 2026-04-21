@@ -39,7 +39,7 @@ enum Gender {
 // --- 2. COURSES & MATERIALS ---
 
 enum CourseType {
-  regular
+  theory
   pastpaper
 }
 
@@ -47,7 +47,7 @@ model courses {
   id            Int            @id @default(autoincrement())
   title         String         @db.VarChar(255)
   grade         Int?           // Optional: Null for common Past Papers
-  type          CourseType     @default(regular)
+  type          CourseType     @default(theory)
   price         Int            @default(0) 
   is_published  Boolean        @default(false)
   
