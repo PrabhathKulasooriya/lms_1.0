@@ -16,7 +16,7 @@ const Dashboard = ({ courses }) => {
 
         {activeComponent === "account" && <h1>Account Component</h1>}
         {activeComponent === "courses" && <CourseList initialCourses={courses} />}
-        {activeComponent === "list" && <h1>List Component</h1>}
+        {activeComponent === "past-papers" && <h1>Past Papers Component</h1>}
         {activeComponent === "add" && <h1>Add Component</h1>}
         {activeComponent === "completed" && <h1>Completed Component</h1>}
       </div>

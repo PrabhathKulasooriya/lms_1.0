@@ -2,14 +2,18 @@
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
+import { useRouter, useSearchParams } from "next/navigation";
+import toast from "react-hot-toast"; 
+
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
   const router = useRouter();
+  const searchparams = useSearchParams();
+  const callbackUrl = searchparams.get("callbackUrl") || "/";
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -18,7 +22,7 @@ const LoginPage = () => {
     const res = await signIn("credentials", {
       email,
       password,
-      redirect: false, // Critical: set to false to handle redirect manually
+      redirect: false, 
     });
 
     if (res?.error) {
@@ -26,7 +30,7 @@ const LoginPage = () => {
       setLoading(false);
     } else {
       toast.success("Login successful!");
-      router.push("/");
+      router.push(callbackUrl);
       router.refresh();
     }
   };

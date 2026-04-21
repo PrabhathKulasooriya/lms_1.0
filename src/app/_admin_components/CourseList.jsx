@@ -23,6 +23,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
           <button
@@ -32,6 +33,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
             <X size={18} />
           </button>
         </div>
+        {/* Body */}
         <div className="px-6 py-5">{children}</div>
       </div>
     </div>
@@ -48,22 +50,45 @@ const CourseForm = ({
 }) => {
   const [form, setForm] = useState({
     title: initialData.title ?? "",
+    type: initialData.type ?? "regular",
     grade: initialData.grade ?? "",
     price: initialData.price ?? "",
   });
 
-  const handleChange = (e) =>
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const isRegular = form.type === "regular";
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+      // clear grade when switching to pastpaper
+      ...(name === "type" && value === "pastpaper" ? { grade: "" } : {}),
+    }));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!form.title.trim() || !form.grade || form.price === "") {
-      toast.error("All fields are required");
+    if (!form.title.trim()) {
+      toast.error("Course title is required");
+      return;
+    }
+    if (isRegular && !form.grade) {
+      toast.error("Grade is required for regular courses");
+      return;
+    }
+    if (isRegular && (Number(form.grade) < 1 || Number(form.grade) > 13)) {
+      toast.error("Grade must be between 1 and 13");
+      return;
+    }
+    if (form.price === "") {
+      toast.error("Price is required");
       return;
     }
     onSubmit({
       title: form.title.trim(),
-      grade: Number(form.grade),
+      type: form.type,
+      grade: isRegular ? Number(form.grade) : null,
       price: Number(form.price),
     });
   };
@@ -84,34 +109,64 @@ const CourseForm = ({
             name="title"
             value={form.title}
             onChange={handleChange}
-            placeholder="e.g. Mathematics"
+            placeholder="e.g. Advanced Mathematics"
             className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all"
           />
         </div>
       </div>
 
-      {/* Grade + Price row */}
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">
-            Grade
-          </label>
-          <div className="relative">
-            <Hash
-              size={16}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            />
-            <input
-              name="grade"
-              type="number"
-              min="1"
-              value={form.grade}
-              onChange={handleChange}
-              placeholder="e.g. 10"
-              className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all"
-            />
-          </div>
+      {/* Type */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+          Course Type
+        </label>
+        <div className="grid grid-cols-2 gap-2">
+          {["regular", "pastpaper"].map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() =>
+                handleChange({ target: { name: "type", value: t } })
+              }
+              className={`py-2.5 text-sm font-medium rounded-xl border transition-all ${
+                form.type === t
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : "bg-white text-gray-500 border-gray-200 hover:border-blue-300"
+              }`}
+            >
+              {t === "regular" ? "Regular" : "Past Paper"}
+            </button>
+          ))}
         </div>
+      </div>
+
+      {/* Grade + Price row — grade hidden for pastpaper */}
+      <div
+        className={`grid gap-3 ${isRegular ? "grid-cols-2" : "grid-cols-1"}`}
+      >
+        {isRegular && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              Grade
+            </label>
+            <div className="relative">
+              <Hash
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              />
+              <input
+                name="grade"
+                type="number"
+                min="1"
+                max="13"
+                value={form.grade}
+                onChange={handleChange}
+                placeholder="e.g. 10"
+                className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all"
+              />
+            </div>
+          </div>
+        )}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1.5">
             Price (LKR)
@@ -155,6 +210,19 @@ const CourseForm = ({
   );
 };
 
+// ─── Native fetch helper ─────────────────────────────────────────────────────
+// Throws on non-2xx so toast.promise error branch works correctly
+const fetchJSON = async (url, { method = "GET", body } = {}) => {
+  const res = await fetch(url, {
+    method,
+    headers: { "Content-Type": "application/json" },
+    ...(body !== undefined && { body: JSON.stringify(body) }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.message ?? "Request failed");
+  return data;
+};
+
 // ─── Main Component ──────────────────────────────────────────────────────────
 const CourseList = ({ initialCourses }) => {
   const router = useRouter();
@@ -174,7 +242,7 @@ const CourseList = ({ initialCourses }) => {
     .filter(
       (item) =>
         item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.grade.toString().includes(searchTerm),
+        item.grade?.toString().includes(searchTerm),
     )
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
@@ -185,21 +253,19 @@ const CourseList = ({ initialCourses }) => {
   };
 
   const handleDelete = (id) => {
+    // Simple browser confirm — swap for a custom modal if desired
     const confirmed = window.confirm(
       "Are you sure you want to delete this course?",
     );
     if (!confirmed) return;
 
     toast.promise(
-      fetch("/api/courses", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
-      }).then((res) => {
-        if (!res.ok) throw new Error("Failed to delete");
-        router.refresh();
-        return res;
-      }),
+      fetchJSON("/api/courses/delete", { method: "POST", body: { id } }).then(
+        (data) => {
+          router.refresh();
+          return data;
+        },
+      ),
       {
         loading: "Deleting…",
         success: "Course removed!",
@@ -212,15 +278,12 @@ const CourseList = ({ initialCourses }) => {
     setAddLoading(true);
     try {
       await toast.promise(
-        fetch("/api/courses", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
-        }).then((res) => {
-          if (!res.ok) throw new Error("Failed to create");
-          router.refresh();
-          return res;
-        }),
+        fetchJSON("/api/courses", { method: "POST", body: formData }).then(
+          (data) => {
+            router.refresh();
+            return data;
+          },
+        ),
         {
           loading: "Creating course…",
           success: "Course created!",
@@ -237,14 +300,12 @@ const CourseList = ({ initialCourses }) => {
     setEditLoading(true);
     try {
       await toast.promise(
-        fetch("/api/courses", {
+        fetchJSON("/api/courses", {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: selectedCourse.id, ...formData }),
-        }).then((res) => {
-          if (!res.ok) throw new Error("Failed to update");
+          body: { id: selectedCourse.id, ...formData },
+        }).then((data) => {
           router.refresh();
-          return res;
+          return data;
         }),
         {
           loading: "Updating course…",
@@ -261,17 +322,12 @@ const CourseList = ({ initialCourses }) => {
 
   const handleTogglePublish = (course) => {
     toast.promise(
-      fetch("/api/courses", {
+      fetchJSON("/api/courses", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: course.id,
-          is_published: !course.is_published,
-        }),
-      }).then((res) => {
-        if (!res.ok) throw new Error("Failed to update");
+        body: { id: course.id, is_published: !course.is_published },
+      }).then((data) => {
         router.refresh();
-        return res;
+        return data;
       }),
       {
         loading: "Updating status…",
@@ -332,13 +388,16 @@ const CourseList = ({ initialCourses }) => {
                     Title
                   </th>
                   <th className="text-left px-5 py-3.5 font-semibold text-gray-600">
+                    Type
+                  </th>
+                  <th className="text-left px-5 py-3.5 font-semibold text-gray-600">
                     Grade
                   </th>
                   <th className="text-left px-5 py-3.5 font-semibold text-gray-600">
                     Price
                   </th>
                   <th className="text-left px-5 py-3.5 font-semibold text-gray-600">
-                    Publish
+                    Status
                   </th>
                   <th className="text-right px-5 py-3.5 font-semibold text-gray-600">
                     Actions
@@ -348,7 +407,7 @@ const CourseList = ({ initialCourses }) => {
               <tbody className="divide-y divide-gray-50">
                 {filteredCourses.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="text-center py-12 text-gray-400">
+                    <td colSpan={6} className="text-center py-12 text-gray-400">
                       No courses found.
                     </td>
                   </tr>
@@ -361,13 +420,29 @@ const CourseList = ({ initialCourses }) => {
                       <td className="px-5 py-3.5 font-medium text-gray-900">
                         {course.title}
                       </td>
+                      <td className="px-5 py-3.5">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            course.type === "pastpaper"
+                              ? "bg-purple-100 text-purple-700"
+                              : "bg-blue-100 text-blue-700"
+                          }`}
+                        >
+                          {course.type === "pastpaper"
+                            ? "Past Paper"
+                            : "Regular"}
+                        </span>
+                      </td>
                       <td className="px-5 py-3.5 text-gray-600">
-                        Grade {course.grade}
+                        {course.grade ? (
+                          `Grade ${course.grade}`
+                        ) : (
+                          <span className="text-gray-300">—</span>
+                        )}
                       </td>
                       <td className="px-5 py-3.5 text-gray-600">
                         LKR {Number(course.price).toLocaleString()}
                       </td>
-
                       <td className="px-5 py-3.5">
                         <button
                           onClick={() => handleTogglePublish(course)}
@@ -395,7 +470,6 @@ const CourseList = ({ initialCourses }) => {
                           />
                         </button>
                       </td>
-                      
                       <td className="px-5 py-3.5">
                         <div className="flex items-center justify-end gap-2">
                           <button

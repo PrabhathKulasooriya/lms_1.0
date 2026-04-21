@@ -19,7 +19,7 @@ const Home = () => {
         className="w-[200px] hidden md:flex md:flex-col absolute gap-6 top-30 right-10 z-20"
       >
         <Link
-          href="/courses"
+          href="/courses?type=regular&grade=10"
           className={`group flex flex-col items-center justify-center h-18 mb-6  border-2 border-white rounded-xl 
                       transition-all duration-300 hover:bg-primary hover:shadow-lg hover:shadow-primary/20 
                       ${inView ? "animate-slide-in-right" : "opacity-0 translate-x-full"}`}
@@ -31,7 +31,7 @@ const Home = () => {
           <div className="w-0 h-1 bg-accent mt-2 transition-all duration-500 group-hover:w-32 rounded-full" />
         </Link>
         <Link
-          href="/courses"
+          href="/courses?type=regular&grade=11"
           className={`group flex flex-col items-center justify-center h-18 mb-6  border-2 border-white rounded-xl 
                       transition-all duration-300 hover:bg-primary hover:shadow-lg hover:shadow-primary/20 
                       ${inView ? "animate-slide-in-right-2" : "opacity-0 translate-x-full"}`}
@@ -44,14 +44,12 @@ const Home = () => {
         </Link>
       </div>
 
-
-      
       <div className="flex flex-col justify-center items-center gap-6 md:gap-10 w-full flex-grow bg-background p-6">
         {/* Container for all cards to ensure consistent width across rows */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 w-full max-w-2xl">
           {/* Grade 10 Card */}
           <Link
-            href="/courses?grade=10"
+            href="/courses?type=regular&grade=10"
             className="group flex flex-col items-center justify-center h-32 bg-white border-2 border-primary rounded-xl transition-all duration-300 hover:bg-primary hover:shadow-lg hover:shadow-primary/20"
           >
             <span className="text-2xl md:text-3xl font-bold text-primary group-hover:text-white group-hover:scale-110 transition-all duration-500">
@@ -63,7 +61,7 @@ const Home = () => {
 
           {/* Grade 11 Card */}
           <Link
-            href="/courses?grade=11"
+            href="/courses?type=regular&grade=11"
             className="group flex flex-col items-center justify-center h-32 bg-white border-2 border-primary rounded-xl transition-all duration-300 hover:bg-primary hover:shadow-lg hover:shadow-primary/20"
           >
             <span className="text-2xl md:text-3xl font-bold text-primary group-hover:text-white group-hover:scale-110 transition-all duration-500">
@@ -74,7 +72,7 @@ const Home = () => {
 
           {/* Past Paper Discussion Card - Span 2 columns on desktop */}
           <Link
-            href="/courses"
+            href="/courses?type=pastpaper"
             className="md:col-span-2 group flex flex-col items-center justify-center h-32 bg-white border-2 border-primary rounded-xl transition-all duration-300 hover:bg-primary hover:shadow-lg hover:shadow-primary/20"
           >
             <span className="text-2xl md:text-3xl font-bold text-primary group-hover:text-white group-hover:scale-110 transition-all duration-500">

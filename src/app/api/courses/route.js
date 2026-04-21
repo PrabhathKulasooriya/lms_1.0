@@ -5,22 +5,49 @@ import { revalidateTag } from "next/cache";
 // POST /api/courses - Create a new course
 export async function POST(request) {
   try {
-    const { title, grade, price } = await request.json();
-    if (!title || !grade || !price) {
+    const { title, type, grade, price } = await request.json();
+
+    if (!title || !type || price === undefined) {
       return NextResponse.json(
-        { success: false, message: "All fields are required" },
+        { success: false, message: "Title, type and price are required" },
         { status: 400 },
       );
+    }
+
+    if (!["regular", "pastpaper"].includes(type)) {
+      return NextResponse.json(
+        { success: false, message: "Invalid course type" },
+        { status: 400 },
+      );
+    }
+
+    // Grade is required for regular, must be null for pastpaper
+    if (type === "regular") {
+      if (!grade) {
+        return NextResponse.json(
+          { success: false, message: "Grade is required for regular courses" },
+          { status: 400 },
+        );
+      }
+      const gradeNum = parseInt(grade);
+      if (gradeNum < 1 || gradeNum > 13) {
+        return NextResponse.json(
+          { success: false, message: "Grade must be between 1 and 13" },
+          { status: 400 },
+        );
+      }
     }
 
     const newCourse = await prisma.courses.create({
       data: {
         title,
-        grade: parseInt(grade),
-        price: parseFloat(price),
+        type,
+        grade: type === "regular" ? parseInt(grade) : null,
+        price: parseInt(price),
         is_published: false,
       },
     });
+
     revalidateTag("courses-data");
     return NextResponse.json(
       { success: true, course: newCourse },
@@ -38,7 +65,8 @@ export async function POST(request) {
 // PUT /api/courses - Update a course
 export async function PUT(request) {
   try {
-    const { id, title, grade, price, is_published } = await request.json();
+    const { id, title, type, grade, price, is_published } =
+      await request.json();
 
     if (!id) {
       return NextResponse.json(
@@ -47,16 +75,37 @@ export async function PUT(request) {
       );
     }
 
+    if (type && !["regular", "pastpaper"].includes(type)) {
+      return NextResponse.json(
+        { success: false, message: "Invalid course type" },
+        { status: 400 },
+      );
+    }
+
+    if (type === "regular" && grade !== undefined) {
+      const gradeNum = parseInt(grade);
+      if (gradeNum < 1 || gradeNum > 13) {
+        return NextResponse.json(
+          { success: false, message: "Grade must be between 1 and 13" },
+          { status: 400 },
+        );
+      }
+    }
+
     // Build update payload with only the fields that were sent
     const data = {};
 
-    if (is_published !== undefined) {
-      data.is_published = is_published;
-    }
-
     if (title !== undefined) data.title = title;
-    if (grade !== undefined) data.grade = parseInt(grade);
-    if (price !== undefined) data.price = parseFloat(price);
+    if (type !== undefined) data.type = type;
+    if (price !== undefined) data.price = parseInt(price);
+    if (is_published !== undefined) data.is_published = is_published;
+
+    // Handle grade based on type
+    if (type === "pastpaper") {
+      data.grade = null; // always clear grade for pastpapers
+    } else if (grade !== undefined) {
+      data.grade = parseInt(grade);
+    }
 
     if (Object.keys(data).length === 0) {
       return NextResponse.json(
@@ -88,6 +137,7 @@ export async function PUT(request) {
 export async function DELETE(request) {
   try {
     const { id } = await request.json();
+
     if (!id) {
       return NextResponse.json(
         { success: false, message: "Course ID is required" },
@@ -97,7 +147,8 @@ export async function DELETE(request) {
 
     const deleted = await prisma.courses.delete({
       where: { id },
-    }); 
+    });
+
     revalidateTag("courses-data");
     return NextResponse.json(
       { success: true, course: deleted },
@@ -109,5 +160,5 @@ export async function DELETE(request) {
       { success: false, message: "Internal Server Error" },
       { status: 500 },
     );
-  } 
+  }
 }

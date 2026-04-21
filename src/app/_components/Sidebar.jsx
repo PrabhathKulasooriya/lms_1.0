@@ -9,7 +9,7 @@ const navItems = [
 
   { key: "account", label: "Account", icon: User },
   { key: "courses", label: "Courses", icon: GraduationCap },
-  { key: "list", label: "List Products", icon: GraduationCap },
+  { key: "past-papers", label: "Past Papers", icon: GraduationCap },
   { key: "add", label: "Add Product", icon: GraduationCap },
   { key: "completed", label: "Completed Orders", icon: GraduationCap },
 ];

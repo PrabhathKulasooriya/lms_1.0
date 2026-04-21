@@ -2,7 +2,7 @@
 
 import { handlePurchase } from "@/app/api/actions/checkout";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 
@@ -10,11 +10,14 @@ export default function PurchaseButton({ courseId, price, title, isEnrolled }) {
   const [loading, setLoading] = useState(false);
   const { data: session, status } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
 
   const onPurchase = async () => {
+
     if (status === "unauthenticated" || !session) {
       toast.error("Please login to continue with the purchase");
-      return router.push(`/login?callbackUrl=/courses`);
+
+      return router.push(`/login?callbackUrl=${encodeURIComponent(pathname)}`);
     }
 
     try {
