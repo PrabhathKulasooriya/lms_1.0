@@ -3,12 +3,12 @@
 import { handlePurchase } from "@/app/api/actions/checkout";
 import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useSession } from "next-auth/react"; // Import useSession to check authentication status in use client component
 import toast from "react-hot-toast";
 
 export default function PurchaseButton({ courseId, price, title, isEnrolled }) {
   const [loading, setLoading] = useState(false);
-  const { data: session, status } = useSession();
+  const { data: session, status } = useSession(); // Get session and authentication status
   const router = useRouter();
   const pathname = usePathname();
 

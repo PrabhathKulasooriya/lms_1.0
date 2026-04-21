@@ -50,7 +50,7 @@ const RegisterPage = () => {
 
     try {
       // 1. Call your registration API
-      const res = await fetch("/api/users/create", {
+      const res = await fetch("/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -239,7 +239,7 @@ const RegisterPage = () => {
           </div>
         </div>
 
-        <p className="mt-4 text-center text-white">
+        <p className="mt-4 text-center text-text">
           Already have an account?
           <Link
             href="/login"

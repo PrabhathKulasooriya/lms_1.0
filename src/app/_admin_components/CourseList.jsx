@@ -340,7 +340,7 @@ const CourseList = ({ initialCourses }) => {
   // ── Render ───────────────────────────────────────────────────────────────
   return (
     <>
-      <div className="pt-20 w-full px-4 md:px-8 pb-8">
+      <div className="pt-2 w-full px-4 md:px-8 pb-8">
         {/* ── Toolbar ── */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
           {/* Heading */}

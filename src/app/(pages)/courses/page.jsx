@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { unstable_cache } from "next/cache";
 import { GraduationCap, BookOpen, FileText } from "lucide-react";
-import { auth } from "@/auth";
+import { auth } from "@/auth"; // ──────────────────────────────────────────────────────────Import auth to get user session in server component
 import Link from "next/link";
 import PurchaseButton from "@/app/_components/PurchaseButton";
 
@@ -89,7 +89,7 @@ export default async function Page({ searchParams }) {
   const typeParam = type ?? null;
 
   const courses = await getCourses();
-  const session = await auth();
+  const session = await auth(); // ─────────────────────────────────────────────────────────────────────Get user session in server component
   const userId = session?.user?.id;
 
   // Fetch enrollments for logged-in user
