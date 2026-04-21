@@ -51,7 +51,7 @@ const Home = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 w-full max-w-2xl">
           {/* Grade 10 Card */}
           <Link
-            href="/courses"
+            href="/courses?grade=10"
             className="group flex flex-col items-center justify-center h-32 bg-white border-2 border-primary rounded-xl transition-all duration-300 hover:bg-primary hover:shadow-lg hover:shadow-primary/20"
           >
             <span className="text-2xl md:text-3xl font-bold text-primary group-hover:text-white group-hover:scale-110 transition-all duration-500">
@@ -63,7 +63,7 @@ const Home = () => {
 
           {/* Grade 11 Card */}
           <Link
-            href="/courses"
+            href="/courses?grade=11"
             className="group flex flex-col items-center justify-center h-32 bg-white border-2 border-primary rounded-xl transition-all duration-300 hover:bg-primary hover:shadow-lg hover:shadow-primary/20"
           >
             <span className="text-2xl md:text-3xl font-bold text-primary group-hover:text-white group-hover:scale-110 transition-all duration-500">

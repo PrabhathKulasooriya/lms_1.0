@@ -95,14 +95,15 @@ model cart_items {
 
 // The main transaction receipt
 model purchases {
-  id             Int              @id @default(autoincrement())
-  user_id        Int
-  total_amount   Decimal          @db.Decimal(10, 2)
-  status         PurchaseStatus   @default(COMPLETED)
-  purchased_at   DateTime?        @default(now()) @db.Timestamptz(6)
+  id                Int              @id @default(autoincrement())
+  user_id           Int
+  stripe_session_id String?          @unique  // ← add this
+  total_amount      Decimal          @db.Decimal(10, 2)
+  status            PurchaseStatus   @default(COMPLETED)
+  purchased_at      DateTime?        @default(now()) @db.Timestamptz(6)
 
-  user           users            @relation(fields: [user_id], references: [id], onDelete: Restrict)
-  items          purchase_items[] 
+  user              users            @relation(fields: [user_id], references: [id], onDelete: Restrict)
+  items             purchase_items[]
 }
 
 // The individual courses bought inside a single purchase
