@@ -39,10 +39,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           where: { email: credentials.email },
         });
 
-        if (
-          user &&
-          (await bcrypt.compare(credentials.password, user.password))
-        ) {
+        if ( user && (await bcrypt.compare(credentials.password, user.password))) {
+          if (user.is_blocked) {
+            throw new Error("Your account is blocked. Please contact support.");
+          }
           return user;
         }
         return null;

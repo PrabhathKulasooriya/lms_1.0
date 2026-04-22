@@ -6,8 +6,9 @@ import React, { useState } from "react";
 import CourseList from "../_admin_components/CourseList";
 import UserCourseList from "../_user_components/UserCourseList";
 import Acc from "../_admin_components/Acc";
+import UserList from "../_admin_components/UserList";
 
-const Dashboard = ({ courses, user, enrollment, params}) => {
+const Dashboard = ({ courses, user, enrollment}) => {
 
   const [activeComponent, setActiveComponent] = useState("account");
   
@@ -30,7 +31,7 @@ const Dashboard = ({ courses, user, enrollment, params}) => {
         {activeComponent === "lessons" && (
           <h1 className="">Lessons Component</h1>
         )}
-        {activeComponent === "users" && <h1>Users Component</h1>}
+        {activeComponent === "users" && <UserList />}
         {activeComponent === "completed" && <h1>Completed Component</h1>}
       </div>
     </div>

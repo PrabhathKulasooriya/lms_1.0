@@ -57,7 +57,7 @@ const Navbar = () => {
     "flex items-center gap-1.5 px-2 py-2 rounded-full font-semibold text-md transition-all duration-300";
 
   return (
-    <nav className="bg-primary fixed top-0 left-0 right-0 z-99 shadow-lg">
+    <nav className="bg-primary fixed top-0 left-0 right-0 z-99  shadow-lg">
       <div className="max-w-screen">
         <div className="flex flex-row items-center justify-between h-16 w-screen">
           {/* LOGO */}
