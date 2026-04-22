@@ -1,22 +1,35 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ShoppingBag, LayoutList, PlusSquare, GraduationCap ,User} from "lucide-react";
+import { GraduationCap, User, Menu, ChevronLeft, LibraryBig, Users } from "lucide-react";
 
-const navItems = [
-
-  { key: "account", label: "Account", icon: User },
-  { key: "courses", label: "Courses", icon: GraduationCap },
-  { key: "past-papers", label: "Past Papers", icon: GraduationCap },
-  { key: "add", label: "Add Product", icon: GraduationCap },
-  { key: "completed", label: "Completed Orders", icon: GraduationCap },
-];
-
-const Sidebar = ({ activeComponent, setActiveComponent }) => {
+const Sidebar = ({ activeComponent, setActiveComponent, role }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const pathname = usePathname();
+
+  const btnClass = (key) =>
+    [
+      "flex items-center md:gap-5 p-3 rounded-md hover:bg-[#c8c8c8] transition-colors",
+      isOpen ? "gap-5" : "justify-start",
+      activeComponent === key ? "bg-[#bebebe] shadow-inner" : "",
+    ].join(" ");
+
+  const iconClass = (key) =>
+    [
+      "w-6 h-6 flex-shrink-0 transition-colors",
+      activeComponent === key ? "text-gray-900" : "text-gray-700",
+    ].join(" ");
+
+  const labelClass = (key) =>
+    [
+      "text-base font-medium whitespace-nowrap md:block",
+      activeComponent === key ? "text-gray-900" : "text-gray-700",
+      isOpen ? "block" : "hidden",
+    ].join(" ");
+
+  const handleClick = (key) => {
+    setActiveComponent(key);
+    setIsOpen(false);
+  };
 
   return (
     <div className="min-h-screen h-full">
@@ -38,25 +51,16 @@ const Sidebar = ({ activeComponent, setActiveComponent }) => {
           isOpen ? "left-[200px]" : "left-3",
         ].join(" ")}
       >
-        <div className="w-6 h-6 flex flex-col justify-center items-center relative">
-          <span
-            className={[
-              "block h-0.5 w-full bg-gray-800 transition-transform absolute",
-              isOpen ? "rotate-45" : "-translate-y-2",
-            ].join(" ")}
-          />
-          <span
-            className={[
-              "block h-0.5 w-full bg-gray-800 transition-opacity",
-              isOpen ? "opacity-0" : "",
-            ].join(" ")}
-          />
-          <span
-            className={[
-              "block h-0.5 w-full bg-gray-800 transition-transform absolute",
-              isOpen ? "-rotate-45" : "translate-y-2",
-            ].join(" ")}
-          />
+        <div className="w-8 h-8 flex flex-row justify-center items-center relative">
+          {isOpen ? (
+            <>
+              <ChevronLeft size={28} className="text-gray-900" />
+            </>
+          ) : (
+            <>
+              <Menu size={28} className="text-gray-900" />
+            </>
+          )}
         </div>
       </button>
 
@@ -75,39 +79,61 @@ const Sidebar = ({ activeComponent, setActiveComponent }) => {
             isOpen ? "px-4" : "px-2",
           ].join(" ")}
         >
-          {navItems.map(({ key, label, icon: Icon, href }) => {
-            const isActive = activeComponent === key;
-            return (
-              <button
-                key={key}
-                onClick={() => {
-                  setActiveComponent(key);
-                  setIsOpen(false);
-                }}
-                className={[
-                  "flex items-center md:gap-5 p-3 rounded-md hover:bg-[#c8c8c8] transition-colors",
-                  isOpen ? "gap-5" : "justify-start",
-                  isActive ? "bg-[#bebebe] shadow-inner" : "",
-                ].join(" ")}
-              >
-                <Icon
-                  className={[
-                    "w-6 h-6 flex-shrink-0 transition-colors",
-                    isActive ? "text-gray-900" : "text-gray-700",
-                  ].join(" ")}
-                />
-                <span
-                  className={[
-                    "text-base font-medium whitespace-nowrap md:block",
-                    isActive ? "text-gray-900" : "text-gray-700",
-                    isOpen ? "block" : "hidden",
-                  ].join(" ")}
-                >
-                  {label}
-                </span>
-              </button>
-            );
-          })}
+          {/* Account */}
+          <button
+            onClick={() => handleClick("account")}
+            className={btnClass("account")}
+          >
+            <User className={iconClass("account")} />
+            <span className={labelClass("account")}>Account</span>
+          </button>
+
+          {/* Courses */}
+          {role === "admin" && (
+          <button
+            onClick={() => handleClick("courses")}
+            className={btnClass("courses")}
+          >
+            <GraduationCap className={iconClass("courses")} />
+            <span className={labelClass("courses")}>Manage Courses</span>
+          </button>
+          )}
+          <button
+            onClick={() => handleClick("mycourses")}
+            className={btnClass("mycourses")}
+          >
+            <GraduationCap className={iconClass("mycourses")} />
+            <span className={labelClass("mycourses")}>My Courses</span>
+          </button>
+
+          {/* Lessons */}
+          <button
+            onClick={() => handleClick("lessons")}
+            className={btnClass("lessons")}
+          >
+            <LibraryBig className={iconClass("lessons")} />
+            <span className={labelClass("lessons")}>Lessons</span>
+          </button>
+
+          {/* Users */}
+          {role === "admin" && (
+          <button
+            onClick={() => handleClick("users")}
+            className={btnClass("users")}
+          >
+            <Users className={iconClass("users")} />
+            <span className={labelClass("users")}>Users</span>
+          </button>
+          )}
+
+          {/* Completed Orders */}
+          <button
+            onClick={() => handleClick("completed")}
+            className={btnClass("completed")}
+          >
+            <GraduationCap className={iconClass("completed")} />
+            <span className={labelClass("completed")}>Completed Orders</span>
+          </button>
         </div>
       </div>
     </div>

@@ -27,7 +27,7 @@ export async function handlePurchase(courseId, userId, price, title) {
       userId: userId.toString(),
     },
     mode: "payment",
-    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/courses?purchase=success`,
+    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/learnings/${courseId}?purchase=success`,
     cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/courses`,
   });
 

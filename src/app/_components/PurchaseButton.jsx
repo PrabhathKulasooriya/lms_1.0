@@ -3,12 +3,13 @@
 import { handlePurchase } from "@/app/api/actions/checkout";
 import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { useSession } from "next-auth/react"; // Import useSession to check authentication status in use client component
+import { useSession } from "next-auth/react"; 
 import toast from "react-hot-toast";
+import { Check } from "lucide-react";
 
 export default function PurchaseButton({ courseId, price, title, isEnrolled }) {
   const [loading, setLoading] = useState(false);
-  const { data: session, status } = useSession(); // Get session and authentication status
+  const { data: session, status } = useSession(); 
   const router = useRouter();
   const pathname = usePathname();
 
@@ -36,8 +37,9 @@ export default function PurchaseButton({ courseId, price, title, isEnrolled }) {
     return (
       <button
         disabled
-        className="px-4 py-1.5 text-sm font-medium text-green-700 bg-green-100 rounded-xl cursor-not-allowed"
+        className="px-4 py-2 text-sm font-medium text-green-700 bg-green-100 rounded-full cursor-not-allowed"
       >
+        <Check size={16} className="inline-block mr-1" />
        Already Purchased
       </button>
     );
@@ -47,7 +49,7 @@ export default function PurchaseButton({ courseId, price, title, isEnrolled }) {
     <button
       onClick={onPurchase}
       disabled={loading}
-      className="px-4 py-1.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-colors disabled:bg-gray-400"
+      className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-full transition-colors disabled:bg-gray-400"
     >
       {loading ? "Redirecting..." : "Purchase"}
     </button>

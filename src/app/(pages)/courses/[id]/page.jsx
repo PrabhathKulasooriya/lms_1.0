@@ -1,12 +1,13 @@
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
+import Link from "next/link";
 import {
   BookOpen,
-  CheckCircle2,
   Clock,
   Globe,
   ShieldCheck,
+  Eye
 } from "lucide-react";
 import PurchaseButton from "@/app/_components/PurchaseButton";
 import Image from "next/image";
@@ -43,7 +44,7 @@ export default async function CoursePage({ params }) {
     const enrollment = await prisma.enrollments.findFirst({
       where: {
         user_id: parseInt(userId),
-        course_id: courseId,
+        course_id: parseInt(courseId),
       },
     });
     isEnrolled = !!enrollment;
@@ -144,6 +145,12 @@ export default async function CoursePage({ params }) {
                   title={course.title}
                   isEnrolled={isEnrolled}
                 />
+                {isEnrolled && (
+                <Link href={`/learnings/${course.id}`} 
+                className="text-center text-sm font-medium text-primary border border-primary-600 py-2 rounded-full hover:text-blue-800 hover:bg-primary hover:text-white transition-colors">
+                    <Eye size={16} className="inline-block mr-2" />
+                    View Course
+                </Link>)}
 
                 <p className="text-[10px] text-center text-gray-400">
                   Secure Payment Processing via payment gateway. We do not store

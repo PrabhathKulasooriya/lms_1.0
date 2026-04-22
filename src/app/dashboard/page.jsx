@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma";
 import { unstable_cache } from "next/cache";
 import {auth} from "@/auth";
 
-// Wrap the Prisma call in unstable_cache
 const getCourses = unstable_cache(
   async () => {
     console.log("Fetching courses from database...");
@@ -14,7 +13,7 @@ const getCourses = unstable_cache(
   ["courses-data"], 
   {
     tags: ["courses-data"], 
-    revalidate: 86400, // 24 hours in seconds
+    revalidate: 86400, 
   },
 );
 
@@ -33,16 +32,32 @@ const getUser = async () => {
   }
 };
 
+const enrollments = async ()=>{
+  try{
+    const session = await auth();
+    const userId = parseInt(session?.user?.id);
+    return await prisma.enrollments.findMany({
+      where: {user_id: userId},
+      include: {course: true}
+    });
+  } catch (error) {
+    console.error("Error fetching enrollments:", error);
+    return null;
+  }
+}
+
 export default async function Page() {
   let courses = [];
   let user = null;
+  let enrollment = null;
 
   try {
     courses = await getCourses();
     user = await getUser();
+    enrollment = await enrollments(); 
   } catch (error) {
-    console.error("Error fetching courses:", error);
+    console.error("Error :", error);
   }
 
-  return <Dashboard courses={courses} user={user} />;
+  return <Dashboard courses={courses} user={user} enrollment={enrollment} />;
 }

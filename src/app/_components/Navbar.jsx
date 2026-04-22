@@ -93,18 +93,13 @@ const Navbar = () => {
           <div className="hidden md:flex flex-row items-center justify-end md:w-1/4 pr-6">
             {session ? (
               <div className="flex items-center">
-                {session.user.role == "admin" ? (
-                  <Link
-                    href="/dashboard"
-                    className={`${authButtonBase} text-[#9fe03c] hover:scale-105 hover:text-accent`}
-                  >
-                    Dashboard
-                  </Link>
-                ) : (
-                  <span className="text-white font-medium text-sm flex items-center gap-2">
-                    Hi, {session.user?.first_name}
-                  </span>
-                )}
+                <Link
+                  href="/dashboard"
+                  className={`${authButtonBase} text-[#9fe03c] hover:scale-105 hover:text-accent`}
+                >
+                  <span className="text-white font-bold">Dashboard</span>
+                </Link>
+
                 <div className="w-px h-6 bg-gray-500 mx-3"></div>
                 <button
                   onClick={() => signOut({ callbackUrl: "/" })}
@@ -186,29 +181,20 @@ const Navbar = () => {
           <div className="flex flex-col w-full px-8 gap-5">
             {session ? (
               <>
-                {session.user.role == "admin" ? (
-                  <Link
-                    href="/dashboard"
-                    onClick={closeMenu}
-                    className="w-full text-center py-2 text-white/70 font-medium flex items-center justify-center gap-2"
-                  >
-                    <span className="text-white font-bold">Dashboard</span>
-                  </Link>
-                ) : (
-                  <div className="w-full text-center py-2 text-white/70 font-medium flex items-center justify-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-greenaccent animate-pulse" />
-                    Hi,{" "}
-                    <span className="text-white font-bold">
-                      {session.user?.first_name}
-                    </span>
-                  </div>
-                )}
+                <Link
+                  href="/dashboard"
+                  onClick={closeMenu}
+                  className="w-full flex items-center justify-center gap-3 py-3.5 rounded-full border border-white text-white font-semibold   transition-all hover:scale-[1.02] cursor-pointer"
+                >
+                  <span className="text-white font-bold">Dashboard</span>
+                </Link>
+
                 <button
                   onClick={() => {
                     signOut({ callbackUrl: "/" });
                     closeMenu();
                   }}
-                  className="w-full flex items-center justify-center gap-3 py-3.5 rounded-full border border-greenaccent text-greenaccent font-semibold bg-red-500/5 active:bg-red-500/20 transition-all hover:scale-[1.02] cursor-pointer"
+                  className="w-full flex items-center justify-center gap-3 py-3.5 rounded-full border border-greenaccent text-greenaccent font-semibold   transition-all hover:scale-[1.02] cursor-pointer"
                 >
                   <LogOut className="w-5 h-5" />
                   Logout

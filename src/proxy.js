@@ -11,6 +11,10 @@ export default auth((req) => {
   if (!isLoggedIn && nextUrl.pathname.startsWith("/dashboard")) {
     return Response.redirect(new URL("/login", nextUrl));
   }
+
+  if (!isLoggedIn && nextUrl.pathname.startsWith("/learnings")) {
+    return Response.redirect(new URL("/login", nextUrl));
+  }
 });
 
 export const config = {
