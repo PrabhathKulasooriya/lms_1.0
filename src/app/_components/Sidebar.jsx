@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { GraduationCap, User, Menu, ChevronLeft, LibraryBig, Users } from "lucide-react";
+import { GraduationCap, User, Menu, ChevronLeft, LibraryBig, Users, NotebookPen } from "lucide-react";
 
 const Sidebar = ({ activeComponent, setActiveComponent, role }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -90,13 +90,13 @@ const Sidebar = ({ activeComponent, setActiveComponent, role }) => {
 
           {/* Courses */}
           {role === "admin" && (
-          <button
-            onClick={() => handleClick("courses")}
-            className={btnClass("courses")}
-          >
-            <GraduationCap className={iconClass("courses")} />
-            <span className={labelClass("courses")}>Manage Courses</span>
-          </button>
+            <button
+              onClick={() => handleClick("courses")}
+              className={btnClass("courses")}
+            >
+              <GraduationCap className={iconClass("courses")} />
+              <span className={labelClass("courses")}>Manage Courses</span>
+            </button>
           )}
           <button
             onClick={() => handleClick("mycourses")}
@@ -106,34 +106,36 @@ const Sidebar = ({ activeComponent, setActiveComponent, role }) => {
             <span className={labelClass("mycourses")}>My Courses</span>
           </button>
 
-          {/* Lessons */}
-          <button
-            onClick={() => handleClick("lessons")}
-            className={btnClass("lessons")}
-          >
-            <LibraryBig className={iconClass("lessons")} />
-            <span className={labelClass("lessons")}>Lessons</span>
-          </button>
-
-          {/* Users */}
           {role === "admin" && (
-          <button
-            onClick={() => handleClick("users")}
-            className={btnClass("users")}
-          >
-            <Users className={iconClass("users")} />
-            <span className={labelClass("users")}>Users</span>
-          </button>
-          )}
+            <>
+              {/* Lessons */}
+              <button
+                onClick={() => handleClick("lessons")}
+                className={btnClass("lessons")}
+              >
+                <LibraryBig className={iconClass("lessons")} />
+                <span className={labelClass("lessons")}>Lessons</span>
+              </button>
 
-          {/* Completed Orders */}
-          <button
-            onClick={() => handleClick("completed")}
-            className={btnClass("completed")}
-          >
-            <GraduationCap className={iconClass("completed")} />
-            <span className={labelClass("completed")}>Completed Orders</span>
-          </button>
+              {/* Users */}
+              <button
+                onClick={() => handleClick("users")}
+                className={btnClass("users")}
+              >
+                <Users className={iconClass("users")} />
+                <span className={labelClass("users")}>Users</span>
+              </button>
+
+              {/* Enrollments */}
+              <button
+                onClick={() => handleClick("enrollments")}
+                className={btnClass("enrollments")}
+              >
+                <NotebookPen className={iconClass("enrollments")} />
+                <span className={labelClass("enrollments")}>Enrollments</span>
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>
