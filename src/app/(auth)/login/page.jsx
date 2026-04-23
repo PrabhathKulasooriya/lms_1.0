@@ -22,12 +22,16 @@ const LoginPage = () => {
     const res = await signIn("credentials", {
       email,
       password,
-      redirect: false, 
+      redirect: false,
     });
 
     if (res?.error) {
-      toast.error("Invalid credentials!");
       setLoading(false);
+      if (res.code === "blocked") {
+        toast.error("Your account has been blocked. Please contact support.");
+      } else {
+        toast.error("Invalid email or password.");
+      }
     } else {
       toast.success("Login successful!");
       router.push(callbackUrl);
@@ -108,7 +112,7 @@ const LoginPage = () => {
         Don't have an account?
         <Link
           href="/register"
-          className="inline-block text-primary font-bold hover:underline hover:scale-105 origin-center mx-2 transition-all duration-300"
+          className="inline-block text-greenaccent  font-bold hover:underline hover:scale-105 origin-center mx-2 transition-all duration-300"
         >
           Register
         </Link>

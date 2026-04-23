@@ -4,10 +4,13 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import {Eye, EyeOff} from "lucide-react";
 
 const RegisterPage = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); 
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false); 
 
   // Form States
   const [formData, setFormData] = useState({
@@ -15,6 +18,7 @@ const RegisterPage = () => {
     lname: "",
     email: "",
     password: "",
+    confirm_password: "",
     gender: "",
     mobile: "",
   });
@@ -23,12 +27,10 @@ const RegisterPage = () => {
     const { name, value } = e.target;
 
     if (name === "mobile") {
-      
       const numbersOnly = value.replace(/\D/g, "");
-      if(numbersOnly.length <= 10){
+      if (numbersOnly.length <= 10) {
         setFormData((prev) => ({ ...prev, [name]: numbersOnly }));
       }
-      
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
@@ -40,6 +42,18 @@ const RegisterPage = () => {
 
     // Start a loading toast that we can update later
     const toastId = toast.loading("Creating your account...");
+
+    if (formData.password.length < 6) {
+      toast.error("Password must be at least 6 characters!", { id: toastId });
+      setLoading(false);
+      return;
+    }
+
+    if (formData.password !== formData.confirm_password) {
+      toast.error("Passwords do not match!", { id: toastId });
+      setLoading(false);
+      return;
+    }
 
     const mobilePattern = /^07\d{8}$/;
     if (!mobilePattern.test(formData.mobile)) {
@@ -206,14 +220,69 @@ const RegisterPage = () => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Password
                 </label>
-                <input
-                  type="password"
-                  name="password"
-                  required
-                  disabled={loading}
-                  onChange={handleChange}
-                  className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 outline-none sm:text-sm"
-                />
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    required
+                    disabled={loading}
+                    onChange={handleChange}
+                    className="block w-full px-4 py-3 pr-10 rounded-md border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 outline-none sm:text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                {formData.password && formData.password.length < 6 && (
+                  <p className="mt-1.5 text-xs font-medium text-red-500">
+                    ✗ Password must be at least 6 characters
+                  </p>
+                )}
+              </div>
+
+              {/* Confirm Password */}
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    name="confirm_password"
+                    required
+                    disabled={loading}
+                    onChange={handleChange}
+                    className="block w-full px-4 py-3 pr-10 rounded-md border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 outline-none sm:text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff size={16} />
+                    ) : (
+                      <Eye size={16} />
+                    )}
+                  </button>
+                </div>
+                {formData.confirm_password && (
+                  <p
+                    className={`mt-1.5 text-xs font-medium flex items-center gap-1 ${
+                      formData.password === formData.confirm_password
+                        ? "text-green-600"
+                        : "text-red-500"
+                    }`}
+                  >
+                    {formData.password === formData.confirm_password
+                      ? "✓ Passwords match"
+                      : "✗ Passwords do not match"}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -243,7 +312,7 @@ const RegisterPage = () => {
           Already have an account?
           <Link
             href="/login"
-            className="text-primary font-bold hover:underline mx-2"
+            className="text-greenaccent font-bold hover:underline mx-2"
           >
             Login
           </Link>

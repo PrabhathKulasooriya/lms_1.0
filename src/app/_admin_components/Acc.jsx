@@ -8,9 +8,15 @@ import {
   CalendarDays,
   Pencil,
   X,
-  Hash,
+  KeyRound,
   Clock4,
+  CheckCircle,
+  XCircle,
+  Eye,
+  EyeOff,
 } from "lucide-react";
+
+import toast from "react-hot-toast";
 
 // ── Badge ──────────────────────────────────────────────────────
 const Badge = ({ label, active, variant = "green" }) => {
@@ -196,10 +202,196 @@ const EditModal = ({ user, onClose, onSave }) => {
   );
 };
 
+// ── Password Input — defined OUTSIDE ChangePasswordModal ──────
+const PasswordInput = ({ label, name, value, onChange, show, onToggle }) => (
+  <div className="flex flex-col gap-1.5">
+    <label className="text-xs font-semibold text-[#2D3436]/60">{label}</label>
+    <div className="relative">
+      <input
+        type={show ? "text" : "password"}
+        name={name}
+        value={value}
+        onChange={onChange}
+        required
+        placeholder="••••••••"
+        className="w-full rounded-lg border border-gray-200 bg-[#F8F9FA] px-3 py-2.5 pr-10 text-sm text-[#2D3436] placeholder-gray-300 outline-none transition focus:border-[#0b408e] focus:ring-2 focus:ring-[#0b408e]/10"
+      />
+      <button
+        type="button"
+        onClick={onToggle}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#0b408e] transition"
+      >
+        {show ? <EyeOff size={15} /> : <Eye size={15} />}
+      </button>
+    </div>
+  </div>
+);
+
+// ── Change Password Modal ──────────────────────────────────────
+const ChangePasswordModal = ({ userId, onClose }) => {
+  const [form, setForm] = useState({
+    current_password: "",
+    new_password: "",
+    confirm_password: "",
+  });
+  const [loading, setLoading]         = useState(false);
+  const [error, setError]             = useState("");
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew]         = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+  const handleChange = (e) =>
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    if (form.new_password.length < 6) {
+      setError("New password must be at least 6 characters.");
+      return;
+    }
+    if (form.new_password !== form.confirm_password) {
+      setError("New passwords do not match.");
+      return;
+    }
+    if (form.current_password === form.new_password) {
+      setError("New password must differ from the current password.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/users/${userId}/change-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          current_password: form.current_password,
+          new_password:     form.new_password,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success)
+        throw new Error(data.message || "Password change failed");
+      toast.success("Password changed successfully!");
+      onClose();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[#2D3436]/40 px-4 backdrop-blur-sm"
+      onClick={(e) => e.target === e.currentTarget && onClose()}
+    >
+      <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl">
+        <div className="h-1.5 w-full bg-gradient-to-r from-[#0b408e] via-[#FFD700] to-[#9fe03c]" />
+
+        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+          <div className="flex items-center gap-2">
+            <KeyRound size={16} className="text-[#0b408e]" />
+            <h2 className="font-bold text-[#2D3436]">Change Password</h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-[#F8F9FA] hover:text-[#2D3436]"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4 px-6 py-5">
+          {error && (
+            <p className="rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-500 ring-1 ring-red-100">
+              {error}
+            </p>
+          )}
+
+          <PasswordInput
+            label="Current Password"
+            name="current_password"
+            value={form.current_password}
+            onChange={handleChange}
+            show={showCurrent}
+            onToggle={() => setShowCurrent((v) => !v)}
+          />
+
+          <div className="h-px bg-gray-100" />
+
+          <PasswordInput
+            label="New Password"
+            name="new_password"
+            value={form.new_password}
+            onChange={handleChange}
+            show={showNew}
+            onToggle={() => setShowNew((v) => !v)}
+          />
+          {form.new_password && form.new_password.length < 6 && (
+            <p className="mt-1.5 text-xs font-medium text-red-500">
+              ✗ Password must be at least 6 characters
+            </p>
+          )}
+
+          <PasswordInput
+            label="Confirm New Password"
+            name="confirm_password"
+            value={form.confirm_password}
+            onChange={handleChange}
+            show={showConfirm}
+            onToggle={() => setShowConfirm((v) => !v)}
+          />
+
+          {/* match indicator */}
+          {form.confirm_password && (
+            <p
+              className={`-mt-1 text-xs font-medium flex items-center gap-1 ${
+                form.new_password === form.confirm_password
+                  ? "text-[#5a8a1a]"
+                  : "text-red-400"
+              }`}
+            >
+              {form.new_password === form.confirm_password ? (
+                <>
+                  <CheckCircle size={12} /> Passwords match
+                </>
+              ) : (
+                <>
+                  <XCircle size={12} /> Passwords do not match
+                </>
+              )}
+            </p>
+          )}
+
+          <div className="flex gap-3 pt-1">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 rounded-xl border border-gray-200 py-2.5 text-sm font-semibold text-[#2D3436]/70 transition hover:bg-[#F8F9FA]"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 rounded-xl bg-[#0b408e] py-2.5 text-sm font-bold text-white shadow-md shadow-[#0b408e]/20 transition hover:bg-[#0a3578] disabled:opacity-60"
+            >
+              {loading ? "Updating…" : "Change Password"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 // ── Main Account Component ─────────────────────────────────────
 const Acc = ({ user: initialUser }) => {
   const [user, setUser] = useState(initialUser);
   const [modalOpen, setModalOpen] = useState(false);
+  const [pwModalOpen, setPwModalOpen] = useState(false);
 
   const initials =
     `${user.first_name?.[0] ?? ""}${user.last_name?.[0] ?? ""}`.toUpperCase();
@@ -225,96 +417,96 @@ const Acc = ({ user: initialUser }) => {
         />
       )}
 
+      {pwModalOpen && (
+        <ChangePasswordModal
+          userId={user.id}
+          onClose={() => setPwModalOpen(false)}
+        />
+      )}
+
       <div className="flex flex-col w-full h-full">
-          {/* ── card ── */}
-          <div className="overflow-hidden h-full bg-white shadow-xl ring-1 ring-gray-100">
+        {/* ── card ── */}
+        <div className="overflow-hidden h-full bg-white shadow-xl ring-1 ring-gray-100">
+          {/* banner */}
+          <div className="relative h-28 bg-[#0b408e] sm:h-36">
+            <div className="absolute -right-6 -top-6 h-36 w-36 rounded-full bg-[#FFD700]/20" />
+            <div className="absolute right-16 bottom-0 h-20 w-20 rounded-full bg-[#9fe03c]/15" />
+            <div className="absolute left-1/3 top-4 h-10 w-10 rounded-full bg-white/5" />
+            {/* gold bottom stripe */}
+            <div className="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-[#FFD700] via-[#9fe03c] to-transparent opacity-70" />
+          </div>
 
-            {/* banner */}
-            <div className="relative h-28 bg-[#0b408e] sm:h-36">
-              <div className="absolute -right-6 -top-6 h-36 w-36 rounded-full bg-[#FFD700]/20" />
-              <div className="absolute right-16 bottom-0 h-20 w-20 rounded-full bg-[#9fe03c]/15" />
-              <div className="absolute left-1/3 top-4 h-10 w-10 rounded-full bg-white/5" />
-              {/* gold bottom stripe */}
-              <div className="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-[#FFD700] via-[#9fe03c] to-transparent opacity-70" />
+          {/* avatar + title row */}
+          <div className="-mt-15 md:-mt-18  flex flex-col md:flex-row items-center md:items-end  p-2 md:p-4 ">
+            {/* avatar */}
+            <div className="relative ">
+              <div className="flex h-25 w-25 md:h-35 md:w-35 items-center justify-center rounded-2xl border-[3px] border-white bg-[#FFD700] text-4xl  font-extrabold text-[#0b408e] shadow-lg ">
+                {initials}
+              </div>
+              {/* online dot */}
+              <span className="absolute bottom-1 right-1 h-3.5 w-3.5 rounded-full border-2 border-white bg-[#9fe03c]" />
             </div>
 
-            {/* avatar + title row */}
-            <div className="-mt-15 md:-mt-18  flex flex-col md:flex-row items-center md:items-end  p-2 md:p-4 ">
-              
-              {/* avatar */}
-              <div className="relative ">
-                <div className="flex h-25 w-25 md:h-35 md:w-35 items-center justify-center rounded-2xl border-[3px] border-white bg-[#FFD700] text-4xl  font-extrabold text-[#0b408e] shadow-lg ">
-                  {initials}
-                </div>
-                {/* online dot */}
-                <span className="absolute bottom-1 right-1 h-3.5 w-3.5 rounded-full border-2 border-white bg-[#9fe03c]" />
+            {/* name / email / role */}
+            <div className="flex flex-1 flex-col justify-center items-center gap-1 mt-2  p-2 sm:flex-row sm:items-end sm:justify-between sm:pb-5">
+              <div className="flex flex-col md:items-start items-center">
+                <h1 className="text-xl font-extrabold leading-tight text-[#2D3436] sm:text-2xl">
+                  {user.first_name} {user.last_name}
+                </h1>
+                <p className="text-sm text-gray-400">{user.email}</p>
               </div>
-
-              {/* name / email / role */}
-              <div className="flex flex-1 flex-col justify-center items-center gap-1 mt-2  p-2 sm:flex-row sm:items-end sm:justify-between sm:pb-5">
-                <div className="flex flex-col md:items-start items-center">
-                  <h1 className="text-xl font-extrabold leading-tight text-[#2D3436] sm:text-2xl">
-                    {user.first_name} {user.last_name}
-                  </h1>
-                  <p className="text-sm text-gray-400">{user.email}</p>
-                </div>
-                <Badge label={user.role ?? "student"} active variant="gold" />
-              </div>
+              <Badge label={user.role ?? "student"} active variant="gold" />
             </div>
+          </div>
 
-            {/* ── body ── */}
-            <div className="space-y-6 px-5 py-6 sm:px-8 flex flex-col items-center">
+          {/* ── body ── */}
+          <div className="space-y-6 px-5 py-6 sm:px-8 flex flex-col items-center">
+            {/* divider */}
+            <div className="h-px bg-gradient-to-r from-[#0b408e]/10 via-[#FFD700]/40 to-transparent" />
 
-              {/* verification badges */}
-              {/* <div className="flex flex-wrap gap-2">
-                <Badge
-                  label={user.is_email_verified ? "Email Verified" : "Email Unverified"}
-                  active={user.is_email_verified}
-                  variant="green"
-                />
-                <Badge
-                  label={user.is_mobile_verified ? "Mobile Verified" : "Mobile Unverified"}
-                  active={user.is_mobile_verified}
-                  variant="blue"
-                />
-                {user.is_blocked && (
-                  <Badge label="Account Blocked" variant="red" />
-                )}
-              </div> */}
-
-              {/* divider */}
-              <div className="h-px bg-gradient-to-r from-[#0b408e]/10 via-[#FFD700]/40 to-transparent" />
-
-              {/* info grid */}
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:w-2/3 ">
-                <Field icon={Mail} label="Email Address" value={user.email} />
-                <Field icon={Phone} label="Mobile" value={user.mobile} />
+            {/* info grid */}
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:w-2/3 ">
+              <Field icon={Mail} label="Email Address" value={user.email} />
+              <Field icon={Phone} label="Mobile" value={user.mobile} />
+              <Field
+                icon={User}
+                label="Gender"
+                value={
+                  user.gender
+                    ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1)
+                    : null
+                }
+              />
+              {joinDate && (
                 <Field
-                  icon={User}
-                  label="Gender"
-                  value={
-                    user.gender
-                      ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1)
-                      : null
-                  }
+                  icon={CalendarDays}
+                  label="Member Since"
+                  value={joinDate}
                 />
-                {joinDate && (
-                  <Field icon={CalendarDays} label="Member Since" value={joinDate} />
-                )}
+              )}
+            </div>
+
+            {/* footer row */}
+            <div className="flex flex-col items-start w-full justify-between gap-3 sm:flex-row sm:items-center">
+              {/* meta info */}
+              <div className="flex flex-wrap items-center gap-4 text-xs text-gray-400">
+                <span className="flex items-center gap-1">
+                  <Clock4 size={12} />
+                  Updated {lastUpdated}
+                </span>
               </div>
 
-              {/* footer row */}
-              <div className="flex flex-col items-start w-full justify-between gap-3 sm:flex-row sm:items-center">
-                {/* meta info */}
-                <div className="flex flex-wrap items-center gap-4 text-xs text-gray-400">
-                  
-                  <span className="flex items-center gap-1">
-                    <Clock4 size={12} />
-                    Updated {lastUpdated}
-                  </span>
-                </div>
+              {/* edit button */}
+              <div className="flex items-center gap-2">
+                {/* 👇 new button */}
+                <button
+                  onClick={() => setPwModalOpen(true)}
+                  className="flex items-center gap-2 rounded-xl border border-[#0b408e]/30 px-5 py-2.5 text-sm font-bold text-[#0b408e] transition hover:bg-[#0b408e]/5 active:scale-[0.97]"
+                >
+                  <KeyRound size={14} />
+                  Change Password
+                </button>
 
-                {/* edit button */}
                 <button
                   onClick={() => setModalOpen(true)}
                   className="flex items-center gap-2 rounded-xl bg-[#0b408e] px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-[#0b408e]/20 transition hover:bg-[#0a3578] active:scale-[0.97]"
@@ -325,7 +517,7 @@ const Acc = ({ user: initialUser }) => {
               </div>
             </div>
           </div>
-        
+        </div>
       </div>
     </>
   );
