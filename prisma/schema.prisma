@@ -17,7 +17,7 @@ model users {
   mobile             String?       @db.VarChar(20)
   gender             Gender?
   role               String?       @default("student") @db.VarChar(20)
-  
+
   is_email_verified  Boolean       @default(false)
   is_mobile_verified Boolean       @default(false)
   is_blocked         Boolean       @default(false)
@@ -28,6 +28,7 @@ model users {
   cart_items         cart_items[]
   purchases          purchases[]
   enrollments        enrollments[]
+  verificationTokens VerificationToken[]
 }
 
 enum Gender {
@@ -139,4 +140,22 @@ model enrollments {
   course      courses   @relation(fields: [course_id], references: [id], onDelete: Cascade)
 
   @@unique([user_id, course_id])
+}
+
+model VerificationToken {
+  id         Int        @id @default(autoincrement())
+  email      String     @db.VarChar(255)
+  token      String     @unique
+  type       TokenType 
+  expires    DateTime
+  userId     Int
+  user       users      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([email, token])
+}
+
+enum TokenType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+  MOBILE_VERIFICATION
 }
