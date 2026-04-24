@@ -8,6 +8,7 @@ import UserCourseList from "../_user_components/UserCourseList";
 import Acc from "../_admin_components/Acc";
 import UserList from "../_admin_components/UserList";
 import EnrollmentList from "../_admin_components/EnrollmentsList";
+import LessonList from "../_admin_components/LessonsList";
 
 const Dashboard = ({ courses, user, enrollment}) => {
 
@@ -29,9 +30,7 @@ const Dashboard = ({ courses, user, enrollment}) => {
         {activeComponent === "mycourses" && (
           <UserCourseList enrollments={enrollment} />
         )}
-        {activeComponent === "lessons" && (
-          <h1 className="">Lessons Component</h1>
-        )}
+        {activeComponent === "lessons" && ( <LessonList courses={courses}/>)}
         {activeComponent === "users" && <UserList />}
         {activeComponent === "enrollments" && <EnrollmentList courses={courses}/>}
       </div>

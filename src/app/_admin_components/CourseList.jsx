@@ -260,7 +260,10 @@ const CourseList = ({ initialCourses }) => {
     if (!confirmed) return;
 
     toast.promise(
-      fetchJSON("/api/courses/delete", { method: "POST", body: { id } }).then(
+      fetchJSON("/api/courses/", 
+        { method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: { id } }).then(
         (data) => {
           router.refresh();
           return data;
@@ -278,7 +281,9 @@ const CourseList = ({ initialCourses }) => {
     setAddLoading(true);
     try {
       await toast.promise(
-        fetchJSON("/api/courses", { method: "POST", body: formData }).then(
+        fetchJSON("/api/courses", { method: "POST",
+         headers: { "Content-Type": "application/json" },
+          body: formData }).then(
           (data) => {
             router.refresh();
             return data;

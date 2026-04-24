@@ -66,7 +66,7 @@ model lessons {
   id          Int         @id @default(autoincrement())
   course_id   Int
   title       String      @db.VarChar(255)
-  sequence    Int         
+  sequence    Int         @default(0)
   
   course      courses     @relation(fields: [course_id], references: [id], onDelete: Cascade)
   resources   resources[]
@@ -79,6 +79,7 @@ model resources {
   title       String    @db.VarChar(255)
   type        String    @db.VarChar(255) // e.g., "video", "pdf", "link"
   file_url    String    @db.VarChar(500)
+  sequence    Int       @default(0)
   
   course      courses   @relation(fields: [course_id], references: [id], onDelete: Cascade)
   lesson      lessons?  @relation(fields: [lesson_id], references: [id], onDelete: Cascade)

@@ -723,6 +723,10 @@ const EnrollmentList = ({ courses = [] }) => {
                               {enrollment.course?.title ??
                                 `Course #${enrollment.course_id}`}
                             </span>
+                            <span></span>
+                            <span className="text-xs text-gray-400">
+                              ({enrollment.course?.type ?? "Unknown Type"})
+                            </span>
                           </div>
                         </td>
                         <td className="px-5 py-3.5 text-gray-500 text-xs">
