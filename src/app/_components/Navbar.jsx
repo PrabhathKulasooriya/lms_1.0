@@ -87,6 +87,8 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
+            {/* <Link href >
+            </Link> */}
           </div>
 
           {/* DESKTOP AUTH */}
@@ -97,7 +99,11 @@ const Navbar = () => {
                   href="/dashboard"
                   className={`${authButtonBase} text-[#9fe03c] hover:scale-105 hover:text-accent`}
                 >
-                  <span className="text-white font-bold">Dashboard</span>
+                  <span className="text-white font-bold">
+                    {session.user.role === "admin"
+                      ? "Dashboard"
+                      : `Hi, ${session.user.first_name}`}
+                  </span>
                 </Link>
 
                 <div className="w-px h-6 bg-gray-500 mx-3"></div>
@@ -186,7 +192,11 @@ const Navbar = () => {
                   onClick={closeMenu}
                   className="w-full flex items-center justify-center gap-3 py-3.5 rounded-full border border-white text-white font-semibold   transition-all hover:scale-[1.02] cursor-pointer"
                 >
-                  <span className="text-white font-bold">Dashboard</span>
+                  <span className="text-white font-bold">
+                    {session.user.role === "admin"
+                      ? "Dashboard"
+                      : `Hi, ${session.user.first_name}`}
+                  </span>
                 </Link>
 
                 <button

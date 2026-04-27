@@ -115,7 +115,7 @@ export default function CourseViewer({ course }) {
       {/* ── Player & Content Split ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: Video/PDF Player */}
-        <div className="lg:col-span-2 bg-black rounded-2xl overflow-hidden shadow-sm flex items-center justify-center min-h-[400px] h-full max-h-[600px] border border-gray-200 relative">
+        <div className="lg:col-span-2 bg-black rounded-2xl overflow-hidden shadow-sm flex items-center justify-center min-h-[400px] h-full max-h-[600px]  border border-gray-200 relative">
           {!activeResource ? (
             <div className="text-gray-400">
               Select a resource to begin viewing.
@@ -177,7 +177,7 @@ export default function CourseViewer({ course }) {
         </div>
 
         {/* Right Column: Lessons Accordion */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col h-[400px] lg:h-[600px] overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col h-full  overflow-hidden">
           <div className="p-4 border-b border-gray-100 bg-gray-50 flex items-center gap-2 shrink-0">
             <GraduationCap size={20} className="text-blue-600" />
             <h2 className="text-base font-bold text-gray-900">

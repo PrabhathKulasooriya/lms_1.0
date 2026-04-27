@@ -25,7 +25,7 @@ export default function RootLayout({ children }) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="h-screen min-w-screen flex flex-col bg-background justify-center items-center ">
+      <body className="h-screen min-w-screen flex flex-col bg-white justify-center items-center ">
         <AuthProvider>
           <Toaster position="top-center" reverseOrder={false} />
           <Navbar />
