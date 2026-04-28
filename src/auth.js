@@ -4,12 +4,14 @@ import authConfig from "./auth.config";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
-// Custom typed errors — the `code` is what res.error returns on the client
 class InvalidCredentialsError extends CredentialsSignin {
   code = "invalid_credentials";
 }
 class BlockedUserError extends CredentialsSignin {
   code = "blocked";
+}
+class EmailNotVerifiedError extends CredentialsSignin {
+  code = "email_not_verified";
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
@@ -48,6 +50,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           !(await bcrypt.compare(credentials.password, user.password))
         ) {
           throw new InvalidCredentialsError();
+        }
+
+        // ✅ Check email verification BEFORE checking block status
+        if (!user.is_email_verified) {
+          throw new EmailNotVerifiedError();
         }
 
         if (user.is_blocked) {

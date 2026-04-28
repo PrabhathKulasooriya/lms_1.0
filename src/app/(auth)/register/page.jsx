@@ -1,18 +1,16 @@
 "use client";
 import React, { useState } from "react";
-import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-import {Eye, EyeOff} from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 
 const RegisterPage = () => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); 
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false); 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Form States
   const [formData, setFormData] = useState({
     fname: "",
     lname: "",
@@ -25,7 +23,6 @@ const RegisterPage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     if (name === "mobile") {
       const numbersOnly = value.replace(/\D/g, "");
       if (numbersOnly.length <= 10) {
@@ -40,7 +37,6 @@ const RegisterPage = () => {
     e.preventDefault();
     setLoading(true);
 
-    // Start a loading toast that we can update later
     const toastId = toast.loading("Creating your account...");
 
     if (formData.password.length < 6) {
@@ -59,11 +55,10 @@ const RegisterPage = () => {
     if (!mobilePattern.test(formData.mobile)) {
       toast.error("Enter correct mobile number!", { id: toastId });
       setLoading(false);
-      return; // Stop execution
+      return;
     }
 
     try {
-      // 1. Call your registration API
       const res = await fetch("/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -80,34 +75,18 @@ const RegisterPage = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        // If API fails, show error and stop
         throw new Error(data.message || "Registration failed");
       }
 
-      // 2. Registration success! Now trigger NextAuth signIn
-      toast.loading("Account created! Logging you in...", { id: toastId });
-
-      const signInResult = await signIn("credentials", {
-        email: formData.email,
-        password: formData.password,
-        redirect: false,
+      // ✅ Redirect to email verification instead of auto sign-in
+      toast.success("Account created! Please verify your email.", {
+        id: toastId,
       });
-
-      if (signInResult?.error) {
-        toast.error(
-          "Account created, but automatic login failed. Please login manually.",
-          { id: toastId },
+      setTimeout(() => {
+        router.push(
+          `/verify-email?email=${encodeURIComponent(formData.email)}`,
         );
-        router.push("/login");
-      } else {
-        toast.success("Welcome aboard! Redirecting...", { id: toastId });
-
-        // 3. 300ms Delay before redirect
-        setTimeout(() => {
-          router.push("/");
-          router.refresh();
-        }, 300);
-      }
+      }, 300);
     } catch (err) {
       toast.error(err.message, { id: toastId });
     } finally {
@@ -118,10 +97,6 @@ const RegisterPage = () => {
   return (
     <div className="bg-[url('@/assets/bg/1.jpg')] bg-cover bg-center w-full overflow-x-hidden pt-12">
       <div className="text-text w-full min-h-dvh flex flex-col justify-center items-center py-10 px-4">
-        {/* <h1 className="text-3xl font-bold mb-6 w-full text-center drop-shadow-md  text-primary">
-          Register
-        </h1> */}
-
         <div className="w-full max-w-md p-6 md:p-8 space-y-6 bg-white rounded-xl shadow-lg border border-gray-100">
           <div className="text-center">
             <h2 className="text-2xl md:text-3xl font-extrabold text-primary">
@@ -286,7 +261,7 @@ const RegisterPage = () => {
               </div>
             </div>
 
-            <div className=" text-center">
+            <div className="text-center">
               <button
                 type="submit"
                 disabled={loading}
@@ -332,7 +307,6 @@ const RegisterPage = () => {
           <div className="text-center text-sm">
             <Link
               href="/forgot-password"
-              size="sm"
               className="font-medium text-blue-600 hover:text-blue-500"
             >
               Forgot your password?

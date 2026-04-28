@@ -27,6 +27,12 @@ const LoginPage = () => {
 
     if (res?.error) {
       setLoading(false);
+
+      if(res.code=== "email_not_verified") {
+        toast.error("Please verify your email first.");
+        router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+        return;
+      }
       if (res.code === "blocked") {
         toast.error("Your account has been blocked. Please contact support.");
       } else {
@@ -131,17 +137,17 @@ const LoginPage = () => {
           </form>
 
           <div className="text-center text-sm">
-            <a
-              href="#"
+            <Link
+              href={`/forgot-password${email ? `?email=${encodeURIComponent(email)}` : ""}`}
               className="font-medium text-blue-600 hover:text-blue-500"
             >
               Forgot your password?
-            </a>
+            </Link>
           </div>
         </div>
       </div>
       <p className="mt-4 text-center text-zinc-950">
-        Don't have an account?
+        Don&apos;t have an account?
         <Link
           href="/register"
           className="inline-block text-primary  font-bold hover:underline hover:scale-105 origin-center mx-2 transition-all duration-300"
