@@ -88,7 +88,6 @@ const Footer = () => {
               {[
                 { name: "Home", href: "/", click: handleHomeClick },
                 { name: "Courses", href: "/courses" },
-                { name: "Gallery", href: "/gallery" },
                 { name: "Contact", href: "/contact" },
               ].map((link) => (
                 <li key={link.name}>
@@ -121,13 +120,23 @@ const Footer = () => {
                 <div className="bg-white/5 p-2.5 rounded-lg group-hover:bg-[#9fe03c] group-hover:text-[#0b408e] transition-all duration-300">
                   <Phone size={20} />
                 </div>
-                <span className="text-sm">074 244 3229</span>
+                <a
+                  href="tel:0742443229"
+                  className="text-sm hover:text-[#9fe03c] transition-colors duration-300"
+                >
+                  074 244 3229
+                </a>
               </div>
               <div className="flex items-center gap-4 text-gray-200 group cursor-pointer">
                 <div className="bg-white/5 p-2.5 rounded-lg group-hover:bg-[#9fe03c] group-hover:text-[#0b408e] transition-all duration-300">
                   <Mail size={20} />
                 </div>
-                <span className="text-sm">info@ltcacademy.online</span>
+                <a
+                  href="mailto:info@ltcacademy.online?subject=Inquiry from Commerce with Hasindu"
+                  className="text-sm hover:text-[#9fe03c] transition-colors duration-300"
+                >
+                  info@ltcacademy.online
+                </a>
               </div>
             </div>
           </div>
@@ -150,7 +159,8 @@ const Footer = () => {
                     </span>
                   </div>
                   <p className="text-sm text-white font-medium">
-                    {session.user.first_name || "Student"} {session.user.last_name || ""}
+                    {session.user.first_name || "Student"}{" "}
+                    {session.user.last_name || ""}
                   </p>
                   <Link
                     href="/dashboard"
@@ -181,8 +191,9 @@ const Footer = () => {
         {/* Footer Bottom */}
         <div className="mt-8 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-[10px] text-gray-400 uppercase tracking-[0.2em] font-medium">
-            © {currentYear} <span className="text-white">Commerce With Hasidu</span> —
-            ALL RIGHTS RESERVED
+            © {currentYear}{" "}
+            <span className="text-white">Commerce With Hasidu</span> — ALL
+            RIGHTS RESERVED
           </p>
           {/* <div className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full">
             <span className="text-[9px] text-gray-500 uppercase tracking-widest font-bold">
