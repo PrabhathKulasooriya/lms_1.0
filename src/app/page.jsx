@@ -3,6 +3,8 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited.
  * Proprietary and confidential.
  */
+import Footer from "./_components/home_page/Footer";
+import FounderSection from "./_components/home_page/FounderSection";
 import Home_Component from "./_components/home_page/Home_Component";
 import StatsSection from "./_components/home_page/StatsSection";
 
@@ -14,12 +16,9 @@ export default function Home() {
       
       <StatsSection />
       
-      <div className="min-h-screen w-screen bg-green-500 pt-16 px-6" id="section_3">
-        <h1 className="w-full border border-white text-center">Hello World</h1>
-      </div>
-      <div className="min-h-screen w-screen bg-blue-500 pt-16 px-6 " id="section_4">
-        <h1 className="w-full border border-white text-center">Hello World</h1>
-      </div>
+      <FounderSection/>
+
+      <Footer />
     </div>
   );
 }
