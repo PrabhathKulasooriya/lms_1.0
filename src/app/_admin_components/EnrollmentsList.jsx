@@ -723,7 +723,11 @@ const EnrollmentList = ({ courses = [] }) => {
                               {enrollment.course?.title ??
                                 `Course #${enrollment.course_id}`}
                             </span>
-                            <span></span>
+                            {enrollment.course?.grade && (
+                              <span className="text-xs text-gray-400">
+                                G{enrollment.course?.grade ?? "Unknown Level"}
+                              </span>
+                            )}
                             <span className="text-xs text-gray-400">
                               ({enrollment.course?.type ?? "Unknown Type"})
                             </span>

@@ -71,6 +71,8 @@ export async function GET(request) {
             select: {
               id: true,
               title: true,
+              grade: true,
+              type: true,
             },
           },
         },
@@ -143,7 +145,7 @@ export async function POST(request) {
         user: {
           select: { id: true, first_name: true, last_name: true, email: true },
         },
-        course: { select: { id: true, title: true } },
+        course: { select: { id: true, title: true, grade: true, type: true } },
       },
     });
 
