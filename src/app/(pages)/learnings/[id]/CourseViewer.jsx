@@ -14,6 +14,7 @@ import {
   Maximize,
   Loader2,
 } from "lucide-react";
+import LessonAccordion from "@/app/_components/LessonAccordion";
 
 export default function CourseViewer({ course }) {
   const defaultResource = course.lessons?.[0]?.resources?.[0] || null;
@@ -198,7 +199,7 @@ export default function CourseViewer({ course }) {
                   onClick={() => toggleLesson(lesson.id)}
                   className="w-full flex items-center justify-between p-4 bg-white hover:bg-gray-50 transition-colors text-left"
                 >
-                  <span className="font-semibold text-gray-800 text-sm">
+                  <span className="font-semibold text-gray-800 text-xl">
                     {lesson.sequence}. {lesson.title}
                   </span>
                   {openLessons.includes(lesson.id) ? (

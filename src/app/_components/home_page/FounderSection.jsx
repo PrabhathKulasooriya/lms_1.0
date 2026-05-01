@@ -41,13 +41,13 @@ const FounderSection = () => {
 
             {/* Integrated Name & Qualifications Overlay */}
             <div className="absolute bottom-0 left-0 w-full p-6 text-center backdrop-blur-[2px]">
-              <span className="text-[#9fe03c] text-[10px] font-bold uppercase tracking-[0.3em] block mb-1">
+              <span className="text-[#9fe03c] text-[18px] font-bold uppercase tracking-[0.3em] block mb-1">
                 Founder & CEO
               </span>
-              <h2 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tight mb-2">
+              <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight mb-2">
                 Hasindu Kanishka
               </h2>
-              <p className="text-white/80 font-medium text-[9px] leading-relaxed uppercase tracking-wider line-clamp-2 px-2">
+              <p className="text-white/80 font-medium text-[12px] leading-relaxed uppercase tracking-wider line-clamp-2 px-2">
                 CMA(Finalists) , ACIM(UK) , MSLIM , PGDip MK , ACPM , AAT(SL) ,
                 DICA(UK) , DIBM(UK)
               </p>

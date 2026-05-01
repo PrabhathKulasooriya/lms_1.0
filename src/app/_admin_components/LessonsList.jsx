@@ -581,7 +581,9 @@ const LessonList = ({ courses = [] }) => {
             <span className="text-xs text-gray-400">
               Showing lessons for{" "}
               <span className="font-semibold text-gray-600">
-                {selectedCourse.title}
+                {selectedCourse.grade ? `G${selectedCourse.grade}` : ""}{" "}
+                {selectedCourse.title}{" "}
+                {selectedCourse.type ? `[${selectedCourse.type}]` : ""}
               </span>
             </span>
           )}

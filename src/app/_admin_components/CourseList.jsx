@@ -242,7 +242,8 @@ const CourseList = ({ initialCourses }) => {
     .filter(
       (item) =>
         item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.grade?.toString().includes(searchTerm),
+        item.grade?.toString().includes(searchTerm) || item.price?.toString().includes(searchTerm) || 
+        item.type.toLowerCase().includes(searchTerm.toLowerCase()),
     )
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 

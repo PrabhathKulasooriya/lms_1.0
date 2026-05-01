@@ -36,7 +36,8 @@ export async function GET(request, { params }) {
 // When `resources` is included, all existing resources are replaced.
 export async function PUT(request, { params }) {
   try {
-    const id = parseInt(params.id);
+    const { id: idParam } = await params; // CORRECT
+    const id = parseInt(idParam);
     if (isNaN(id)) {
       return NextResponse.json({ message: "Invalid ID" }, { status: 400 });
     }

@@ -30,7 +30,7 @@ const Footer = () => {
   return (
     <footer
       ref={ref}
-      className="bg-[#0b408e] w-full text-white pt-8 pb-8 border-t border-white/10 overflow-hidden"
+      className="bg-[#0b408e] w-full  text-white pt-8 pb-8 border-t border-white/10 overflow-hidden"
     >
       <div
         className={`max-w-6xl mx-auto px-6 lg:px-8 transition-all duration-1000 transform ${

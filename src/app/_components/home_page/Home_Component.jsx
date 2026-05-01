@@ -48,7 +48,7 @@ const Home = () => {
         </Link>
       </div>
 
-      <div className="flex flex-col justify-center items-center gap-6 md:gap-10 w-full flex-grow  p-6">
+      <div className="flex pt-16 flex-col justify-center items-center gap-6 md:gap-10 w-full flex-grow  p-6">
         {/* Container for all cards to ensure consistent width across rows */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 w-full max-w-2xl">
           {/* Grade 10 Card -------------------------------------------------------------------------------------------------------------*/}
