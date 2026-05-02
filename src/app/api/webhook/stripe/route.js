@@ -27,7 +27,6 @@ export async function POST(req) {
       return new Response("Missing metadata", { status: 400 });
     }
 
-    // Guard against duplicate webhook delivery from Stripe retries
     const alreadyProcessed = await prisma.purchases.findFirst({
       where: { stripe_session_id: session.id },
     });
@@ -38,8 +37,40 @@ export async function POST(req) {
     }
 
     try {
+      // 1. Fetch BOTH grade and type
+      const course = await prisma.courses.findUnique({
+        where: { id: parseInt(courseId) },
+        select: { grade: true, type: true },
+      });
+
+      const settings = await prisma.system_settings.findMany({
+        where: {
+          key: { in: ["EXPIRY_DATE_G10", "EXPIRY_DATE_G11"] },
+        },
+      });
+
+      let expiresAtDate = null;
+      let settingKeyToUse = null;
+
+      // 2. Safely check the course type and grade
+      if (course?.type === "pastpaper") {
+        // Past papers expire with the current Grade 11 batch
+        settingKeyToUse = "EXPIRY_DATE_G11";
+      } else {
+        // Force the grade to a string to avoid Prisma Int vs String bugs
+        const gradeStr = String(course?.grade);
+        if (gradeStr === "10") settingKeyToUse = "EXPIRY_DATE_G10";
+        if (gradeStr === "11") settingKeyToUse = "EXPIRY_DATE_G11";
+      }
+
+      if (settingKeyToUse) {
+        const matchedSetting = settings.find((s) => s.key === settingKeyToUse);
+        if (matchedSetting) {
+          expiresAtDate = new Date(matchedSetting.value);
+        }
+      }
+
       await prisma.$transaction(async (tx) => {
-        // Create the purchase + line item
         await tx.purchases.create({
           data: {
             user_id: parseInt(userId),
@@ -55,7 +86,6 @@ export async function POST(req) {
           },
         });
 
-        // Upsert enrollment — safe against unique constraint errors on retries
         await tx.enrollments.upsert({
           where: {
             user_id_course_id: {
@@ -63,10 +93,15 @@ export async function POST(req) {
               course_id: parseInt(courseId),
             },
           },
-          update: {},
+          update: {
+            is_active: true,
+            expires_at: expiresAtDate,
+          },
           create: {
             user_id: parseInt(userId),
             course_id: parseInt(courseId),
+            is_active: true,
+            expires_at: expiresAtDate,
           },
         });
       });
