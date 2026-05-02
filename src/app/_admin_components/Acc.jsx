@@ -14,6 +14,7 @@ import {
   XCircle,
   Eye,
   EyeOff,
+  MapPin,
 } from "lucide-react";
 
 import toast from "react-hot-toast";
@@ -78,6 +79,7 @@ const EditModal = ({ user, onClose, onSave }) => {
     last_name: user.last_name || "",
     mobile: user.mobile || "",
     gender: user.gender || "",
+    address: user.address || "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -154,6 +156,15 @@ const EditModal = ({ user, onClose, onSave }) => {
               required
             />
           </div>
+
+          <Input
+            label="Home Address"
+            name="address"
+            value={form.address}
+            onChange={handleChange}
+            placeholder="123 Street, City"
+            required
+          />
 
           <Input
             label="Mobile Number"
@@ -468,6 +479,7 @@ const Acc = ({ user: initialUser }) => {
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:w-2/3 ">
               <Field icon={Mail} label="Email Address" value={user.email} />
               <Field icon={Phone} label="Mobile" value={user.mobile} />
+              <Field icon={MapPin} label="Home Address" value={user.address} />
               <Field
                 icon={User}
                 label="Gender"

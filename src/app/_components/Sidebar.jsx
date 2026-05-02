@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { GraduationCap, User, Menu, ChevronLeft, LibraryBig, Users, NotebookPen } from "lucide-react";
+import { GraduationCap, User, Menu, ChevronLeft, LibraryBig, Users, NotebookPen, FileText, Bolt } from "lucide-react";
 
 const Sidebar = ({ activeComponent, setActiveComponent, role }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -91,19 +91,19 @@ const Sidebar = ({ activeComponent, setActiveComponent, role }) => {
           {/* Courses */}
           {role === "admin" && (
             <button
-              onClick={() => handleClick("courses")}
-              className={btnClass("courses")}
+              onClick={() => handleClick("all-courses")}
+              className={btnClass("all-courses")}
             >
-              <GraduationCap className={iconClass("courses")} />
-              <span className={labelClass("courses")}>Manage Courses</span>
+              <GraduationCap className={iconClass("all-courses")} />
+              <span className={labelClass("all-courses")}>Manage Courses</span>
             </button>
           )}
           <button
-            onClick={() => handleClick("mycourses")}
-            className={btnClass("mycourses")}
+            onClick={() => handleClick("courses")}
+            className={btnClass("courses")}
           >
-            <GraduationCap className={iconClass("mycourses")} />
-            <span className={labelClass("mycourses")}>My Courses</span>
+            <GraduationCap className={iconClass("courses")} />
+            <span className={labelClass("courses")}>Courses</span>
           </button>
 
           {role === "admin" && (
@@ -114,7 +114,7 @@ const Sidebar = ({ activeComponent, setActiveComponent, role }) => {
                 className={btnClass("lessons")}
               >
                 <LibraryBig className={iconClass("lessons")} />
-                <span className={labelClass("lessons")}>Lessons</span>
+                <span className={labelClass("lessons")}>Manage Lessons</span>
               </button>
 
               {/* Users */}
@@ -123,7 +123,7 @@ const Sidebar = ({ activeComponent, setActiveComponent, role }) => {
                 className={btnClass("users")}
               >
                 <Users className={iconClass("users")} />
-                <span className={labelClass("users")}>Users</span>
+                <span className={labelClass("users")}>Manage Users</span>
               </button>
 
               {/* Enrollments */}
@@ -133,6 +133,24 @@ const Sidebar = ({ activeComponent, setActiveComponent, role }) => {
               >
                 <NotebookPen className={iconClass("enrollments")} />
                 <span className={labelClass("enrollments")}>Enrollments</span>
+              </button>
+
+              {/* Tute */}
+              <button
+                onClick={() => handleClick("tute")}
+                className={btnClass("tute")}
+              >
+                <FileText className={iconClass("tute")} />
+                <span className={labelClass("tute")}>Send Tutes</span>
+              </button>
+
+              {/* Settings */}
+              <button
+                onClick={() => handleClick("settings")}
+                className={btnClass("settings")}
+              >
+                <Bolt className={iconClass("settings")} />
+                <span className={labelClass("settings")}>Settings</span>
               </button>
             </>
           )}

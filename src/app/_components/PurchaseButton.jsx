@@ -17,14 +17,18 @@ export default function PurchaseButton({ courseId, price, title, isEnrolled }) {
 
     if (status === "unauthenticated" || !session) {
       toast.error("Please login to continue with the purchase");
-
       return router.push(`/login?callbackUrl=${encodeURIComponent(pathname)}`);
     }
 
     try {
       setLoading(true);
-      const url = await handlePurchase(courseId, session.user.id, price, title);
-      if (url) window.location.href = url; 
+      // Construct the user's full name (adjust based on your NextAuth session structure)
+      const fullName =
+        session.user.name ||
+        `${session.user.first_name} ${session.user.last_name}`;
+
+      const url = await handlePurchase(courseId, session.user.id, price, title, session.user.email, fullName);
+      if (url) window.location.href = url;
     } catch (error) {
       console.error(error);
       toast.error("Checkout failed. Please try again.");

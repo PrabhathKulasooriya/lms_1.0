@@ -8,11 +8,6 @@ const err = (message, status = 400) =>
   NextResponse.json({ success: false, message }, { status });
 
 // ── GET  /api/enrollment ──────────────────────────────────────────────────────
-// Query params:
-//   page     (default 1)
-//   limit    (default 20)
-//   search   (matches user name / email / course title)
-//   status   "active" | "inactive" | "expired" | "all" (default "all")
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -23,30 +18,52 @@ export async function GET(request) {
       Math.max(1, parseInt(searchParams.get("limit") ?? "20")),
     );
     const search = searchParams.get("search")?.trim() ?? "";
-    const status = searchParams.get("status") ?? "all"; // "active" | "inactive" | "expired" | "all"
+    const status = searchParams.get("status") ?? "all";
     const skip = (page - 1) * limit;
 
     const now = new Date();
 
     // ── Build where clause ───────────────────────────────────────────────────
     const where = {
-      // Search: match user first/last name, email, or course title
-      ...(search && {
-        OR: [
-          { user: { first_name: { contains: search, mode: "insensitive" } } },
-          { user: { last_name: { contains: search, mode: "insensitive" } } },
-          { user: { email: { contains: search, mode: "insensitive" } } },
-          { course: { title: { contains: search, mode: "insensitive" } } },
-        ],
-      }),
+      AND: [
+        // Search
+        ...(search
+          ? [
+              {
+                OR: [
+                  {
+                    user: {
+                      first_name: { contains: search, mode: "insensitive" },
+                    },
+                  },
+                  {
+                    user: {
+                      last_name: { contains: search, mode: "insensitive" },
+                    },
+                  },
+                  {
+                    user: { email: { contains: search, mode: "insensitive" } },
+                  },
+                  {
+                    course: {
+                      title: { contains: search, mode: "insensitive" },
+                    },
+                  },
+                ],
+              },
+            ]
+          : []),
 
-      // Status filter
-      ...(status === "active" && {
-        is_active: true,
-        OR: [{ expires_at: null }, { expires_at: { gt: now } }],
-      }),
-      ...(status === "inactive" && { is_active: false }),
-      ...(status === "expired" && { expires_at: { lte: now } }),
+        // Status
+        ...(status === "active"
+          ? [
+              { is_active: true },
+              { OR: [{ expires_at: null }, { expires_at: { gt: now } }] },
+            ]
+          : []),
+        ...(status === "inactive" ? [{ is_active: false }] : []),
+        ...(status === "expired" ? [{ expires_at: { lte: now } }] : []),
+      ],
     };
 
     // ── Run count + paginated query in parallel ───────────────────────────────
@@ -65,6 +82,7 @@ export async function GET(request) {
               last_name: true,
               email: true,
               mobile: true,
+              address: true,
             },
           },
           course: {
@@ -110,7 +128,7 @@ export async function POST(request) {
       return err("userId and courseId must be valid integers");
     }
 
-    // ── Verify user & course exist ────────────────────────────────────────────
+    // ── Verify user & course exist (and get the course grade) ─────────────────
     const [user, course] = await Promise.all([
       prisma.users.findUnique({
         where: { id: userIdInt },
@@ -118,7 +136,7 @@ export async function POST(request) {
       }),
       prisma.courses.findUnique({
         where: { id: courseIdInt },
-        select: { id: true },
+        select: { id: true, grade: true }, // Added grade selection
       }),
     ]);
 
@@ -134,12 +152,27 @@ export async function POST(request) {
 
     if (existing) return err("User is already enrolled in this course");
 
+    // ── Determine Expiry Date ─────────────────────────────────────────────────
+    let finalExpiresAt = expires_at ? new Date(expires_at) : null;
+
+    // If no manual date was provided, fetch the cohort default
+    if (!finalExpiresAt && course.grade) {
+      const settingKey = `EXPIRY_DATE_G${course.grade}`;
+      const gradeExpirySetting = await prisma.system_settings.findUnique({
+        where: { key: settingKey },
+      });
+
+      if (gradeExpirySetting) {
+        finalExpiresAt = new Date(gradeExpirySetting.value);
+      }
+    }
+
     // ── Create ────────────────────────────────────────────────────────────────
     const enrollment = await prisma.enrollments.create({
       data: {
         user_id: userIdInt,
         course_id: courseIdInt,
-        expires_at: expires_at ? new Date(expires_at) : null,
+        expires_at: finalExpiresAt,
       },
       include: {
         user: {

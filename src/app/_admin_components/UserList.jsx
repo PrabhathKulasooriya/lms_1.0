@@ -12,6 +12,10 @@ import {
   ShieldCheck,
   GraduationCap,
   SquarePlus,
+  MapPin,
+  Eye,
+  Mail,
+  Calendar,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
@@ -42,6 +46,46 @@ const Modal = ({ isOpen, onClose, title, children }) => {
   );
 };
 
+// ─── View Details Component ──────────────────────────────────────────────────
+const ViewDetails = ({ user }) => {
+  const Item = ({ icon: Icon, label, value }) => (
+    <div className="flex items-start gap-3 p-3 rounded-xl bg-gray-50 border border-gray-100">
+      <div className="mt-1 text-blue-600">
+        <Icon size={16} />
+      </div>
+      <div>
+        <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+          {label}
+        </p>
+        <p className="text-sm font-medium text-gray-900">{value || "—"}</p>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-3">
+        <Item icon={User} label="First Name" value={user.first_name} />
+        <Item icon={User} label="Last Name" value={user.last_name} />
+      </div>
+      <Item icon={Mail} label="Email Address" value={user.email} />
+      <Item icon={MapPin} label="Home Address" value={user.address} />
+      <div className="grid grid-cols-2 gap-3">
+        <Item icon={Phone} label="Mobile" value={user.mobile} />
+        <Item icon={Users} label="Role" value={user.role} />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <Item icon={User} label="Gender" value={user.gender} />
+        <Item
+          icon={Calendar}
+          label="Joined"
+          value={new Date(user.created_at).toLocaleDateString()}
+        />
+      </div>
+    </div>
+  );
+};
+
 // ─── User Form (Handles Create & Edit) ───────────────────────────────────────
 const UserForm = ({
   initialData = {},
@@ -54,10 +98,11 @@ const UserForm = ({
     first_name: initialData.first_name ?? "",
     last_name: initialData.last_name ?? "",
     email: initialData.email ?? "",
-    password: "", // Only used for create
+    password: "",
     mobile: initialData.mobile ?? "",
     gender: initialData.gender ?? "",
     role: initialData.role ?? "student",
+    address: initialData.address ?? "", // Added address
   });
 
   const handleChange = (e) => {
@@ -71,6 +116,7 @@ const UserForm = ({
       !form.first_name.trim() ||
       !form.last_name.trim() ||
       !form.email.trim() ||
+      !form.address.trim() || // Validate address
       (isCreate && !form.password)
     ) {
       toast.error("Required fields are missing");
@@ -90,6 +136,7 @@ const UserForm = ({
       first_name: form.first_name.trim(),
       last_name: form.last_name.trim(),
       email: form.email.trim(),
+      address: form.address.trim(),
       mobile: form.mobile.trim() || undefined,
     });
   };
@@ -99,7 +146,6 @@ const UserForm = ({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      {/* First + Last Name */}
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1.5">
@@ -139,7 +185,6 @@ const UserForm = ({
         </div>
       </div>
 
-      {/* Email - Always visible, disabled if editing */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1.5">
           Email
@@ -155,7 +200,6 @@ const UserForm = ({
         />
       </div>
 
-      {/* Password - Create Only */}
       {isCreate && (
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1.5">
@@ -172,7 +216,26 @@ const UserForm = ({
         </div>
       )}
 
-      {/* Mobile & Role Group */}
+      {/* Address Field */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+          Address
+        </label>
+        <div className="relative">
+          <MapPin
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+          />
+          <input
+            name="address"
+            value={form.address}
+            onChange={handleChange}
+            placeholder="Home Address"
+            className={inputClass}
+          />
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1.5">
@@ -209,7 +272,6 @@ const UserForm = ({
         </div>
       </div>
 
-      {/* Gender */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1.5">
           Gender
@@ -232,7 +294,6 @@ const UserForm = ({
         </div>
       </div>
 
-      {/* Actions */}
       <div className="flex gap-3 pt-1">
         <button
           type="button"
@@ -290,6 +351,7 @@ const UserList = () => {
   // Modal
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [viewModalOpen, setViewModalOpen] = useState(false); // View Modal State
   const [selectedUser, setSelectedUser] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
 
@@ -299,12 +361,12 @@ const UserList = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchTerm);
-      setPage(1); // reset to page 1 on new search
+      setPage(1);
     }, 400);
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // ── Fetch users (server-side pagination) ──────────────────────────────────
+  // ── Fetch users ────────────────────────────────────────────────────────────
   const loadUsers = useCallback(async () => {
     setFetchLoading(true);
     try {
@@ -328,7 +390,6 @@ const UserList = () => {
     loadUsers();
   }, [loadUsers]);
 
-  // reset page when role filter changes
   const handleRoleFilter = (value) => {
     setRoleFilter(value);
     setPage(1);
@@ -339,13 +400,12 @@ const UserList = () => {
     setActionLoading(true);
     try {
       await toast.promise(
-        fetchJSON(`/api/users`, {
-          method: "POST",
-          body: formData,
-        }).then((data) => {
-          loadUsers();
-          return data;
-        }),
+        fetchJSON(`/api/users`, { method: "POST", body: formData }).then(
+          (data) => {
+            loadUsers();
+            return data;
+          },
+        ),
         {
           loading: "Creating user…",
           success: "User created successfully!",
@@ -361,6 +421,11 @@ const UserList = () => {
   const openEdit = (user) => {
     setSelectedUser(user);
     setEditModalOpen(true);
+  };
+
+  const openView = (user) => {
+    setSelectedUser(user);
+    setViewModalOpen(true);
   };
 
   const handleEdit = async (formData) => {
@@ -408,7 +473,6 @@ const UserList = () => {
     );
   };
 
-  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <>
       <div className="pt-2 w-full px-4 md:px-8 pb-8">
@@ -422,14 +486,12 @@ const UserList = () => {
             </span>
           </div>
 
-          {/* Action and Search */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => setCreateModalOpen(true)}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-all shadow-md shadow-blue-100"
             >
-              <SquarePlus size={18} />
-              Add User
+              <SquarePlus size={18} /> Add User
             </button>
             <div className="relative">
               <Search
@@ -452,14 +514,9 @@ const UserList = () => {
             <button
               key={value}
               onClick={() => handleRoleFilter(value)}
-              className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl border transition-all ${
-                roleFilter === value
-                  ? "bg-blue-600 text-white border-blue-600 shadow-sm"
-                  : "bg-white text-gray-500 border-gray-200 hover:border-blue-300 hover:text-blue-600"
-              }`}
+              className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl border transition-all ${roleFilter === value ? "bg-blue-600 text-white border-blue-600 shadow-sm" : "bg-white text-gray-500 border-gray-200 hover:border-blue-300 hover:text-blue-600"}`}
             >
-              <Icon size={14} />
-              {label}
+              <Icon size={14} /> {label}
             </button>
           ))}
         </div>
@@ -516,11 +573,9 @@ const UserList = () => {
                       className="hover:bg-gray-50/60 transition-colors"
                     >
                       <td className="px-5 py-3.5">
-                        <div className="flex items-center gap-3">
-                          <span className="font-medium text-gray-900">
-                            {user.first_name} {user.last_name}
-                          </span>
-                        </div>
+                        <span className="font-medium text-gray-900">
+                          {user.first_name} {user.last_name}
+                        </span>
                       </td>
                       <td className="px-5 py-3.5 text-gray-500">
                         {user.email}
@@ -532,22 +587,14 @@ const UserList = () => {
                       </td>
                       <td className="px-5 py-3.5">
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${
-                            user.role === "admin"
-                              ? "bg-purple-100 text-purple-700"
-                              : "bg-blue-100 text-blue-700"
-                          }`}
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${user.role === "admin" ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700"}`}
                         >
                           {user.role ?? "student"}
                         </span>
                       </td>
                       <td className="px-5 py-3.5">
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            user.is_email_verified
-                              ? "bg-green-100 text-green-700"
-                              : "bg-gray-100 text-gray-500"
-                          }`}
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${user.is_email_verified ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-500"}`}
                         >
                           {user.is_email_verified ? "Verified" : "Unverified"}
                         </span>
@@ -555,30 +602,27 @@ const UserList = () => {
                       <td className="px-5 py-3.5">
                         <button
                           onClick={() => handleToggleBlock(user)}
-                          className={`relative inline-flex items-center w-16 h-8 rounded-full transition-colors duration-300 focus:outline-none ${
-                            user.is_blocked ? "bg-red-500" : "bg-gray-200"
-                          }`}
+                          className={`relative inline-flex items-center w-16 h-8 rounded-full transition-colors duration-300 focus:outline-none ${user.is_blocked ? "bg-red-500" : "bg-gray-200"}`}
                         >
                           <span
-                            className={`absolute text-[10px] font-bold transition-all duration-300 ${
-                              user.is_blocked
-                                ? "left-2 text-white"
-                                : "right-2 text-gray-400"
-                            }`}
+                            className={`absolute text-[10px] font-bold transition-all duration-300 ${user.is_blocked ? "left-2 text-white" : "right-2 text-gray-400"}`}
                           >
                             {user.is_blocked ? "YES" : "NO"}
                           </span>
                           <span
-                            className={`inline-block w-6 h-6 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
-                              user.is_blocked
-                                ? "translate-x-9"
-                                : "translate-x-1"
-                            }`}
+                            className={`inline-block w-6 h-6 bg-white rounded-full shadow-md transform transition-transform duration-300 ${user.is_blocked ? "translate-x-9" : "translate-x-1"}`}
                           />
                         </button>
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => openView(user)}
+                            className="p-1 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                            title="View"
+                          >
+                            <Eye size={20} />
+                          </button>
                           <button
                             onClick={() => openEdit(user)}
                             className="p-1 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
@@ -632,11 +676,7 @@ const UserList = () => {
                       <button
                         key={item}
                         onClick={() => setPage(item)}
-                        className={`w-8 h-8 text-xs font-medium rounded-lg transition-colors ${
-                          page === item
-                            ? "bg-blue-600 text-white"
-                            : "text-gray-500 hover:bg-gray-100"
-                        }`}
+                        className={`w-8 h-8 text-xs font-medium rounded-lg transition-colors ${page === item ? "bg-blue-600 text-white" : "text-gray-500 hover:bg-gray-100"}`}
                       >
                         {item}
                       </button>
@@ -689,6 +729,18 @@ const UserList = () => {
             loading={actionLoading}
           />
         )}
+      </Modal>
+
+      {/* ── View Modal ── */}
+      <Modal
+        isOpen={viewModalOpen}
+        onClose={() => {
+          setViewModalOpen(false);
+          setSelectedUser(null);
+        }}
+        title="User Details"
+      >
+        {selectedUser && <ViewDetails user={selectedUser} />}
       </Modal>
     </>
   );

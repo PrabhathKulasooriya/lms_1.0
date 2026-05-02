@@ -7,7 +7,7 @@ import { prisma } from "@/lib/prisma";
 //create new user
 export async function POST(request) {
   try {
-    const { first_name, last_name, email, password, gender, mobile } = await request.json();
+    const { first_name, last_name, email, password, gender, mobile, address } = await request.json();
 
     if (
       !first_name ||
@@ -15,7 +15,8 @@ export async function POST(request) {
       !email ||
       !password ||
       !gender ||
-      !mobile
+      !mobile||
+      !address
     ) {
       return NextResponse.json(
         { success: false, message: "All fields are required" },
@@ -71,6 +72,7 @@ export async function POST(request) {
         gender,
         mobile,
         role: "student",
+        address
       },
     });
     
@@ -137,6 +139,7 @@ export async function GET(request) {
           mobile: true,
           gender: true,
           role: true,
+          address: true,
           is_email_verified: true,
           is_blocked: true,
           created_at: true,

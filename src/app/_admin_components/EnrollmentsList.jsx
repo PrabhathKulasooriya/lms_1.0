@@ -10,11 +10,10 @@ import {
   Edit,
   CheckCircle,
   XCircle,
-  CalendarClock,
   User,
   GraduationCap,
   ChevronDown,
-  Trash2
+  Trash2,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 
@@ -46,13 +45,13 @@ const Modal = ({ isOpen, onClose, title, children }) => {
 
 // ─── User Search Combobox ─────────────────────────────────────────────────────
 const UserSearchCombobox = ({ value, onChange }) => {
-  const [query, setQuery]       = useState("");
-  const [results, setResults]   = useState([]);
-  const [open, setOpen]         = useState(false);
-  const [loading, setLoading]   = useState(false);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState(null);
-  const containerRef            = useRef(null);
-  const debounceRef             = useRef(null);
+  const containerRef = useRef(null);
+  const debounceRef = useRef(null);
 
   useEffect(() => {
     const handler = (e) => {
@@ -64,17 +63,26 @@ const UserSearchCombobox = ({ value, onChange }) => {
   }, []);
 
   useEffect(() => {
-    if (!query.trim()) { setResults([]); setOpen(false); return; }
+    if (!query.trim()) {
+      setResults([]);
+      setOpen(false);
+      return;
+    }
     clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(async () => {
       setLoading(true);
       try {
-        const res  = await fetch(`/api/users?search=${encodeURIComponent(query)}&limit=8&role=student`);
+        const res = await fetch(
+          `/api/users?search=${encodeURIComponent(query)}&limit=8&role=student`,
+        );
         const data = await res.json();
         setResults(data.users ?? data ?? []);
         setOpen(true);
-      } catch { setResults([]); }
-      finally { setLoading(false); }
+      } catch {
+        setResults([]);
+      } finally {
+        setLoading(false);
+      }
     }, 350);
     return () => clearTimeout(debounceRef.current);
   }, [query]);
@@ -95,7 +103,6 @@ const UserSearchCombobox = ({ value, onChange }) => {
 
   return (
     <div ref={containerRef}>
-      {/* Input row — icon scoped inside this div only */}
       <div className="relative">
         <User
           size={16}
@@ -106,7 +113,10 @@ const UserSearchCombobox = ({ value, onChange }) => {
           value={query}
           onChange={(e) => {
             setQuery(e.target.value);
-            if (selected) { setSelected(null); onChange(""); }
+            if (selected) {
+              setSelected(null);
+              onChange("");
+            }
           }}
           onFocus={() => results.length > 0 && setOpen(true)}
           placeholder="Search by name or email…"
@@ -116,7 +126,7 @@ const UserSearchCombobox = ({ value, onChange }) => {
         <div className="absolute right-3 top-1/2 -translate-y-1/2">
           {loading ? (
             <span className="w-3.5 h-3.5 border-2 border-blue-400 border-t-transparent rounded-full animate-spin block" />
-          ) : (selected || query) ? (
+          ) : selected || query ? (
             <button type="button" onClick={handleClear}>
               <X size={14} className="text-gray-400 hover:text-gray-600" />
             </button>
@@ -124,7 +134,6 @@ const UserSearchCombobox = ({ value, onChange }) => {
         </div>
       </div>
 
-      {/* Selected pill — separate from the input row */}
       {selected && (
         <div className="mt-2 flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-100 rounded-xl">
           <div className="w-6 h-6 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-semibold shrink-0">
@@ -140,7 +149,6 @@ const UserSearchCombobox = ({ value, onChange }) => {
         </div>
       )}
 
-      {/* Dropdown */}
       {open && (
         <ul className="mt-1.5 w-full bg-white border border-gray-100 rounded-xl shadow-lg overflow-hidden max-h-56 overflow-y-auto">
           {results.length === 0 && !loading ? (
@@ -174,10 +182,10 @@ const UserSearchCombobox = ({ value, onChange }) => {
 
 // ─── Course type badge helper ─────────────────────────────────────────────────
 const COURSE_TYPE_STYLES = {
-  theory:      "bg-purple-100 text-purple-700",
+  theory: "bg-purple-100 text-purple-700",
   past_papers: "bg-amber-100  text-amber-700",
-  pastpapers:  "bg-amber-100  text-amber-700",
-  revision:    "bg-teal-100   text-teal-700",
+  pastpapers: "bg-amber-100  text-amber-700",
+  revision: "bg-teal-100   text-teal-700",
 };
 
 // ─── Course grade badge helper ────────────────────────────────────────────────
@@ -192,11 +200,13 @@ const CourseGradeBadge = ({ grade }) => {
 
 const CourseTypeBadge = ({ type }) => {
   if (!type) return null;
-  const key   = type.toLowerCase().replace(/\s+/g, "_");
+  const key = type.toLowerCase().replace(/\s+/g, "_");
   const style = COURSE_TYPE_STYLES[key] ?? "bg-gray-100 text-gray-500";
   const label = type.replace(/_/g, " ");
   return (
-    <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold capitalize leading-tight ${style}`}>
+    <span
+      className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold capitalize leading-tight ${style}`}
+    >
       {label}
     </span>
   );
@@ -204,7 +214,7 @@ const CourseTypeBadge = ({ type }) => {
 
 // ─── Course Select ────────────────────────────────────────────────────────────
 const CourseSelect = ({ courses, value, onChange }) => {
-  const [open, setOpen]     = useState(false);
+  const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
 
   const selected = courses.find((c) => String(c.id) === String(value));
@@ -217,7 +227,6 @@ const CourseSelect = ({ courses, value, onChange }) => {
 
   return (
     <div>
-      {/* Trigger button — icon scoped inside button row only */}
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
@@ -242,7 +251,6 @@ const CourseSelect = ({ courses, value, onChange }) => {
         />
       </button>
 
-      {/* Inline expansion */}
       {open && (
         <div className="mt-1.5 w-full bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
           <div className="p-2 border-b border-gray-100">
@@ -366,8 +374,8 @@ const EnrollmentForm = ({
         </>
       )}
 
-      {/* Expires At */}
-      <div>
+      {/* Expire Date */}
+      {/* <div>
         <label className="block text-sm font-medium text-gray-700 mb-1.5">
           Expires At{" "}
           <span className="text-gray-400 font-normal">(optional)</span>
@@ -386,9 +394,8 @@ const EnrollmentForm = ({
             className={inputClass}
           />
         </div>
-      </div>
+      </div> */}
 
-      {/* Active toggle — edit only */}
       {!isCreate && (
         <div className="flex items-center justify-between py-2.5 px-4 bg-gray-50 rounded-xl border border-gray-100">
           <span className="text-sm font-medium text-gray-700">
@@ -410,7 +417,6 @@ const EnrollmentForm = ({
         </div>
       )}
 
-      {/* Actions */}
       <div className="flex gap-3 pt-1">
         <button
           type="button"
@@ -457,7 +463,7 @@ const EnrollmentList = ({ courses = [] }) => {
   const [fetchLoading, setFetchLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("active");
   const [page, setPage] = useState(1);
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -484,8 +490,9 @@ const EnrollmentList = ({ courses = [] }) => {
         ...(statusFilter !== "all" && { status: statusFilter }),
       });
       const data = await fetchJSON(`/api/enrollment?${params}`);
-      setEnrollments(data.enrollments ?? data);
-      setTotal(data.total ?? (data.enrollments ?? data).length);
+      const list = data.enrollments ?? data;
+      setEnrollments(list);
+      setTotal(data.total ?? list.length);
     } catch (err) {
       toast.error(err?.message ?? "Failed to load enrollments");
     } finally {
@@ -669,11 +676,12 @@ const EnrollmentList = ({ courses = [] }) => {
                     "Expires At",
                     "Status",
                     "Active",
+                    "Tute Sent", // ← new column
                     "Actions",
                   ].map((h, i) => (
                     <th
                       key={h}
-                      className={`px-5 py-3.5 font-semibold text-gray-600 ${i === 6 ? "text-right" : "text-left"}`}
+                      className={`px-5 py-3.5 font-semibold text-gray-600 ${i === 7 ? "text-right" : "text-left"}`}
                     >
                       {h}
                     </th>
@@ -683,7 +691,7 @@ const EnrollmentList = ({ courses = [] }) => {
               <tbody className="divide-y divide-gray-50">
                 {fetchLoading ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-12">
+                    <td colSpan={8} className="text-center py-12">
                       <div className="flex items-center justify-center gap-2 text-gray-400">
                         <span className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin" />
                         Loading enrollments…
@@ -692,7 +700,7 @@ const EnrollmentList = ({ courses = [] }) => {
                   </tr>
                 ) : enrollments.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-12 text-gray-400">
+                    <td colSpan={8} className="text-center py-12 text-gray-400">
                       No enrollments found.
                     </td>
                   </tr>
@@ -725,7 +733,7 @@ const EnrollmentList = ({ courses = [] }) => {
                             </span>
                             {enrollment.course?.grade && (
                               <span className="text-xs text-gray-400">
-                                G{enrollment.course?.grade ?? "Unknown Level"}
+                                G{enrollment.course?.grade}
                               </span>
                             )}
                             <span className="text-xs text-gray-400">
@@ -771,6 +779,7 @@ const EnrollmentList = ({ courses = [] }) => {
                             </span>
                           )}
                         </td>
+                        {/* Active toggle */}
                         <td className="px-5 py-3.5">
                           <button
                             onClick={() => handleToggleActive(enrollment)}
@@ -785,6 +794,20 @@ const EnrollmentList = ({ courses = [] }) => {
                               className={`inline-block w-6 h-6 bg-white rounded-full shadow-md transform transition-transform duration-300 ${enrollment.is_active ? "translate-x-9" : "translate-x-1"}`}
                             />
                           </button>
+                        </td>
+                        {/* Tute Sent — read-only badge, managed via Tute Dispatch */}
+                        <td className="px-5 py-3.5">
+                          {enrollment.tute_sent ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                              <CheckCircle size={11} />
+                              Sent
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
+                              <XCircle size={11} />
+                              Pending
+                            </span>
+                          )}
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center justify-end gap-1">

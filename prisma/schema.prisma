@@ -12,6 +12,7 @@ model users {
   id                 Int           @id @default(autoincrement())
   first_name         String        @db.VarChar(100)
   last_name          String        @db.VarChar(100)
+  address            String       @db.VarChar(255)
   email              String        @unique @db.VarChar(255)
   password           String        @db.VarChar(255)
   mobile             String?       @db.VarChar(20)
@@ -19,7 +20,6 @@ model users {
   role               String?       @default("student") @db.VarChar(20)
 
   is_email_verified  Boolean       @default(false)
-  is_mobile_verified Boolean       @default(false)
   is_blocked         Boolean       @default(false)
 
   created_at         DateTime?     @default(now()) @db.Timestamptz(6)
@@ -130,12 +130,14 @@ enum PurchaseStatus {
 // --- 4. ACCESS & ENROLLMENT ---
 
 model enrollments {
-  id          Int       @id @default(autoincrement())
+  id          Int         @id @default(autoincrement())
   user_id     Int
   course_id   Int
-  enrolled_at DateTime? @default(now()) @db.Timestamptz(6)
-  expires_at  DateTime? @db.Timestamptz(6)
-  is_active   Boolean   @default(true)
+  enrolled_at DateTime?   @default(now()) @db.Timestamptz(6)
+  expires_at  DateTime?   @db.Timestamptz(6)
+  is_active   Boolean     @default(true)
+  tute_sent     Boolean   @default(false)
+  tute_sent_at  DateTime? @db.Timestamptz(6)
 
   user        users     @relation(fields: [user_id], references: [id], onDelete: Cascade)
   course      courses   @relation(fields: [course_id], references: [id], onDelete: Cascade)
@@ -159,4 +161,9 @@ enum TokenType {
   EMAIL_VERIFICATION
   PASSWORD_RESET
   MOBILE_VERIFICATION
+}
+
+model system_settings {
+  key   String @id @db.VarChar(50)
+  value String @db.Text
 }

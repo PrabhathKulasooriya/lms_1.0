@@ -15,7 +15,7 @@ export async function PUT(request, { params }) {
     }
 
     const body = await request.json();
-    const { first_name, last_name, mobile, gender, is_blocked } = body;
+    const { first_name, last_name, mobile, gender, is_blocked, address } = body;
 
     // ── check user exists (shared for both update paths) ──────
     const existing = await prisma.users.findUnique({ where: { id } });
@@ -84,6 +84,7 @@ export async function PUT(request, { params }) {
         last_name: last_name.trim(),
         ...(mobile && { mobile: mobile.trim() }),
         ...(gender && { gender: gender.toLowerCase() }),
+        ...(address && { address: address.trim() }),
         // allow is_blocked to be updated alongside profile fields too
         ...(is_blocked !== undefined && { is_blocked: Boolean(is_blocked) }),
       },

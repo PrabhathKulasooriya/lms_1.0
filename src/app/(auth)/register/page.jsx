@@ -19,6 +19,7 @@ const RegisterPage = () => {
     confirm_password: "",
     gender: "",
     mobile: "",
+    address: "",
   });
 
   const handleChange = (e) => {
@@ -69,6 +70,7 @@ const RegisterPage = () => {
           password: formData.password,
           gender: formData.gender,
           mobile: formData.mobile,
+          address: formData.address,
         }),
       });
 
@@ -115,6 +117,7 @@ const RegisterPage = () => {
                   type="text"
                   name="fname"
                   required
+                  value={formData.fname}
                   disabled={loading}
                   onChange={handleChange}
                   className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 outline-none sm:text-sm"
@@ -130,6 +133,23 @@ const RegisterPage = () => {
                   type="text"
                   name="lname"
                   required
+                  value={formData.lname}
+                  disabled={loading}
+                  onChange={handleChange}
+                  className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 outline-none sm:text-sm"
+                />
+              </div>
+
+              {/* Address */}
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                 Home Address
+                </label>
+                <input
+                  type="text"
+                  name="address"
+                  required
+                  value={formData.address}
                   disabled={loading}
                   onChange={handleChange}
                   className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 outline-none sm:text-sm"
@@ -144,6 +164,7 @@ const RegisterPage = () => {
                 <select
                   name="gender"
                   required
+                  
                   disabled={loading}
                   onChange={handleChange}
                   value={formData.gender}
@@ -184,6 +205,7 @@ const RegisterPage = () => {
                   type="email"
                   name="email"
                   required
+                  value={formData.email}
                   disabled={loading}
                   onChange={handleChange}
                   className="block w-full px-4 py-3 rounded-md border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 outline-none sm:text-sm"
@@ -200,6 +222,7 @@ const RegisterPage = () => {
                     type={showPassword ? "text" : "password"}
                     name="password"
                     required
+                    value={formData.password}
                     disabled={loading}
                     onChange={handleChange}
                     className="block w-full px-4 py-3 pr-10 rounded-md border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 outline-none sm:text-sm"
@@ -229,6 +252,7 @@ const RegisterPage = () => {
                     type={showConfirmPassword ? "text" : "password"}
                     name="confirm_password"
                     required
+                    value={formData.confirm_password}
                     disabled={loading}
                     onChange={handleChange}
                     className="block w-full px-4 py-3 pr-10 rounded-md border border-gray-300 shadow-sm focus:ring-2 focus:ring-blue-500 outline-none sm:text-sm"

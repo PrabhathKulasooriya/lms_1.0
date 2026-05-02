@@ -23,6 +23,7 @@ export async function GET(request, { params }) {
             last_name: true,
             email: true,
             mobile: true,
+            address: true,
           },
         },
         course: { select: { id: true, title: true, type: true, grade: true } },
@@ -48,12 +49,18 @@ export async function PUT(request, { params }) {
     if (!existing) return err("Enrollment not found", 404);
 
     const body = await request.json();
-    const { is_active, expires_at } = body;
+    const { is_active, expires_at, tute_sent } = body;
 
     const data = {};
     if (is_active !== undefined) data.is_active = Boolean(is_active);
+
     if (expires_at !== undefined)
       data.expires_at = expires_at ? new Date(expires_at) : null;
+    
+    if (tute_sent !== undefined){ 
+      data.tute_sent = Boolean(tute_sent);
+      data.tute_sent_at = tute_sent? new Date() : null;
+      };
 
     if (Object.keys(data).length === 0)
       return err("No updatable fields provided");

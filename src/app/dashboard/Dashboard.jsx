@@ -9,6 +9,8 @@ import Acc from "../_admin_components/Acc";
 import UserList from "../_admin_components/UserList";
 import EnrollmentList from "../_admin_components/EnrollmentsList";
 import LessonList from "../_admin_components/LessonsList";
+import TuteDispatch from "../_admin_components/TuteDispatch";
+import GlobalExpirySettings from "../_admin_components/GlobalExpirySettings";
 
 const Dashboard = ({ courses, user, enrollment}) => {
 
@@ -24,15 +26,25 @@ const Dashboard = ({ courses, user, enrollment}) => {
       />
       <div className="flex  items-start mt-16 justify-center flex-1 ml-[70px] md:ml-0 text-text">
         {activeComponent === "account" && <Acc user={user} />}
-        {user.role === "admin" && activeComponent === "courses" && (
+        {user.role === "admin" && activeComponent === "all-courses" && (
           <CourseList initialCourses={courses} />
         )}
-        {activeComponent === "mycourses" && (
+        {user.role === "admin" && activeComponent === "courses" && (
           <UserCourseList enrollments={enrollment} />
         )}
-        {activeComponent === "lessons" && ( <LessonList courses={courses}/>)}
-        {activeComponent === "users" && <UserList />}
-        {activeComponent === "enrollments" && <EnrollmentList courses={courses}/>}
+        {user.role === "admin" && activeComponent === "lessons" && (
+          <LessonList courses={courses} />
+        )}
+        {user.role === "admin" && activeComponent === "users" && <UserList />}
+        {user.role === "admin" && activeComponent === "enrollments" && (
+          <EnrollmentList courses={courses} />
+        )}
+        {user.role === "admin" && activeComponent === "tute" && (
+          <TuteDispatch courses={courses} />
+        )}
+        {user.role === "admin" && activeComponent === "settings" && (
+          <GlobalExpirySettings />
+        )}
       </div>
     </div>
   );
