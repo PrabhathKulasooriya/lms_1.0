@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { Menu, X, BookOpen, LogIn, Mail, Home, LogOut } from "lucide-react";
-import toast from "react-hot-toast";
+
 
 const rightNavLinks = [
   { name: "Home", href: "/", icon: Home },
