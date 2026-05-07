@@ -1,7 +1,11 @@
 import Dashboard from "./Dashboard";
 import { prisma } from "@/lib/prisma";
 import { unstable_cache } from "next/cache";
-import {auth} from "@/auth";
+import { auth } from "@/auth";
+import { redirect } from "next/navigation";
+
+// Force this page to render on every request (required for auth)
+export const dynamic = "force-dynamic";
 
 const getCourses = unstable_cache(
   async () => {
@@ -10,53 +14,57 @@ const getCourses = unstable_cache(
       orderBy: { created_at: "desc" },
     });
   },
-  ["courses-data"], 
+  ["courses-data"],
   {
-    tags: ["courses-data"], 
-    revalidate: 86400, 
+    tags: ["courses-data"],
+    revalidate: 86400,
   },
 );
 
-const getUser = async () => {
+const getUser = async (session) => {
+  if (!session?.user?.id) return null;
   try {
-    const session = await auth();
-    const userId = parseInt(session?.user?.id) ;
-
+    const userId = parseInt(session.user.id);
     return await prisma.users.findUnique({
       where: { id: userId },
     });
-
   } catch (error) {
     console.error("Error fetching user:", error);
     return null;
   }
 };
 
-const enrollments = async ()=>{
-  try{
-    const session = await auth();
-    const userId = parseInt(session?.user?.id);
+const getEnrollments = async (session) => {
+  if (!session?.user?.id) return [];
+  try {
+    const userId = parseInt(session.user.id);
     return await prisma.enrollments.findMany({
-      where: {user_id: userId},
-      include: {course: true}
+      where: { user_id: userId },
+      include: { course: true },
     });
   } catch (error) {
     console.error("Error fetching enrollments:", error);
-    return null;
+    return [];
   }
-}
+};
 
 export default async function Page() {
-  let courses = [];
-  let user = null;
-  let enrollment = null;
+  const session = await auth();
 
-  try {
-    courses = await getCourses();
-    user = await getUser();
-    enrollment = await enrollments(); 
-  } catch (error) {
-    console.error("Error :", error);
+  // 1. Protect the route: If no session, go to login
+  if (!session) {
+    redirect("/login");
+  }
+
+  const [courses, user, enrollment] = await Promise.all([
+    getCourses(),
+    getUser(session),
+    getEnrollments(session),
+  ]);
+
+  // 2. Secondary protection: If user is not in DB
+  if (!user) {
+    redirect("/login");
   }
 
   return <Dashboard courses={courses} user={user} enrollment={enrollment} />;
