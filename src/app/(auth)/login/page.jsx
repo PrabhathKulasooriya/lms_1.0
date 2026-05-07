@@ -1,12 +1,12 @@
 "use client";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import toast from "react-hot-toast"; 
+import toast from "react-hot-toast";
 
-
-const LoginPage = () => {
+// ✅ Extracted into its own component so useSearchParams() is inside <Suspense>
+const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -28,7 +28,7 @@ const LoginPage = () => {
     if (res?.error) {
       setLoading(false);
 
-      if(res.code=== "email_not_verified") {
+      if (res.code === "email_not_verified") {
         toast.error("Please verify your email first.");
         router.push(`/verify-email?email=${encodeURIComponent(email)}`);
         return;
@@ -47,7 +47,6 @@ const LoginPage = () => {
 
   return (
     <div className="bg-[url('@/assets/bg/1.jpg')] bg-cover bg-center text-text w-screen h-screen flex flex-col justify-center items-center">
-      {/* <h1 className="text-3xl font-semibold mb-6 w-full text-center">Login</h1> */}
       <div className="flex items-center justify-center px-4 max-w-md">
         <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lg border border-gray-100">
           <div className="text-center">
@@ -150,12 +149,21 @@ const LoginPage = () => {
         Don&apos;t have an account?
         <Link
           href="/register"
-          className="inline-block text-primary  font-bold hover:underline hover:scale-105 origin-center mx-2 transition-all duration-300"
+          className="inline-block text-primary font-bold hover:underline hover:scale-105 origin-center mx-2 transition-all duration-300"
         >
           Register
         </Link>
       </p>
     </div>
+  );
+};
+
+// ✅ The actual page export wraps LoginForm in Suspense
+const LoginPage = () => {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 };
 
