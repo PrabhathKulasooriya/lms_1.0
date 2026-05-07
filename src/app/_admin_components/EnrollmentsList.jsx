@@ -14,6 +14,7 @@ import {
   GraduationCap,
   ChevronDown,
   Trash2,
+  CalendarClock,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 
@@ -375,7 +376,7 @@ const EnrollmentForm = ({
       )}
 
       {/* Expire Date */}
-      {/* <div>
+      <div>
         <label className="block text-sm font-medium text-gray-700 mb-1.5">
           Expires At{" "}
           <span className="text-gray-400 font-normal">(optional)</span>
@@ -394,7 +395,7 @@ const EnrollmentForm = ({
             className={inputClass}
           />
         </div>
-      </div> */}
+      </div>
 
       {!isCreate && (
         <div className="flex items-center justify-between py-2.5 px-4 bg-gray-50 rounded-xl border border-gray-100">

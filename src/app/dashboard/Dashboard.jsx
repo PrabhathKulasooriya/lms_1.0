@@ -18,7 +18,7 @@ const Dashboard = ({ courses, user, enrollment}) => {
   
   
   return (
-    <div className="flex flex-row w-screen h-screen ">
+    <div className="flex flex-row w-full max-w-screen h-full min-h-screen ">
       <Sidebar
         activeComponent={activeComponent}
         setActiveComponent={setActiveComponent}

@@ -32,7 +32,7 @@ const Sidebar = ({ activeComponent, setActiveComponent, role }) => {
   };
 
   return (
-    <div className="min-h-screen h-full">
+    <div >
       {/* Click-outside overlay — Mobile Only */}
       {isOpen && (
         <div

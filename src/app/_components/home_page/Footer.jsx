@@ -89,6 +89,7 @@ const Footer = () => {
                 { name: "Home", href: "/", click: handleHomeClick },
                 { name: "Courses", href: "/courses" },
                 { name: "Contact", href: "/contact" },
+                { name: "Terms and Conditions", href: "/terms" },
               ].map((link) => (
                 <li key={link.name}>
                   <Link

@@ -64,7 +64,7 @@ const GlobalExpirySettings = () => {
   };
 
   return (
-    <div className="pt-2 w-full px-4 md:px-8 pb-8 font-sans">
+    <div className="pt-2 w-full  px-4 md:px-8 pb-8 font-sans">
       {/* Page Header */}
       <div className="flex items-center gap-3 mb-8">
         <CalendarClock size={28} className="text-blue-600" />

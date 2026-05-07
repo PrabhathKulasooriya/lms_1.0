@@ -148,7 +148,7 @@ const TuteDispatch = () => {
   };
 
   return (
-    <div className="p-4 md:p-8 w-full mx-auto bg-white min-h-screen font-sans">
+    <div className="p-4 md:p-8 flex-1 overflow-x-hidden mx-auto bg-white min-h-screen font-sans">
       {/* Header Section */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-2">

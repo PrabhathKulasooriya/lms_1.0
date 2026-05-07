@@ -20,17 +20,26 @@ const RegisterPage = () => {
     gender: "",
     mobile: "",
     address: "",
+    agreeToTerms: false,
   });
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    // Destructure name, value, type, and checked from the event target
+    const { name, value, type, checked } = e.target;
+
     if (name === "mobile") {
       const numbersOnly = value.replace(/\D/g, "");
       if (numbersOnly.length <= 10) {
         setFormData((prev) => ({ ...prev, [name]: numbersOnly }));
       }
     } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+      // We use the 'type' variable we just destructured above
+      const finalValue = type === "checkbox" ? checked : value;
+
+      setFormData((prev) => ({
+        ...prev,
+        [name]: finalValue,
+      }));
     }
   };
 
@@ -56,6 +65,11 @@ const RegisterPage = () => {
     if (!mobilePattern.test(formData.mobile)) {
       toast.error("Enter correct mobile number!", { id: toastId });
       setLoading(false);
+      return;
+    }
+
+    if (!formData.agreeToTerms) {
+      toast.error("You must agree to the Terms and Conditions!");
       return;
     }
 
@@ -143,7 +157,7 @@ const RegisterPage = () => {
               {/* Address */}
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                 Home Address
+                  Home Address
                 </label>
                 <input
                   type="text"
@@ -164,7 +178,6 @@ const RegisterPage = () => {
                 <select
                   name="gender"
                   required
-                  
                   disabled={loading}
                   onChange={handleChange}
                   value={formData.gender}
@@ -283,6 +296,33 @@ const RegisterPage = () => {
                   </p>
                 )}
               </div>
+            </div>
+
+            {/* Terms and Conditions Checkbox */}
+            <div className="md:col-span-2 flex items-start space-x-3 py-2">
+              <input
+                id="agreeToTerms"
+                name="agreeToTerms"
+                type="checkbox"
+                required
+                checked={formData.agreeToTerms}
+                onChange={handleChange}
+                className="h-4 w-4 mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+              />
+              <label
+                htmlFor="agreeToTerms"
+                className="text-sm text-gray-600 leading-snug cursor-pointer"
+              >
+                I agree to the{" "}
+                <Link
+                  href="/terms"
+                  target="_blank"
+                  className="text-blue-600 font-semibold hover:underline"
+                >
+                  Terms and Conditions
+                </Link>{" "}
+                and acknowledge the Privacy Policy.
+              </label>
             </div>
 
             <div className="text-center">
