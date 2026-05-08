@@ -133,10 +133,10 @@ const Footer = () => {
                   <Mail size={20} />
                 </div>
                 <a
-                  href="mailto:info@ltcacademy.online?subject=Inquiry from Commerce with Hasindu"
+                  href="mailto:info@nexlearn.lk?subject=Inquiry from NexLearn Website"
                   className="text-sm hover:text-[#9fe03c] transition-colors duration-300"
                 >
-                  info@ltcacademy.online
+                  info@nexlearn.lk
                 </a>
               </div>
             </div>

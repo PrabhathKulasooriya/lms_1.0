@@ -9,17 +9,37 @@ import toast, { Toaster } from "react-hot-toast";
 const ContactPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+  });
+
+  const handleChange = (e) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-
-    // Mocking email submission
-    // In production, you would use an API route or a service like Formspree/Resend
-    setTimeout(() => {
-      toast.success("Message sent successfully!");
-      setIsSubmitting(false);
+    const toastId = toast.loading("Sending your message...");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message);
+      toast.success("Message sent successfully!", { id: toastId });
       e.target.reset();
-    }, 1500);
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    } catch (err) {
+      toast.error(err.message || "Failed to send message.", { id: toastId });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -80,7 +100,7 @@ const ContactPage = () => {
                   <p className="text-sm text-gray-300 uppercase tracking-widest font-bold mb-1">
                     Email Us
                   </p>
-                  <p className="text-lg font-medium">info@ltcacademy.online</p>
+                  <p className="text-lg font-medium">info@nexlearn.lk</p>
                 </div>
               </div>
 
@@ -136,6 +156,9 @@ const ContactPage = () => {
                   </label>
                   <input
                     type="text"
+                    name="name"
+                    onChange={handleChange}
+                    value={formData.name}
                     required
                     placeholder="John Doe"
                     className="w-full px-6 py-4 rounded-2xl bg-[#F8F9FA] border border-gray-200 focus:border-[#9fe03c] focus:outline-none transition-all duration-300"
@@ -147,6 +170,9 @@ const ContactPage = () => {
                   </label>
                   <input
                     type="email"
+                    name="email"
+                    onChange={handleChange}
+                    value={formData.email}
                     required
                     placeholder="john@example.com"
                     className="w-full px-6 py-4 rounded-2xl bg-[#F8F9FA] border border-gray-200 focus:border-[#9fe03c] focus:outline-none transition-all duration-300"
@@ -160,6 +186,9 @@ const ContactPage = () => {
                 </label>
                 <input
                   type="text"
+                  name="subject"
+                  onChange={handleChange}
+                  value={formData.subject}
                   required
                   placeholder="Inquiry about Course Enrollment"
                   className="w-full px-6 py-4 rounded-2xl bg-[#F8F9FA] border border-gray-200 focus:border-[#9fe03c] focus:outline-none transition-all duration-300"
@@ -172,6 +201,9 @@ const ContactPage = () => {
                 </label>
                 <textarea
                   rows="5"
+                  name="message"
+                  onChange={handleChange}
+                  value={formData.message}
                   required
                   placeholder="Write your message here..."
                   className="w-full px-6 py-4 rounded-2xl bg-[#F8F9FA] border border-gray-100 focus:border-[#9fe03c] focus:outline-none transition-all duration-300 resize-none"

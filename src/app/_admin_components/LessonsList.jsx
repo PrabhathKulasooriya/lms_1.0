@@ -571,8 +571,8 @@ const LessonList = ({ courses = [] }) => {
               {courses.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.title}
-                  {c.grade ? ` · G${c.grade}` : ""}
-                  {c.type ? ` [${c.type.replace(/_/g, " ")}]` : ""}
+                  {c.grade ? ` - G${c.grade} - ` : ""}
+                  {c.type ? c.type.charAt(0).toUpperCase() + c.type.slice(1).replace(/_/g, " ") : ""}
                 </option>
               ))}
             </select>

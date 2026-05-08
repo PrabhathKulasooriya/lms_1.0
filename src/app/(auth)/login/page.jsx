@@ -15,35 +15,40 @@ const LoginForm = () => {
   const searchparams = useSearchParams();
   const callbackUrl = searchparams.get("callbackUrl") || "/";
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+const handleLogin = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  const toastId = toast.loading("Signing you in...");
 
-    const res = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
+  const res = await signIn("credentials", {
+    email,
+    password,
+    redirect: false,
+  });
 
-    if (res?.error) {
-      setLoading(false);
+  if (res?.error) {
+    setLoading(false);
 
-      if (res.code === "email_not_verified") {
-        toast.error("Please verify your email first.");
-        router.push(`/verify-email?email=${encodeURIComponent(email)}`);
-        return;
-      }
-      if (res.code === "blocked") {
-        toast.error("Your account has been blocked. Please contact support.");
-      } else {
-        toast.error("Invalid email or password.");
-      }
-    } else {
-      toast.success("Login successful!");
-      router.push(callbackUrl);
-      router.refresh();
+    if (res.code === "email_not_verified") {
+      toast.error("Please verify your email first.", { id: toastId });
+      router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+      return;
     }
-  };
+    if (res.code === "blocked") {
+      toast.error("Your account has been blocked. Please contact support.", {
+        id: toastId,
+      });
+    } else {
+      toast.error("Invalid email or password.", { id: toastId });
+    }
+  } else {
+    toast.success("Login successful!", { id: toastId });
+    router.push(callbackUrl);
+    router.refresh();
+  }
+
+  setLoading(false);
+};
 
   return (
     <div className="bg-[url('@/assets/bg/1.jpg')] bg-cover bg-center text-text w-screen h-screen flex flex-col justify-center items-center">

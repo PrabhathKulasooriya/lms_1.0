@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs";
 export async function POST(request) {
   try {
     // 1. Extract type, defaulting to EMAIL_VERIFICATION for backwards compatibility
-    const { email, type = "EMAIL_VERIFICATION" } = await request.json();
+    const { email, type } = await request.json();
 
     if (!email) {
       return NextResponse.json(
@@ -54,7 +54,7 @@ export async function POST(request) {
     });
 
     // Note: You might want to pass 'type' to sendVerificationEmail to change the email subject line!
-    await sendVerificationEmail(email, otp);
+    await sendVerificationEmail(email, otp, type);
 
     return NextResponse.json(
       { message: "Verification code sent." },

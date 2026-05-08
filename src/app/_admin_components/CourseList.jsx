@@ -454,7 +454,7 @@ const CourseList = ({ initialCourses }) => {
                           onClick={() => handleTogglePublish(course)}
                           className={`relative inline-flex items-center w-16 h-8 rounded-full transition-colors duration-300 focus:outline-none ${
                             course.is_published
-                              ? "bg-purple-600"
+                              ? "bg-green-600"
                               : "bg-gray-200"
                           }`}
                         >
