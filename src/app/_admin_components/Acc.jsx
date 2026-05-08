@@ -102,8 +102,10 @@ const EditModal = ({ user, onClose, onSave }) => {
         throw new Error(data.message || "Update failed");
       onSave(data.user);
       onClose();
+      toast.success("Profile updated successfully!");
     } catch (err) {
       setError(err.message);
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }

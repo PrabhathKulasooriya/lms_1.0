@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { Menu, X, BookOpen, LogIn, Mail, Home, LogOut } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 
 const rightNavLinks = [
@@ -67,10 +69,7 @@ const Navbar = () => {
               onClick={() => handleNavClick("/")}
               className="flex-shrink-0"
             >
-              <span className="text-2xl font-extrabold text-[#9fe03c] tracking-tight">
-                Commerce with{" "}
-                <span className="text-white font-light">Hasindu</span>
-              </span>
+              <Image src={logo} alt="Logo" className="h-auto w-60" />
             </Link>
           </div>
 
