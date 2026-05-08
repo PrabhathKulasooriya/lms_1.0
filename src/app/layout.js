@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
-  title: "LMS",
-  description: "LMS for O/L's",
+  title: "NexLearn",
+  description: "LMS for O/L'students",
 };
 
 export default function RootLayout({ children }) {
