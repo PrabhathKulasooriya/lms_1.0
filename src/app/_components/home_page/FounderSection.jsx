@@ -2,14 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { motion } from "framer-motion";
-import {
-  FaFacebookF,
-  FaWhatsapp,
-  FaTwitter,
-  FaLinkedinIn,
-} from "react-icons/fa6";
 import { ChevronRight } from "lucide-react";
 import founder from "@/assets/founder.png";
 
@@ -28,12 +21,12 @@ const FounderSection = () => {
           <div className="relative aspect-[3/4] w-full overflow-hidden bg-slate-200">
             <div className="w-full h-full flex items-center justify-center text-gray-400 italic text-xs p-6 text-center">
               Founder Photo
-               <Image 
+              <Image
                 src={founder}
-                alt="Hasindu Kanishka" 
-                fill 
+                alt="Hasindu Kanishka"
+                fill
                 className="object-cover object-top transition-transform duration-700 group-hover:scale-110"
-              /> 
+              />
             </div>
 
             {/* Darker Gradient for text readability */}
@@ -41,15 +34,15 @@ const FounderSection = () => {
 
             {/* Integrated Name & Qualifications Overlay */}
             <div className="absolute bottom-0 left-0 w-full p-6 text-center backdrop-blur-[2px]">
-              <span className="text-[#9fe03c] text-[18px] font-bold uppercase tracking-[0.3em] block mb-1">
+              <span className="text-[#9fe03c] text-[20px] font-bold uppercase tracking-[0.3em] block mb-1">
                 Founder & CEO
               </span>
               <h2 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tight mb-2">
                 Hasindu Kanishka
               </h2>
               <p className="text-white/80 font-medium text-[12px] leading-relaxed uppercase tracking-wider line-clamp-2 px-2">
-                CMA(Finalists) , ACIM(UK) , MSLIM , PGDip MK , ACPM , AAT(SL) ,
-                DICA(UK) , DIBM(UK)
+                BMS Hons. in (HRM) - OUSL (UG), AAT (PF), PCM (SLIM), DPHRM
+                (CIPM), CIHRM (CIPM)
               </p>
               <div className="w-12 h-1 bg-[#FFD700] mx-auto mt-4 rounded-full" />
             </div>
@@ -69,7 +62,14 @@ const FounderSection = () => {
                     size={16}
                     className="text-[#0b408e] mt-0.5 shrink-0"
                   />
-                  <p>19 years of expertise in finance and insurance sectors.</p>
+                  <p>2 years of expertise in Human Resource Management.</p>
+                </div>
+                <div className="flex items-start gap-3 text-gray-600 text-sm leading-relaxed pl-3">
+                  <ChevronRight
+                    size={16}
+                    className="text-[#0b408e] mt-0.5 shrink-0"
+                  />
+                  <p>1 year of expertise in Financial Audit.</p>
                 </div>
               </div>
 
@@ -85,39 +85,12 @@ const FounderSection = () => {
                     className="text-[#0b408e] mt-0.5 shrink-0"
                   />
                   <p>
-                    14 years experience in Accountancy and Management lecturing.
+                    3 years experience in Business And Accounting Studies lecturing.
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Social Links */}
-            <div className="flex justify-center items-center gap-6 pt-6 border-t border-gray-50">
-              <Link
-                href="#"
-                className="p-2 text-[#0b408e]/50 hover:text-[#9fe03c] hover:bg-[#9fe03c]/10 rounded-full transition-all"
-              >
-                <FaFacebookF size={18} />
-              </Link>
-              <Link
-                href="#"
-                className="p-2 text-[#0b408e]/50 hover:text-[#9fe03c] hover:bg-[#9fe03c]/10 rounded-full transition-all"
-              >
-                <FaTwitter size={18} />
-              </Link>
-              <Link
-                href="#"
-                className="p-2 text-[#0b408e]/50 hover:text-[#9fe03c] hover:bg-[#9fe03c]/10 rounded-full transition-all"
-              >
-                <FaWhatsapp size={18} />
-              </Link>
-              <Link
-                href="#"
-                className="p-2 text-[#0b408e]/50 hover:text-[#9fe03c] hover:bg-[#9fe03c]/10 rounded-full transition-all"
-              >
-                <FaLinkedinIn size={18} />
-              </Link>
-            </div>
           </div>
         </motion.div>
       </div>

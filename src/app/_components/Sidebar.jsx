@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { GraduationCap, User, Menu, ChevronLeft, LibraryBig, Users, NotebookPen, FileText, Bolt } from "lucide-react";
+import { GraduationCap, User, Menu, ChevronLeft, LibraryBig, Users, NotebookPen, FileText, Bolt, GalleryVertical } from "lucide-react";
 
 const Sidebar = ({ activeComponent, setActiveComponent, role }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -32,7 +32,7 @@ const Sidebar = ({ activeComponent, setActiveComponent, role }) => {
   };
 
   return (
-    <div >
+    <div>
       {/* Click-outside overlay — Mobile Only */}
       {isOpen && (
         <div
@@ -151,6 +151,14 @@ const Sidebar = ({ activeComponent, setActiveComponent, role }) => {
               >
                 <Bolt className={iconClass("settings")} />
                 <span className={labelClass("settings")}>Settings</span>
+              </button>
+              {/* SliderImages*/}
+              <button
+                onClick={() => handleClick("slider")}
+                className={btnClass("slider")}
+              >
+                <GalleryVertical className={iconClass("slider")} />
+                <span className={labelClass("slider")}>Slider Images</span>
               </button>
             </>
           )}

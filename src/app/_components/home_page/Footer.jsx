@@ -125,7 +125,7 @@ const Footer = () => {
                   href="tel:0742443229"
                   className="text-sm hover:text-[#9fe03c] transition-colors duration-300"
                 >
-                  xxxxxxxxxx
+                  071 156 2002
                 </a>
               </div>
               <div className="flex items-center gap-4 text-gray-200 group cursor-pointer">

@@ -57,7 +57,7 @@ export default function StatsSection() {
   return (
     <div
       ref={ref}
-      className="w-full  py-16 font-sans overflow-hidden"
+      className="w-full  py-16 font-sans overflow-hidden bg-gray-200"
     >
       <div className="mx-auto max-w-6xl px-4 text-center">
         <h2

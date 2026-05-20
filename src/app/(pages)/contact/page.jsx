@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Send, MessageCircle } from "lucide-react";
 import { FaFacebookF, FaWhatsapp, FaTiktok } from "react-icons/fa6";
 import toast, { Toaster } from "react-hot-toast";
+import Link from "next/link";
 
 const ContactPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -80,7 +81,7 @@ const ContactPage = () => {
             </h2>
 
             <div className="space-y-8 relative z-10">
-              <div className="flex items-start gap-5 group">
+              <Link href={"tel:+94711562002"} className="flex items-start gap-5 group">
                 <div className="bg-white/10 p-3 rounded-2xl group-hover:bg-[#9fe03c] group-hover:text-[#0b408e] transition-all duration-300">
                   <Phone size={24} />
                 </div>
@@ -88,21 +89,26 @@ const ContactPage = () => {
                   <p className="text-sm text-gray-300 uppercase tracking-widest font-bold mb-1">
                     Call Us
                   </p>
-                  <p className="text-lg font-medium">074 244 3229</p>
+                  <p className="text-lg font-medium">071 156 2002</p>
                 </div>
-              </div>
+              </Link>
 
-              <div className="flex items-start gap-5 group">
-                <div className="bg-white/10 p-3 rounded-2xl group-hover:bg-[#9fe03c] group-hover:text-[#0b408e] transition-all duration-300">
-                  <Mail size={24} />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-300 uppercase tracking-widest font-bold mb-1">
-                    Email Us
-                  </p>
-                  <p className="text-lg font-medium">info@nexlearn.lk</p>
-                </div>
-              </div>
+              
+                <Link
+                  href="mailto:info@nexlearn.lk?subject=Inquiry from NexLearn Website"
+                  className="flex items-start gap-5 group"
+                >
+                  <div className="bg-white/10 p-3 rounded-2xl group-hover:bg-[#9fe03c] group-hover:text-[#0b408e] transition-all duration-300">
+                    <Mail size={24} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-gray-300 uppercase tracking-widest font-bold mb-1">
+                      Email Us
+                    </p>
+                    <p className="text-lg font-medium">info@nexlearn.lk</p>
+                  </div>
+                </Link>
+              
 
               <div className="flex items-start gap-5 group">
                 <div className="bg-white/10 p-3 rounded-2xl group-hover:bg-[#9fe03c] group-hover:text-[#0b408e] transition-all duration-300">
@@ -113,7 +119,7 @@ const ContactPage = () => {
                     Location
                   </p>
                   <p className="text-lg font-medium leading-snug">
-                    Colombo, Sri Lanka
+                    Kuliyapitiya, Sri Lanka
                   </p>
                 </div>
               </div>
@@ -125,17 +131,26 @@ const ContactPage = () => {
               </p>
               <div className="flex gap-4 justify-center lg:justify-start">
                 {[
-                  { Icon: FaFacebookF, color: "hover:bg-[#1877F2]", href: "#" },
-                  { Icon: FaWhatsapp, color: "hover:bg-[#25D366]", href: "#" },
+                  {
+                    Icon: FaFacebookF,
+                    color: "hover:bg-[#1877F2]",
+                    href: "https://www.facebook.com/share/1ECvTQxR5o/",
+                  },
+                  {
+                    Icon: FaWhatsapp,
+                    color: "hover:bg-[#25D366]",
+                    href: "https://api.whatsapp.com/message/YFJHB7SESANDB1",
+                  },
                   { Icon: FaTiktok, color: "hover:bg-black", href: "#" },
                 ].map((social, i) => (
-                  <a
+                  <Link
                     key={i}
                     href={social.href}
+                    target="_blank"
                     className={`bg-white/10 p-4 rounded-full transition-all duration-300 ${social.color} hover:-translate-y-2`}
                   >
                     <social.Icon size={20} />
-                  </a>
+                  </Link>
                 ))}
               </div>
             </div>

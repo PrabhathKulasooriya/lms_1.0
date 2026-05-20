@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import Link from "next/link";
-import ImageSlider from "@/app/_components/ImageSlider";
+import ImageSlider from "@/app/_components/home_page/ImageSlider";
 import { useInView } from "@/hooks/useInView";
 import Image from "next/image";
 
@@ -12,7 +12,7 @@ const Home = () => {
   const { ref, inView } = useInView();
 
   return (
-    <div className="h-auto pt-16 flex flex-col relative" id="section_1">
+    <div className="h-auto  flex flex-col relative " id="section_1">
       <div className="flex ">
         <ImageSlider />
       </div>
@@ -25,7 +25,7 @@ const Home = () => {
         <Link
           href="/courses?type=theory&grade=10"
           className={`group flex flex-col items-center justify-center h-24 mb-6  border-2 border-white rounded-xl 
-                      transition-all duration-300 hover:bg-primary hover:shadow-lg hover:shadow-primary/20 
+                      transition-all duration-300 hover:backdrop-blur-md hover:shadow-lg hover:shadow-primary/20 
                       ${inView ? "animate-slide-in-right" : "opacity-0 translate-x-full"}`}
         >
           <span className="text-2xl md:text-3xl font-bold text-white group-hover:text-white group-hover:scale-110 transition-all duration-500">
@@ -37,7 +37,7 @@ const Home = () => {
         <Link
           href="/courses?type=theory&grade=11"
           className={`group flex flex-col items-center justify-center h-24 mb-6  border-2 border-white rounded-xl 
-                      transition-all duration-300 hover:bg-primary hover:shadow-lg hover:shadow-primary/20 
+                      transition-all duration-300 hover:backdrop-blur-md hover:shadow-lg hover:shadow-primary/20 
                       ${inView ? "animate-slide-in-right-2" : "opacity-0 translate-x-full"}`}
         >
           <span className="text-2xl md:text-3xl font-bold text-white group-hover:text-white group-hover:scale-110 transition-all duration-500">
@@ -52,16 +52,6 @@ const Home = () => {
         {/* Container for all cards to ensure consistent width across rows */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 w-full max-w-2xl">
           {/* Grade 10 Card -------------------------------------------------------------------------------------------------------------*/}
-          {/* <Link
-            href="/courses?type=theory&grade=10"
-            className="group flex flex-col items-center justify-center h-32 bg-white border-2 border-primary rounded-xl transition-all duration-300 hover:bg-primary hover:shadow-lg hover:shadow-primary/20"
-          >
-            <span className="text-2xl md:text-3xl font-bold text-primary group-hover:text-white group-hover:scale-110 transition-all duration-500">
-              10 ශ්‍රේණිය
-            </span>
-
-            <div className="w-0 h-1 bg-accent mt-2 transition-all duration-500 group-hover:w-32 rounded-full" />
-          </Link> */}
 
           <Link
             href="/courses?type=theory&grade=10"
@@ -79,7 +69,7 @@ const Home = () => {
             />
 
             {/* 2. Dark Overlay - -z-10 sits above image but below text */}
-            <div className="absolute inset-0 bg-[#061a17]/50 group-hover:bg-[#061a17]/40 transition-colors duration-500 -z-10" />
+            <div className="absolute inset-0 bg-[#061a17]/20 group-hover:bg-[#061a17]/40 transition-colors duration-500 -z-10" />
 
             <span className="relative z-10 text-2xl md:text-3xl font-bold text-white drop-shadow-md group-hover:scale-110 transition-all duration-500">
               10 ශ්‍රේණිය
@@ -89,15 +79,6 @@ const Home = () => {
           </Link>
 
           {/* Grade 11 Card------------------------------------------------------------------------ */}
-          {/* <Link
-            href="/courses?type=theory&grade=11"
-            className="group flex flex-col items-center justify-center h-32 bg-white border-2 border-primary rounded-xl transition-all duration-300 hover:bg-primary hover:shadow-lg hover:shadow-primary/20"
-          >
-            <span className="text-2xl md:text-3xl font-bold text-primary group-hover:text-white group-hover:scale-110 transition-all duration-500">
-              11 ශ්‍රේණිය
-            </span>
-            <div className="w-0 h-1 bg-accent mt-2 transition-all duration-500 group-hover:w-32 rounded-full" />
-          </Link> */}
 
           <Link
             href="/courses?type=theory&grade=11"
@@ -115,7 +96,7 @@ const Home = () => {
             />
 
             {/* 2. Dark Overlay - -z-10 sits above image but below text */}
-            <div className="absolute inset-0 bg-[#061a17]/50 group-hover:bg-[#061a17]/40 transition-colors duration-500 -z-10" />
+            <div className="absolute inset-0 bg-[#061a17]/20 group-hover:bg-[#061a17]/40 transition-colors duration-500 -z-10" />
 
             {/* 3. Text content */}
             <span className="relative z-10 text-2xl md:text-3xl font-bold text-white drop-shadow-md group-hover:scale-110 transition-all duration-500">
@@ -154,7 +135,7 @@ const Home = () => {
 
             {/* 3. Text Content (Using Primary color or Dark Teal for contrast on white) */}
             <span className="relative z-10 text-2xl md:text-3xl font-bold text-primary group-hover:scale-110 transition-all duration-500">
-              Past Paper Discussion
+              විභාග ප්‍රශ්න පත්‍ර සාකච්ඡාව
             </span>
 
             {/* 4. Animated Underline */}

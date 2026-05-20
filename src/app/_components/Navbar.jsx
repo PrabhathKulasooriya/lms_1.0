@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { Menu, X, BookOpen, LogIn, Mail, Home, LogOut } from "lucide-react";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logos/logo_1.png";
 
 
 const rightNavLinks = [
@@ -20,6 +20,8 @@ const Navbar = () => {
   const menuRef = useRef(null);
   const pathname = usePathname();
   const router = useRouter();
+
+  const dashboardPath = pathname.startsWith("/dashboard");
 
   const { data: session, status } = useSession();
 
@@ -49,6 +51,8 @@ const Navbar = () => {
       document
         .getElementById("main-scroll")
         ?.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      router.push(href);
     }
     closeMenu();
   };
@@ -59,7 +63,7 @@ const Navbar = () => {
     "flex items-center gap-1.5 px-2 py-2 rounded-full font-semibold text-md transition-all duration-300";
 
   return (
-    <nav className="bg-primary fixed top-0 left-0 right-0 z-99  shadow-lg">
+    <nav className={`fixed top-0 left-0 right-0 z-50 ${ dashboardPath ? "bg-primary" : "bg-gray-900/40"} backdrop-blur-md shadow-lg`}>
       <div className="max-w-screen">
         <div className="flex flex-row items-center justify-between h-16 w-screen">
           {/* LOGO */}
@@ -98,17 +102,17 @@ const Navbar = () => {
                   href="/dashboard"
                   className={`${authButtonBase} text-[#9fe03c] hover:scale-105 hover:text-accent`}
                 >
-                  <span className="text-white font-bold">
+                  <span className="text-white  font-bold">
                     {session.user.role === "admin"
                       ? "Dashboard"
                       : `Hi, ${session.user.first_name}`}
                   </span>
                 </Link>
 
-                <div className="w-px h-6 bg-gray-500 mx-3"></div>
+                <div className="w-px h-6 bg-white mx-3"></div>
                 <button
                   onClick={() => signOut({ callbackUrl: "/" })}
-                  className={`${authButtonBase} text-greenaccent hover:scale-105 hover:text-accent cursor-pointer`}
+                  className={`${authButtonBase} text-greenaccent hover:scale-105  cursor-pointer`}
                 >
                   <LogOut className="w-4 h-4" />
                   Logout
@@ -122,7 +126,7 @@ const Navbar = () => {
                 >
                   Register
                 </Link>
-                <div className="w-px h-6 bg-gray-500 mx-3"></div>
+                <div className="w-px h-6 bg-black-900 mx-3"></div>
                 <Link
                   href="/login"
                   className={`${authButtonBase} text-zinc-50 hover:scale-105 hover:text-accent`}
@@ -170,14 +174,15 @@ const Navbar = () => {
         <div className="flex flex-col items-center pt-24 space-y-8 h-full">
           {/* MOBILE NAV LINKS */}
           {rightNavLinks.map((link) => (
-            <button
+            <Link
               key={link.name}
+              href={link.href}
               onClick={() => handleNavClick(link.href)}
               className="flex items-center gap-4 text-xl font-medium text-white hover:text-greenaccent transition-colors cursor-pointer"
             >
               <link.icon className="w-6 h-6" />
               {link.name}
-            </button>
+            </Link>
           ))}
 
           <div className="w-2/3 h-px bg-white/10 my-4"></div>
