@@ -33,7 +33,7 @@ const SlideText = ({ text }) => {
     <div
       ref={ref}
       className={`block absolute top-1/2 left-1/2 md:left-1/4 transform -translate-x-1/2 -translate-y-1/2 
-        text-3xl font-bold text-center text-white z-20 transition-all duration-500
+        text-3xl font-bold text-center text-white z-20 transition-all duration-1000
         ${inView ? "animate-slide-in-left" : "opacity-0 -translate-x-full"}`}
     >
       {text}
