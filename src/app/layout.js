@@ -16,10 +16,20 @@ const geistMono = Geist_Mono({
 
 export const metadata = {
   title: "NexLearn",
-  description: "LMS for O/L'students",
+  description:
+    "Boost your O/L exam results with NexLearn. Access past papers, interactive lessons, and expert guidance for Sri Lankan Ordinary Level students.",
   icons: {
     icon: "/favicon.svg",
   },
+  keywords: [
+    "O/L LMS",
+    "Sri Lanka O/L exams",
+    "O/L past papers",
+    "online learning O/L",
+    "Ordinary Level study materials",
+    "O/L commerce",
+    
+  ],
 };
 
 export default function RootLayout({ children }) {
