@@ -57,7 +57,6 @@ export default async function Page() {
 
   const userId = session.user.id;
 
-  // 3. Fetch data using the userId
   const [courses, user, enrollment] = await Promise.all([
     getCourses(),
     getUser(userId),

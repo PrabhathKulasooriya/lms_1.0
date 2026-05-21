@@ -1,5 +1,13 @@
 import React from "react";
 
+export const metadata = {
+  title: "Terms and Conditions | NexLearn",
+  robots: {
+    index: false,
+    follow: true,
+  },
+};
+
 const TermsPage = () => {
   const lastUpdated = "May 4, 2026";
 
