@@ -17,6 +17,9 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "NexLearn",
   description: "LMS for O/L'students",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({ children }) {
