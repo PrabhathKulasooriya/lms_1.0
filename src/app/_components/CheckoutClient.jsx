@@ -120,14 +120,16 @@ export default function CheckoutClient({ course, courseId }) {
               Completing purchase for
             </p>
             <p className="text-sm font-semibold text-gray-900">
-              {course.title}{" "}{course.type === "pastpaper" && (
+              {course.title}{" "}
+              {course.type === "pastpaper" && (
                 <span className="text-xs font-medium text-gray-500 ml-1">
                   (Past Paper Discussion)
                 </span>
-              )}{" "}{course.type === "theory" && (
-                  <span className="text-xs font-medium text-gray-500 ml-1">
-                    (Grade {course.grade} Theory)
-                  </span>
+              )}{" "}
+              {course.type === "theory" && (
+                <span className="text-xs font-medium text-gray-500 ml-1">
+                  (Grade {course.grade} Theory)
+                </span>
               )}
             </p>
           </div>
