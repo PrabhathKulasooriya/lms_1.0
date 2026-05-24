@@ -1,66 +1,71 @@
 "use server";
 
-import { stripe } from "@/lib/stripe";
+import crypto from "crypto";
 import { auth } from "@/auth";
 
-export async function handlePurchase(
+/**
+ * Generates the signed PayHere form parameters.
+ * The client submits these via a hidden <form> POST to PayHere's checkout URL.
+ */
+export async function getPayHereFormData(
   courseId,
-  userId,
   price,
   title,
   userEmail,
   fullName,
 ) {
-  const sessionAuth = await auth();
+  const session = await auth();
+  if (!session) throw new Error("Unauthorized: You must be logged in.");
 
-  if (!sessionAuth) {
-    throw new Error("Unauthorized: You must be logged in to purchase.");
+  const merchantId = process.env.PAYHERE_MERCHANT_ID;
+  const merchantSecret = process.env.PAYHERE_MERCHANT_SECRET;
+
+  if (!merchantId || !merchantSecret) {
+    throw new Error("PayHere credentials are not configured.");
   }
 
-  // 1. Look up the customer by email
-  const existingCustomers = await stripe.customers.list({
+  // Unique order ID: NX_{courseId}_{userId}_{timestamp}
+  const orderId = `NX_${courseId}_${session.user.id}_${Date.now()}`;
+  const amount = Number(price).toFixed(2);
+  const currency = "LKR";
+
+  // PayHere hash: MD5( merchantId + orderId + amount + currency + MD5(secret).toUpperCase() )
+  const hashedSecret = crypto
+    .createHash("md5")
+    .update(merchantSecret)
+    .digest("hex")
+    .toUpperCase();
+
+  const hash = crypto
+    .createHash("md5")
+    .update(`${merchantId}${orderId}${amount}${currency}${hashedSecret}`)
+    .digest("hex")
+    .toUpperCase();
+
+  // Split full name into first / last
+  const nameParts = (fullName || "Customer").trim().split(" ");
+  const firstName = nameParts[0] || "Customer";
+  const lastName = nameParts.slice(1).join(" ") || "-";
+
+  return {
+    merchant_id: merchantId,
+    return_url: `${process.env.NEXT_PUBLIC_APP_URL}/learnings/${courseId}?purchase=success`,
+    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/courses/${courseId}/checkout`,
+    notify_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhook/payhere`,
+    order_id: orderId,
+    items: title,
+    currency,
+    amount,
+    first_name: firstName,
+    last_name: lastName,
     email: userEmail,
-    limit: 1,
-  });
-
-  let stripeCustomerId;
-
-  // 2. Use existing customer or create a new one to autofill Name & Email
-  if (existingCustomers.data.length > 0) {
-    stripeCustomerId = existingCustomers.data[0].id;
-  } else {
-    const newCustomer = await stripe.customers.create({
-      email: userEmail,
-      name: fullName,
-      metadata: {
-        userId: userId.toString(),
-      },
-    });
-    stripeCustomerId = newCustomer.id;
-  }
-
-  // 3. Create the checkout session attached to the customer
-  const session = await stripe.checkout.sessions.create({
-    customer: stripeCustomerId, // 👈 This is the magic line that autofills the form!
-    payment_method_types: ["card"],
-    line_items: [
-      {
-        price_data: {
-          currency: "lkr",
-          product_data: { name: title },
-          unit_amount: Math.round(price * 100),
-        },
-        quantity: 1,
-      },
-    ],
-    metadata: {
-      courseId: courseId.toString(),
-      userId: userId.toString(),
-    },
-    mode: "payment",
-    success_url: `${process.env.NEXT_PUBLIC_APP_URL}/learnings/${courseId}?purchase=success`,
-    cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/courses`,
-  });
-
-  return session.url;
+    phone: "0771234567", // PayHere requires a phone number; replace with real user phone if stored
+    address: "No Address",
+    city: "Colombo",
+    country: "Sri Lanka",
+    hash,
+    // Pass courseId and userId through PayHere's custom fields
+    custom_1: courseId.toString(),
+    custom_2: session.user.id.toString(),
+  };
 }
