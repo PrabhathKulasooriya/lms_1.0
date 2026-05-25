@@ -8,14 +8,15 @@ import founder from "@/assets/founder.png";
 
 const FounderSection = () => {
   return (
-    <section className="py-12 px-4 selection:bg-[#9fe03c] selection:text-[#0b408e]">
-      <div className="max-w-7xl mx-auto flex justify-center">
+    <section className="py-12 px-4 selection:bg-[#9fe03c] selection:text-[#0b408e] ">
+      
+      <div className="max-w-7xl mx-auto flex justify-center  "> 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl shadow-[#0b408e]/5 border border-gray-100 overflow-hidden flex flex-col group"
+          className="w-full max-w-md bg-white rounded-[2.5rem] shadow-3xl shadow-[#0b408e]/5 border border-gray-100 overflow-hidden flex flex-col group"
         >
           {/* 1. Photo Section with Integrated Name Overlay */}
           <div className="relative aspect-[3/4] w-full overflow-hidden bg-slate-200">
@@ -85,12 +86,12 @@ const FounderSection = () => {
                     className="text-[#0b408e] mt-0.5 shrink-0"
                   />
                   <p>
-                    3 years experience in Business And Accounting Studies lecturing.
+                    3 years experience in Business And Accounting Studies
+                    lecturing.
                   </p>
                 </div>
               </div>
             </div>
-
           </div>
         </motion.div>
       </div>
