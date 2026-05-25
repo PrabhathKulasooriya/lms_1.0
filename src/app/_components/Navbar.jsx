@@ -126,7 +126,7 @@ const Navbar = () => {
                 >
                   Register
                 </Link>
-                <div className="w-px h-6 bg-black-900 mx-3"></div>
+                <div className="w-px h-6 bg-white mx-3"></div>
                 <Link
                   href="/login"
                   className={`${authButtonBase} text-zinc-50 hover:scale-105 hover:text-accent`}
