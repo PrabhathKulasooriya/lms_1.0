@@ -51,7 +51,7 @@ const handleLogin = async (e) => {
 };
 
   return (
-    <div className="bg-[url('@/assets/bg/1.jpg')] bg-cover bg-center text-text w-screen h-screen flex flex-col justify-center items-center">
+    <div className="bg-[url('@/assets/bg/1.webp')] bg-cover bg-center text-text w-screen h-screen flex flex-col justify-center items-center">
       <div className="flex items-center justify-center px-4 max-w-md">
         <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-xl shadow-lg border border-gray-100">
           <div className="text-center">

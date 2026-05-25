@@ -111,7 +111,7 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="bg-[url('@/assets/bg/1.jpg')] bg-cover bg-center w-full overflow-x-hidden pt-12">
+    <div className="bg-[url('@/assets/bg/1.webp')] bg-cover bg-center w-full overflow-x-hidden pt-12">
       <div className="text-text w-full min-h-dvh flex flex-col justify-center items-center py-10 px-4">
         <div className="w-full max-w-md p-6 md:p-8 space-y-6 bg-white rounded-xl shadow-lg border border-gray-100">
           <div className="text-center">
