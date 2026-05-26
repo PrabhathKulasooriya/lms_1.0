@@ -19,7 +19,10 @@ export const metadata = {
   description:
     "Boost your O/L exam results with NexLearn. Access past papers, interactive lessons, and expert guidance for Sri Lankan Ordinary Level students.",
   icons: {
-    icon: "/favicon.svg",
+    icon: [
+      { url: "/icon.png", sizes: "192x192", type: "image/png" },
+      { url: "/favicon.svg", type: "image/svg+xml" }, 
+    ]
   },
   keywords: [
     "O/L LMS",
@@ -28,7 +31,6 @@ export const metadata = {
     "online learning O/L",
     "Ordinary Level study materials",
     "O/L commerce",
-    
   ],
 };
 
