@@ -86,7 +86,7 @@ const Navbar = () => {
                 onClick={() => handleNavClick(link.href)}
                 className={baseClasses}
               >
-                <link.icon className="w-4 h-4" />
+
                 {link.name}
               </Link>
             ))}
