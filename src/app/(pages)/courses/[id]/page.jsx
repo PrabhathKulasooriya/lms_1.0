@@ -133,7 +133,7 @@ export default async function CoursePage({ params }) {
                   </span>
                 </div>
 
-                {/* Description */}
+                {/* Description 👈 Updated to fetch dynamic description */}
                 <div>
                   <div className="flex items-center gap-2 mb-3">
                     <span className="w-1 h-4 rounded-full bg-[#9fe03c]" />
@@ -141,11 +141,11 @@ export default async function CoursePage({ params }) {
                       About this course
                     </h2>
                   </div>
-                  <p className="text-sm text-gray-500 leading-relaxed pl-3">
-                    {course.type === "theory"
-                      ? `A structured Grade ${course.grade} programme covering the full syllabus with theory lessons and practical exercises for ${course.title}.`
-                      : "Comprehensive G.C.E O/L past paper discussions with model answers and exam techniques to maximise your score."}
-                    {/* Replace with course.description from DB when available */}
+                  <p className="text-sm text-gray-500 leading-relaxed pl-3 whitespace-pre-wrap">
+                    {course.description ||
+                      (course.type === "theory"
+                        ? `A structured Grade ${course.grade} programme covering the full syllabus with theory lessons and practical exercises for ${course.title}.`
+                        : "Comprehensive G.C.E O/L past paper discussions with model answers and exam techniques to maximise your score.")}
                   </p>
                 </div>
               </div>

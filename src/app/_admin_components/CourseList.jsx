@@ -10,6 +10,7 @@ import {
   BookOpen,
   DollarSign,
   Hash,
+  FileText, 
 } from "lucide-react";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
@@ -34,7 +35,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
           </button>
         </div>
         {/* Body */}
-        <div className="px-6 py-5">{children}</div>
+        <div className="px-6 py-5 max-h-[80vh] overflow-y-auto">{children}</div>
       </div>
     </div>
   );
@@ -50,6 +51,7 @@ const CourseForm = ({
 }) => {
   const [form, setForm] = useState({
     title: initialData.title ?? "",
+    description: initialData.description ?? "", 
     type: initialData.type ?? "theory",
     grade: initialData.grade ?? "",
     price: initialData.price ?? "",
@@ -87,6 +89,7 @@ const CourseForm = ({
     }
     onSubmit({
       title: form.title.trim(),
+      description: form.description.trim() || null, // 👈 Cleans up empty inputs to null for Prisma
       type: form.type,
       grade: istheory ? Number(form.grade) : null,
       price: Number(form.price),
@@ -111,6 +114,24 @@ const CourseForm = ({
             onChange={handleChange}
             placeholder="e.g. Advanced Mathematics"
             className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all"
+          />
+        </div>
+      </div>
+
+      {/* Description 👈 Added Textarea input */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+          Description <span className="text-xs text-gray-400">(Optional)</span>
+        </label>
+        <div className="relative">
+          <FileText size={16} className="absolute left-3 top-3 text-gray-400" />
+          <textarea
+            name="description"
+            value={form.description}
+            onChange={handleChange}
+            placeholder="Provide a brief overview of the course syllabus..."
+            rows={3}
+            className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all resize-none"
           />
         </div>
       </div>
@@ -141,9 +162,7 @@ const CourseForm = ({
       </div>
 
       {/* Grade + Price row — grade hidden for pastpaper */}
-      <div
-        className={`grid gap-3 ${istheory ? "grid-cols-2" : "grid-cols-1"}`}
-      >
+      <div className={`grid gap-3 ${istheory ? "grid-cols-2" : "grid-cols-1"}`}>
         {istheory && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
@@ -211,7 +230,6 @@ const CourseForm = ({
 };
 
 // ─── Native fetch helper ─────────────────────────────────────────────────────
-// Throws on non-2xx so toast.promise error branch works correctly
 const fetchJSON = async (url, { method = "GET", body } = {}) => {
   const res = await fetch(url, {
     method,
@@ -242,7 +260,8 @@ const CourseList = ({ initialCourses }) => {
     .filter(
       (item) =>
         item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.grade?.toString().includes(searchTerm) || item.price?.toString().includes(searchTerm) || 
+        item.grade?.toString().includes(searchTerm) ||
+        item.price?.toString().includes(searchTerm) ||
         item.type.toLowerCase().includes(searchTerm.toLowerCase()),
     )
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
@@ -254,22 +273,20 @@ const CourseList = ({ initialCourses }) => {
   };
 
   const handleDelete = (id) => {
-    // Simple browser confirm — swap for a custom modal if desired
     const confirmed = window.confirm(
       "Are you sure you want to delete this course?",
     );
     if (!confirmed) return;
 
     toast.promise(
-      fetchJSON("/api/courses/", 
-        { method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: { id } }).then(
-        (data) => {
-          router.refresh();
-          return data;
-        },
-      ),
+      fetchJSON("/api/courses/", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: { id },
+      }).then((data) => {
+        router.refresh();
+        return data;
+      }),
       {
         loading: "Deleting…",
         success: "Course removed!",
@@ -282,14 +299,14 @@ const CourseList = ({ initialCourses }) => {
     setAddLoading(true);
     try {
       await toast.promise(
-        fetchJSON("/api/courses", { method: "POST",
-         headers: { "Content-Type": "application/json" },
-          body: formData }).then(
-          (data) => {
-            router.refresh();
-            return data;
-          },
-        ),
+        fetchJSON("/api/courses", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: formData,
+        }).then((data) => {
+          router.refresh();
+          return data;
+        }),
         {
           loading: "Creating course…",
           success: "Course created!",
@@ -349,7 +366,6 @@ const CourseList = ({ initialCourses }) => {
       <div className="pt-2 w-full px-4 md:px-8 pb-8">
         {/* ── Toolbar ── */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-          {/* Heading */}
           <div className="flex items-center gap-2">
             <GraduationCap size={24} className="text-blue-600" />
             <h1 className="text-xl font-bold text-gray-900">Courses</h1>
@@ -359,7 +375,6 @@ const CourseList = ({ initialCourses }) => {
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Search */}
             <div className="relative">
               <Search
                 size={16}
@@ -373,7 +388,6 @@ const CourseList = ({ initialCourses }) => {
               />
             </div>
 
-            {/* Add button */}
             <button
               onClick={() => setAddModalOpen(true)}
               className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-colors shadow-sm"
@@ -384,7 +398,7 @@ const CourseList = ({ initialCourses }) => {
           </div>
         </div>
 
-        {/* ── Table ── */}
+        {/* ── Table (Kept Clean - No Description Here) ── */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -436,7 +450,7 @@ const CourseList = ({ initialCourses }) => {
                         >
                           {course.type === "pastpaper"
                             ? "Past Paper"
-                            : "theory"}
+                            : "Theory"}
                         </span>
                       </td>
                       <td className="px-5 py-3.5 text-gray-600">
@@ -453,9 +467,7 @@ const CourseList = ({ initialCourses }) => {
                         <button
                           onClick={() => handleTogglePublish(course)}
                           className={`relative inline-flex items-center w-16 h-8 rounded-full transition-colors duration-300 focus:outline-none ${
-                            course.is_published
-                              ? "bg-green-600"
-                              : "bg-gray-200"
+                            course.is_published ? "bg-green-600" : "bg-gray-200"
                           }`}
                         >
                           <span

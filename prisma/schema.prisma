@@ -48,6 +48,7 @@ enum CourseType {
 model courses {
   id            Int            @id @default(autoincrement())
   title         String         @db.VarChar(255)
+  description   String?        @db.Text
   grade         Int?           // Optional: Null for common Past Papers
   type          CourseType     @default(theory)
   price         Int            @default(0) 

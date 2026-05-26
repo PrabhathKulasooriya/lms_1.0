@@ -18,37 +18,79 @@ import image2 from "@/assets/slider/2.webp";
 import image3 from "@/assets/slider/3.webp";
 import image4 from "@/assets/slider/4.webp";
 
-const images = [
-  { image: image1, text: "test text1" },
-  { image: image2, text: "test text2" },
-  { image: image3, text: "test text3" },
-  { image: image4, text: "test text4" },
+// ─── SLIDER TEXT CONFIGURATION ──────────────────────────────────────────────
+const sliderData = [
+  {
+    image: image1,
+    heading: "Empower Your Future",
+    description: "The best online getaway to achieve your educational dreams.",
+  },
+  {
+    image: image2,
+    heading: "Master Your Syllabus",
+    description:
+      "Simplified theory lessons, comprehensive study notes, and expert guidance for Grade 10 & 11 Commerce.",
+  },
+  {
+    image: image3,
+    heading: "Ace Your O/L Exams",
+    description:
+      "Deep-dive past paper discussions and real exam-marking schemes to maximize your scores.",
+  },
+  {
+    image: image4,
+    heading: "Road to Achieve Your '9A's",
+    description:
+      "Turn your academic goals into reality with structured revision programs built for top results.",
+  },
 ];
 
-// Separate component for slide text to handle inView animation
-const SlideText = ({ text }) => {
+// ─── SLIDE TEXT RENDER COMPONENT ────────────────────────────────────────────
+const SlideText = ({ heading, description }) => {
   const { ref, inView } = useInView();
 
   return (
     <div
       ref={ref}
-      className={`block absolute top-1/2 left-1/2 md:left-1/4 transform -translate-x-1/2 -translate-y-1/2 
-        text-3xl font-bold text-center text-white z-20 transition-all duration-1000
-        ${inView ? "animate-slide-in-left" : "opacity-0 -translate-x-full"}`}
+      className={`absolute top-1/2 left-1/2 md:left-1/4 transform -translate-x-1/2 md:-translate-x-1/4
+        w-[85%] md:w-[500px] text-left text-white z-20 transition-all duration-[1200ms] cubic-bezier(0.16, 1, 0.3, 1) flex flex-col gap-2 md:gap-3
+        ${
+          inView
+            ? "opacity-100 -translate-y-1/2" // Smooth landing right at the center focus point
+            : "opacity-0 -translate-y-[40%]" // Commences slightly lower to build the cinematic vertical lift
+        }`}
     >
-      {text}
+      {/* Accent Bar */}
+      <div className="w-12 h-1 bg-[#9fe03c] rounded-full" />
+
+      {/* Separated Heading */}
+      <h2 className="text-2xl md:text-4xl font-extrabold tracking-tight drop-shadow-md">
+        {heading}
+      </h2>
+
+      {/* Separated Description */}
+      <p className="text-sm md:text-base font-normal text-gray-200/90 leading-relaxed max-w-md drop-shadow-sm">
+        {description}
+      </p>
     </div>
   );
 };
 
-// Main Component
+// ─── MAIN SLIDER COMPONENT ──────────────────────────────────────────────────
 const ImageSlider = () => {
   return (
-    <div className="h-[300px] md:h-[500px] overflow-hidden">
+    <div className="h-[300px] md:h-[500px] overflow-hidden w-full bg-black">
       {/* Override Swiper's inline transition-timing-function */}
       <style>{`
         .image-slider .swiper-wrapper {
           transition-timing-function: cubic-bezier(0.8, 0.0, 1.1, 1.0) !important;
+        }
+        /* Custom styling for Swiper dots to match NexLearn colors */
+        .image-slider .swiper-pagination-bullet-active {
+          background: #9fe03c !important;
+          width: 24px !important;
+          border-radius: 4px !important;
+          transition: all 0.3s ease;
         }
       `}</style>
 
@@ -59,37 +101,32 @@ const ImageSlider = () => {
         pagination={{ clickable: true }}
         navigation={false}
         speed={1200}
-        autoplay={{ delay: 2500, disableOnInteraction: false }}
+        autoplay={{ delay: 4000, disableOnInteraction: false }}
         modules={[Pagination, Navigation, Autoplay, EffectFade]}
         className="image-slider h-full w-screen"
       >
-        {images.map((image, index) => (
+        {sliderData.map((slide, index) => (
           <SwiperSlide
             key={index}
             className="relative flex items-center justify-center overflow-hidden h-auto"
           >
-            {/* Layer 1: Blurred Background */}
-            <div className="absolute inset-0 z-0">
+            {/* Layer 1: Clean High-Contrast Background setup */}
+            <div className="absolute inset-0 z-0 select-none pointer-events-none">
               <Image
-                src={image.image}
+                src={slide.image}
                 alt=""
                 fill
-                className="object-cover scale-110 brightness-50"
+                priority={index === 0} // Heavy optimization step to boost LCP speeds on first paint load
+                className="object-cover scale-105 brightness-[0.5] contrast-[1.02]"
               />
+              <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/10" />
             </div>
 
-            {/* Layer 2: The Main Image (Preserves Aspect Ratio) */}
-            {/* <div className="relative z-10 w-full h-full flex items-center justify-center">
-              <Image
-                src={image.image}
-                alt="Slide content"
-                className="max-h-full w-auto object-cover"
-                priority
-              />
-            </div> */}
-
-            {/* Layer 3: Text */}
-            <SlideText text={image.text} />
+            {/* Layer 2: Elevating Fade-Up Text Layout wrapper */}
+            <SlideText
+              heading={slide.heading}
+              description={slide.description}
+            />
           </SwiperSlide>
         ))}
       </Swiper>

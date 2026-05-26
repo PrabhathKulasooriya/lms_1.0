@@ -12,7 +12,7 @@ const getCourses = unstable_cache(
       orderBy: { created_at: "desc" },
     });
   },
-  ["courses-data"],
+  ["courses-all"],
   { tags: ["courses-data"], revalidate: 86400 },
 );
 

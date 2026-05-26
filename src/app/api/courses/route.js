@@ -5,9 +5,9 @@ import { revalidateTag } from "next/cache";
 // POST /api/courses - Create a new course
 export async function POST(request) {
   try {
-    const { title, type, grade, price } = await request.json();
+    const { title, type, grade, price, description } = await request.json();
 
-    if (!title || !type || price === undefined) {
+    if (!title || !type || price === undefined ) {
       return NextResponse.json(
         { success: false, message: "Title, type and price are required" },
         { status: 400 },
@@ -41,6 +41,7 @@ export async function POST(request) {
     const newCourse = await prisma.courses.create({
       data: {
         title,
+        description: description || "", 
         type,
         grade: type === "theory" ? parseInt(grade) : null,
         price: parseInt(price),
@@ -65,7 +66,7 @@ export async function POST(request) {
 // PUT /api/courses - Update a course
 export async function PUT(request) {
   try {
-    const { id, title, type, grade, price, is_published } =
+    const { id, title, type, grade, price, is_published, description } =
       await request.json();
 
     if (!id) {
@@ -97,6 +98,7 @@ export async function PUT(request) {
 
     if (title !== undefined) data.title = title;
     if (type !== undefined) data.type = type;
+    if (description !== undefined) data.description = description;
     if (price !== undefined) data.price = parseInt(price);
     if (is_published !== undefined) data.is_published = is_published;
 
