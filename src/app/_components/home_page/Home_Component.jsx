@@ -26,7 +26,7 @@ const Home = () => {
           {/* Grade 10 Card */}
           <Link
             href="/courses?type=theory&grade=10"
-            className="relative z-0 group flex flex-col items-center justify-center h-32 border-2 border-[#1a4d44] rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-[#1a4d44]/40"
+            className="relative z-0 group flex flex-col items-center justify-center h-32 border-2 border-[#1a4d44] rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-primary/40"
           >
             <Image
               src={bg_1}
@@ -45,7 +45,7 @@ const Home = () => {
           {/* Grade 11 Card */}
           <Link
             href="/courses?type=theory&grade=11"
-            className="relative z-0 group flex flex-col items-center justify-center h-32 border-2 border-[#1a4d44] rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-[#1a4d44]/40"
+            className="relative z-0 group flex flex-col items-center justify-center h-32 border-2 border-[#1a4d44] rounded-xl overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-primary/40"
           >
             <Image
               src={bg_1}
@@ -64,7 +64,7 @@ const Home = () => {
           {/* Past Paper Discussion Card */}
           <Link
             href="/courses?type=pastpaper"
-            className="relative z-0 md:col-span-2 group flex flex-col items-center justify-center h-32 border-2 border-primary/20 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-primary/10"
+            className="relative z-0 md:col-span-2 group flex flex-col items-center justify-center h-32 border-2 border-primary/20 rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:shadow-primary/40"
           >
             <Image
               src={bg_2}
