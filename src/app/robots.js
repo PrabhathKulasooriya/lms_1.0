@@ -3,8 +3,15 @@ export default function robots() {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/terms", "/privacy"],
+      disallow: [
+        "/terms",
+        "/privacy",
+        "/dashboard",
+        "/forgot-password",
+        "/verify-email",
+        "/reset-password",
+      ],
     },
-    sitemap: "https://nexlearn.lk/sitemap.xml", 
+    sitemap: "https://nexlearn.lk/sitemap.xml",
   };
 }
