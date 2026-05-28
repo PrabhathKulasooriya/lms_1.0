@@ -21,8 +21,8 @@ export const metadata = {
   icons: {
     icon: [
       { url: "/icon.png", sizes: "192x192", type: "image/png" },
-      { url: "/favicon.svg", type: "image/svg+xml" }, 
-    ]
+      { url: "/favicon.svg", type: "image/svg+xml" },
+    ],
   },
   keywords: [
     "O/L LMS",
@@ -35,6 +35,9 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+  // Check if maintenance mode is enabled
+  const isMaintenanceMode = process.env.NEXT_PUBLIC_MAINTENANCE_MODE === "true";
+
   return (
     <html
       lang="en"
@@ -42,8 +45,14 @@ export default function RootLayout({ children }) {
     >
       <body className="h-screen min-w-screen flex flex-col bg-white justify-center items-center ">
         <AuthProvider>
-          <Toaster position="top-center" reverseOrder={false} />
-          <Navbar />
+          {/* Only render the Toast notifications if NOT in maintenance mode */}
+          {!isMaintenanceMode && (
+            <Toaster position="top-center" reverseOrder={false} />
+          )}
+
+          {/* Conditionally render the Navbar */}
+          {!isMaintenanceMode && <Navbar />}
+
           <main id="main-scroll" className="flex-1 w-full overflow-y-auto">
             {children}
           </main>
