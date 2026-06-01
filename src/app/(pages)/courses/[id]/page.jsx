@@ -6,10 +6,9 @@ import Image from "next/image";
 import { Clock, Globe, ShieldCheck, Eye, ArrowLeft, Zap } from "lucide-react";
 import PurchaseButton from "@/app/_components/PurchaseButton";
 
-import grade10 from "@/assets/course-images/grade10.png";
-import grade11 from "@/assets/course-images/grade11.png";
-import pp from "@/assets/course-images/pp.png";
-
+import grade10 from "@/assets/course-images/grade10.webp";
+import grade11 from "@/assets/course-images/grade11.webp";
+import pp from "@/assets/course-images/pp.webp";
 // ─── Static fallback images ────────────────────────────────────────────────────
 const STATIC_IMAGES = {
   "theory-10": grade10,
@@ -92,7 +91,8 @@ export default async function CoursePage({ params }) {
                   className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
                   sizes="(max-width: 1024px) 100vw, 66vw"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0b408e] via-[#0b408e]/30 to-transparent opacity-70" />
+                {/* Blue Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0b408e] via-[#0b408e]/10 to-transparent opacity-40" />
 
                 {/* Overlay — label light, title is the hero */}
                 <div className="absolute bottom-0 left-0 w-full md:px-7 md:pb-7 px-4 pb-4 pt-12">
@@ -188,10 +188,11 @@ export default async function CoursePage({ params }) {
                       View Course
                     </Link>
                   )}
-                  <p className="text-[10px] text-center text-gray-400 leading-relaxed">
+                  {!isEnrolled && (<p className="text-[10px] text-center text-gray-400 leading-relaxed">
                     Secure payment processing. We do not store your payment
                     information.
-                  </p>
+                  </p>)}
+                  
                 </div>
 
                 {/* Features */}
