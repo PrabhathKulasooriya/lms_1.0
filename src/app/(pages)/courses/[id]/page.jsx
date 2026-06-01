@@ -88,7 +88,7 @@ export default async function CoursePage({ params }) {
                   alt={course.title}
                   fill
                   priority
-                  className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                  className="object-cover object-top transition-transform duration-500 group-hover:scale-102"
                   sizes="(max-width: 1024px) 100vw, 66vw"
                 />
                 {/* Blue Overlay */}
