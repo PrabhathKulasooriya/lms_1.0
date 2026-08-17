@@ -5,8 +5,14 @@ import authConfig from "./auth.config";
 const { auth } = NextAuth(authConfig);
 
 export default auth((req) => {
-  const isLoggedIn = !!req.auth;
   const { nextUrl } = req;
+
+  // Maintenance Mode redirect (redirect all sub-routes to home maintenance page)
+  if (process.env.NEXT_PUBLIC_MAINTENANCE_MODE === "true" && nextUrl.pathname !== "/") {
+    return Response.redirect(new URL("/", nextUrl));
+  }
+
+  const isLoggedIn = !!req.auth;
 
   if (!isLoggedIn && nextUrl.pathname.startsWith("/dashboard")) {
     return Response.redirect(new URL("/login", nextUrl));
