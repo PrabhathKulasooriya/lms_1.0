@@ -3,6 +3,7 @@ import "./globals.css";
 import Navbar from "./_components/Navbar";
 import { AuthProvider } from "./Provider";
 import { Toaster } from "react-hot-toast";
+import NextTopLoader from "nextjs-toploader";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,6 +46,17 @@ export default function RootLayout({ children }) {
     >
       <body className="h-screen min-w-screen flex flex-col bg-white justify-center items-center ">
         <AuthProvider>
+          <NextTopLoader
+            color="#0b408e"
+            initialPosition={0.08}
+            crawlSpeed={200}
+            height={3}
+            crawl={true}
+            showSpinner={false}
+            easing="ease"
+            speed={200}
+            shadow="0 0 10px #0b408e,0 0 5px #0b408e"
+          />
           {/* Only render the Toast notifications if NOT in maintenance mode */}
           {!isMaintenanceMode && (
             <Toaster position="top-center" reverseOrder={false} />

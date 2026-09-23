@@ -28,10 +28,15 @@ function getCourseImage(course) {
 
 const getCourses = unstable_cache(
   async () => {
-    return await prisma.courses.findMany({
-      where: { is_published: true },
-      orderBy: { created_at: "desc" },
-    });
+    try {
+      return await prisma.courses.findMany({
+        where: { is_published: true },
+        orderBy: { created_at: "desc" },
+      });
+    } catch (err) {
+      console.error("Error fetching courses from database:", err?.message || err);
+      return [];
+    }
   },
   ["courses-data"],
   { tags: ["courses-data"], revalidate: 86400 },
@@ -127,7 +132,8 @@ function SectionHeading({ label, count }) {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default async function Page({ searchParams }) {
-  const { grade, type } = await searchParams;
+  const params = (await searchParams) || {};
+  const { grade, type } = params;
 
   const gradeParam = grade ? parseInt(grade) : null;
   const typeParam = type ?? null;
