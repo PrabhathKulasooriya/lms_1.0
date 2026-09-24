@@ -77,15 +77,12 @@ const Home = () => {
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="text-center max-w-2xl mx-auto mb-14"
         >
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#0b408e]/10 text-[#0b408e] text-xs font-bold tracking-wider uppercase mb-3">
-            <GraduationCap size={14} className="text-[#0b408e]" />
-            <span>පාඨමාලා තෝරාගන්න</span>
-          </div>
+          
           <h2 className="text-3xl md:text-4xl font-extrabold text-[#0b408e] tracking-tight mb-3">
             ඔබට ගැළපෙන පාඨමාලාව තෝරාගන්න
           </h2>
           <p className="text-slate-600 text-sm md:text-base leading-relaxed">
-            10 & 11 ශ්‍රේණි ව්‍යාපාර හා ගිණුම්කරණ අධ්‍යයනය සිද්ධාන්ත සහ ප්‍රශ්න පත්‍ර සාකච්ඡා පාඨමාලා
+            10 & 11 ශ්‍රේණි සිද්ධාන්ත සහ ප්‍රශ්න පත්‍ර සාකච්ඡා පාඨමාලා
           </p>
         </motion.div>
 

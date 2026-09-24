@@ -57,16 +57,12 @@ const Sidebar = ({ activeComponent, setActiveComponent, role }) => {
 
       {/* Sidebar Navigation Panel */}
       <aside
-        className={`fixed md:static h-full pt-24 md:pt-20 bg-white border-r border-slate-200/80 flex flex-col justify-between transition-all duration-300 ease-in-out z-40 ${
+        className={`fixed md:static h-full pt-28 md:pt-20 bg-white border-r border-slate-200/80 flex flex-col justify-between transition-all duration-300 ease-in-out z-40 ${
           isOpen ? "w-[240px] px-4" : "w-[72px] px-2"
         } md:w-[260px] md:px-4`}
       >
         <div className="flex flex-col gap-1.5 py-4">
-          <div className="px-3 pb-3 mb-2 border-b border-slate-100 hidden md:block">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-              Dashboard Navigation
-            </span>
-          </div>
+          
 
           {navItems
             .filter((item) => item.show)

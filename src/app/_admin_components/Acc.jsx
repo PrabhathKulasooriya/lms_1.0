@@ -412,7 +412,7 @@ const Acc = ({ user: initialUser }) => {
       <div className="w-full">
         <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xl overflow-hidden">
           {/* Header Banner */}
-          <div className="relative h-36 md:h-44 bg-gradient-to-r from-[#071933] via-[#0b408e] to-[#071933] p-6 overflow-hidden">
+          <div className="relative h-36  bg-gradient-to-r from-[#071933] via-[#0b408e] to-[#071933] p-6 overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#FFD700]/10 rounded-full blur-[70px] pointer-events-none" />
             <div className="absolute bottom-0 left-10 w-48 h-48 bg-[#9fe03c]/15 rounded-full blur-[60px] pointer-events-none" />
             <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-[#9fe03c] via-[#FFD700] to-transparent" />
@@ -432,10 +432,12 @@ const Acc = ({ user: initialUser }) => {
 
                 {/* User Info */}
                 <div className="pb-1">
-                  <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 tracking-tight">
+                  <h1 className="text-2xl md:text-4xl font-extrabold text-slate-800 tracking-tight [-webkit-text-stroke:2px_white] [paint-order:stroke_fill]">
                     {user.first_name} {user.last_name}
                   </h1>
-                  <p className="text-sm font-medium text-slate-500 mt-0.5">{user.email}</p>
+                  <p className="text-sm font-medium text-slate-500 mt-0.5">
+                    {user.email}
+                  </p>
                 </div>
               </div>
 

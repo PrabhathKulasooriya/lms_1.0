@@ -37,7 +37,7 @@ const Dashboard = ({ courses = [], user = null, enrollment = [] }) => {
       />
 
       {/* Main Workspace View */}
-      <main className="flex-1 mt-16 md:mt-20 p-4 md:p-8 overflow-y-auto max-w-full">
+      <main className="flex-1 mt-16 ml-16 md:ml-0 p-4 md:p-8 overflow-y-auto max-w-full">
         <div className="max-w-7xl mx-auto">
           {activeComponent === "account" && <Acc user={user} />}
 
