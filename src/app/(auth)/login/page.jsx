@@ -82,7 +82,7 @@ const LoginForm = () => {
             Welcome Back!
           </h1>
           <p className="text-slate-500 text-xs md:text-sm mt-1">
-            Log in to access your Commerce LMS dashboard
+            Log in to access your LMS dashboard
           </p>
         </div>
 

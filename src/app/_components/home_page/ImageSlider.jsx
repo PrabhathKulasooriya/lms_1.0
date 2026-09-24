@@ -206,7 +206,7 @@ const ImageSlider = () => {
           viewBox="0 0 1440 48"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-8 md:h-12 object-fill fill-current"
+          className="min-w-screen h-6 md:h-10 object-fill fill-current"
         >
           <path d="M0 48H1440V24C1200 44 960 48 720 36C480 24 240 4 0 24V48Z" />
         </svg>

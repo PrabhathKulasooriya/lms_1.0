@@ -68,10 +68,10 @@ export default function StatsSection() {
           transition={{ duration: 0.6 }}
           className="text-center max-w-2xl mx-auto mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[#9fe03c] text-xs font-bold tracking-wider uppercase mb-3">
+          {/* <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[#9fe03c] text-xs font-bold tracking-wider uppercase mb-3">
             <Award size={14} className="text-[#FFD700]" />
             <span>අපගේ ප්‍රගතිය</span>
-          </div>
+          </div> */}
           <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
             සිසුන් සහ දෙමාපියන්ගේ විශ්වාසය
           </h2>
@@ -92,7 +92,7 @@ export default function StatsSection() {
               className="relative group p-8 rounded-3xl bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-500 flex flex-col items-center text-center shadow-lg"
             >
               {/* Icon Container */}
-              <div className="w-20 h-20 mb-6 relative flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 p-3 group-hover:scale-105 transition-transform duration-500">
+              <div className="w-60 h-60 mb-6 relative flex items-center justify-center rounded-2xl bg-white/5 border border-white/10 p-3 group-hover:scale-105 transition-transform duration-500 ">
                 <Image
                   src={stat.imageSrc}
                   alt={stat.title}

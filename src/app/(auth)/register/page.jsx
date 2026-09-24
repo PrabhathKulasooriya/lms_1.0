@@ -145,7 +145,7 @@ const RegisterPage = () => {
             Create Your Student Account
           </h1>
           <p className="text-slate-500 text-xs md:text-sm mt-1">
-            Join NexLearn today to start mastering O/L Commerce
+            Join NexLearn today to start mastering O/L Exam
           </p>
         </div>
 

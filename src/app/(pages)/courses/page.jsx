@@ -95,17 +95,12 @@ export default async function Page({ searchParams }) {
   return (
     <div className="min-h-screen w-full bg-slate-50 selection:bg-[#9fe03c] selection:text-[#0b408e]">
       {/* Header Banner */}
-      <div className="relative pt-28 pb-16 bg-[#071933] text-white overflow-hidden">
+      <div className="relative pt-24 pb-12 bg-[#071933] text-white overflow-hidden">
         {/* Background Blur Orbs */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-[#0b408e]/40 rounded-full blur-[130px] pointer-events-none" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 flex flex-col items-center text-center">
-          {/* Badge */}
-          {/* <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[#9fe03c] text-xs font-medium uppercase tracking-wider mb-4">
-            <GraduationCap size={14} className="text-[#FFD700]" />
-            <span>NexLearn Catalog</span>
-          </div> */}
-
+          
           {/* Title */}
           <h1 className="text-3xl md:text-4xl font-semibold tracking-normal text-white mb-3">
             {pageTitle}
@@ -159,10 +154,10 @@ export default async function Page({ searchParams }) {
               There are currently no courses matching the selected filters.
             </p>
             <Link
-              href="/courses"
+              href="/"
               className="px-5 py-2.5 rounded-xl bg-[#0b408e] text-white text-xs font-medium hover:bg-[#093372] transition"
             >
-              View All Courses
+              Back to Home
             </Link>
           </div>
         ) : (

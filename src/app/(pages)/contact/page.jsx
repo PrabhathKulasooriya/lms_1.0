@@ -55,15 +55,18 @@ const ContactPage = () => {
           transition={{ duration: 0.6 }}
           className="text-center max-w-2xl mx-auto mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0b408e]/10 text-[#0b408e] text-xs font-bold tracking-wider uppercase mb-3">
-            <MessageCircle size={14} className="text-[#0b408e]" />
-            <span>සම්බන්ධ වන්න</span>
-          </div>
           <h1 className="text-3xl md:text-5xl font-extrabold text-[#0b408e] tracking-tight mb-4">
             We&apos;d Love to Hear From You
           </h1>
           <p className="text-slate-600 text-sm md:text-base leading-relaxed">
-            Have questions about course enrollment, class schedules, or LMS access? Send us a message and our team will get back to you promptly.
+            Have questions about course enrollment, class schedules, or LMS
+            access? Send us a message and our team will get back to you
+            promptly.
+          </p>
+          <p className="text-slate-600 text-sm md:text-base leading-relaxed">
+            පාඨමාලා ලියාපදිංචිය, පන්ති කාලසටහන් හෝ LMS පද්ධතියට පිවිසීම
+            සම්බන්ධයෙන් ඔබට යම් ගැටළුවක් තිබේද? අප වෙත පණිවිඩයක් යොමු කරන්න,
+            අපගේ කණ්ඩායම කඩිනමින් ඔබට සහය වීමට සූදානම්.
           </p>
         </motion.div>
 
@@ -83,9 +86,6 @@ const ContactPage = () => {
               <span className="inline-block px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-[#9fe03c] text-xs font-bold uppercase tracking-wider mb-4">
                 Quick Contact Info
               </span>
-              <h2 className="text-2xl font-extrabold text-white tracking-tight mb-8">
-                Direct Channels
-              </h2>
 
               <div className="space-y-6">
                 {/* Phone */}
@@ -98,7 +98,7 @@ const ContactPage = () => {
                   </div>
                   <div>
                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
-                      Call Us
+                      Call Us or Drop a Whatsapp Message
                     </p>
                     <p className="text-base font-bold text-white group-hover:text-[#9fe03c] transition-colors">
                       071 156 2002
@@ -142,7 +142,7 @@ const ContactPage = () => {
             </div>
 
             {/* Social Links */}
-            <div className="relative z-10 mt-10 pt-6 border-t border-white/10">
+            <div className="relative z-10 mt-6 pt-6 border-t border-white/10">
               <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-4">
                 Follow Us
               </p>
@@ -257,9 +257,24 @@ const ContactPage = () => {
               >
                 {isSubmitting ? (
                   <span className="flex items-center gap-2">
-                    <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24" fill="none">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    <svg
+                      className="animate-spin h-4 w-4 text-white"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                      />
                     </svg>
                     Sending Message...
                   </span>
