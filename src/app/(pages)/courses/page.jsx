@@ -85,7 +85,7 @@ export default async function Page({ searchParams }) {
     typeParam === "pastpaper"
       ? "Past Paper Discussions"
       : typeParam === "theory" && gradeParam
-        ? `Grade ${gradeParam} Commerce Theory`
+        ? `Grade ${gradeParam} Theory`
         : typeParam === "theory"
           ? "Theory Courses"
           : gradeParam
@@ -101,18 +101,16 @@ export default async function Page({ searchParams }) {
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 flex flex-col items-center text-center">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[#9fe03c] text-xs font-medium uppercase tracking-wider mb-4">
+          {/* <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[#9fe03c] text-xs font-medium uppercase tracking-wider mb-4">
             <GraduationCap size={14} className="text-[#FFD700]" />
             <span>NexLearn Catalog</span>
-          </div>
+          </div> */}
 
           {/* Title */}
           <h1 className="text-3xl md:text-4xl font-semibold tracking-normal text-white mb-3">
             {pageTitle}
           </h1>
-          <p className="text-slate-300 text-sm md:text-base max-w-2xl leading-relaxed mb-8">
-            Comprehensive Grade 10 & 11 Commerce theory lessons, revision modules, and past paper discussions.
-          </p>
+          
 
           {/* Filter Pills Bar */}
           <div className="flex flex-wrap items-center justify-center gap-2.5 p-2 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10">
@@ -177,7 +175,7 @@ export default async function Page({ searchParams }) {
                   <section key={g}>
                     {!gradeParam && (
                       <SectionHeading
-                        label={`Grade ${g} Commerce Theory`}
+                        label={`Grade ${g} Theory`}
                         count={gradeCourses.length}
                       />
                     )}
