@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ArrowRight, BookOpen, Clock, Tag } from "lucide-react";
+import { ArrowRight, Tag } from "lucide-react";
 
 import grade10 from "@/assets/course-images/grade10.png";
 import grade11 from "@/assets/course-images/grade11.png";
@@ -36,7 +36,7 @@ export default function CourseCardClient({ course }) {
       transition={{ duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] }}
     >
       <Link href={`/courses/${course.id}`} className="group block">
-        <div className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-md hover:shadow-2xl hover:shadow-[#0b408e]/12 transition-all duration-500 hover:-translate-y-1.5 flex flex-col justify-between h-full">
+        <div className="bg-white rounded-3xl border border-slate-200/80 overflow-hidden shadow-sm hover:shadow-xl hover:shadow-[#0b408e]/10 transition-all duration-500 hover:-translate-y-1.5 flex flex-col justify-between h-full">
           {/* Image Container */}
           <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-100">
             <Image
@@ -51,7 +51,7 @@ export default function CourseCardClient({ course }) {
 
             {/* Top Badge */}
             <div className="absolute top-4 right-4 z-10">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#071933]/80 backdrop-blur-md border border-white/20 text-[#9fe03c] text-xs font-bold uppercase tracking-wider shadow-sm">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#071933]/80 backdrop-blur-md border border-white/20 text-[#9fe03c] text-xs font-medium tracking-wide shadow-sm">
                 <Tag size={12} />
                 {isPastPaper ? "Past Paper" : `Grade ${course.grade} • Theory`}
               </span>
@@ -59,7 +59,7 @@ export default function CourseCardClient({ course }) {
 
             {/* Bottom Title Overlay */}
             <div className="absolute bottom-0 left-0 w-full p-6 pt-10">
-              <h3 className="text-white text-xl font-extrabold leading-snug tracking-tight group-hover:text-[#FFD700] transition-colors duration-300">
+              <h3 className="text-white text-lg font-medium leading-snug tracking-normal group-hover:text-[#FFD700] transition-colors duration-300">
                 {course.title}
               </h3>
             </div>
@@ -68,15 +68,15 @@ export default function CourseCardClient({ course }) {
           {/* Card Footer Details */}
           <div className="p-6 bg-white flex items-center justify-between border-t border-slate-100">
             <div>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">
+              <p className="text-[11px] text-slate-400 font-medium uppercase tracking-wider mb-0.5">
                 Course Fee
               </p>
-              <p className="text-[#0b408e] font-extrabold text-lg">
+              <p className="text-[#0b408e] font-semibold text-base">
                 LKR {Number(course.price).toLocaleString()}
               </p>
             </div>
 
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0b408e] group-hover:bg-[#9fe03c] text-white group-hover:text-[#0b408e] text-xs font-bold transition-all duration-300 shadow-sm">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0b408e] group-hover:bg-[#9fe03c] text-white group-hover:text-[#0b408e] text-xs font-medium transition-all duration-300 shadow-sm">
               <span>View Details</span>
               <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-0.5" />
             </div>

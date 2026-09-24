@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { unstable_cache } from "next/cache";
-import { GraduationCap, BookOpen, Filter, Sparkles } from "lucide-react";
+import { GraduationCap, BookOpen } from "lucide-react";
 import Link from "next/link";
 import CourseCardClient from "@/app/_components/CourseCardClient";
 
@@ -28,7 +28,7 @@ function FilterPill({ href, active, children }) {
   return (
     <Link
       href={href}
-      className={`px-4 py-2 rounded-full text-xs font-bold tracking-wide uppercase transition-all duration-300 ${
+      className={`px-4 py-2 rounded-full text-xs font-medium tracking-wide uppercase transition-all duration-300 ${
         active
           ? "bg-[#9fe03c] text-[#0b408e] shadow-md shadow-[#9fe03c]/20 scale-[1.02]"
           : "bg-white/10 backdrop-blur-md border border-white/15 text-slate-200 hover:bg-white/20 hover:text-white"
@@ -43,10 +43,10 @@ function SectionHeading({ label, count }) {
   return (
     <div className="flex items-center gap-3.5 mb-8">
       <span className="w-1.5 h-6 rounded-full bg-[#9fe03c]" />
-      <h2 className="text-lg md:text-xl font-extrabold text-[#0b408e] tracking-tight">
+      <h2 className="text-lg md:text-xl font-semibold text-[#0b408e] tracking-tight">
         {label}
       </h2>
-      <span className="text-xs font-bold text-[#0b408e] bg-[#9fe03c] px-2.5 py-0.5 rounded-full leading-none shadow-sm">
+      <span className="text-xs font-medium text-[#0b408e] bg-[#9fe03c] px-2.5 py-0.5 rounded-full leading-none shadow-sm">
         {count}
       </span>
       <div className="flex-1 h-px bg-slate-200" />
@@ -101,13 +101,13 @@ export default async function Page({ searchParams }) {
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 flex flex-col items-center text-center">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[#9fe03c] text-xs font-bold uppercase tracking-wider mb-4">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[#9fe03c] text-xs font-medium uppercase tracking-wider mb-4">
             <GraduationCap size={14} className="text-[#FFD700]" />
             <span>NexLearn Catalog</span>
           </div>
 
           {/* Title */}
-          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white mb-3">
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-normal text-white mb-3">
             {pageTitle}
           </h1>
           <p className="text-slate-300 text-sm md:text-base max-w-2xl leading-relaxed mb-8">
@@ -154,7 +154,7 @@ export default async function Page({ searchParams }) {
         {totalCount === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-center bg-white rounded-3xl border border-slate-200/80 p-12 max-w-md mx-auto shadow-sm">
             <BookOpen size={48} className="text-slate-300 mb-4" />
-            <h3 className="text-lg font-bold text-slate-800 mb-1">
+            <h3 className="text-base font-semibold text-slate-800 mb-1">
               No Courses Found
             </h3>
             <p className="text-xs text-slate-500 mb-6">
@@ -162,7 +162,7 @@ export default async function Page({ searchParams }) {
             </p>
             <Link
               href="/courses"
-              className="px-5 py-2.5 rounded-xl bg-[#0b408e] text-white text-xs font-bold hover:bg-[#093372] transition"
+              className="px-5 py-2.5 rounded-xl bg-[#0b408e] text-white text-xs font-medium hover:bg-[#093372] transition"
             >
               View All Courses
             </Link>
