@@ -15,64 +15,65 @@ import {
   Eye,
   EyeOff,
   MapPin,
+  ShieldCheck,
+  Award,
 } from "lucide-react";
-
 import toast from "react-hot-toast";
 
-// ── Badge ──────────────────────────────────────────────────────
-const Badge = ({ label, active, variant = "green" }) => {
+// ── Badge Component ──────────────────────────────────────────────
+const Badge = ({ label, active, variant = "gold" }) => {
   const variants = {
     green: active
-      ? "bg-[#9fe03c]/15 text-[#5a8a1a] ring-[#9fe03c]/40"
-      : "bg-gray-100 text-gray-400 ring-gray-200",
+      ? "bg-[#9fe03c]/20 text-[#0b408e] ring-[#9fe03c]/50"
+      : "bg-slate-100 text-slate-400 ring-slate-200",
     blue: active
       ? "bg-[#0b408e]/10 text-[#0b408e] ring-[#0b408e]/20"
-      : "bg-gray-100 text-gray-400 ring-gray-200",
-    gold: "bg-[#FFD700]/20 text-[#9a7c00] ring-[#FFD700]/40",
+      : "bg-slate-100 text-slate-400 ring-slate-200",
+    gold: "bg-[#FFD700]/20 text-[#8e7300] ring-[#FFD700]/50 font-bold",
     red: "bg-red-50 text-red-500 ring-red-200",
   };
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ring-1 ${variants[variant]}`}
+      className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-xs font-semibold ring-1 uppercase tracking-wider ${variants[variant]}`}
     >
       <span
-        className={`h-1.5 w-1.5 rounded-full ${active || variant === "gold" ? "bg-current" : "bg-gray-300"}`}
+        className={`h-1.5 w-1.5 rounded-full ${active || variant === "gold" ? "bg-current" : "bg-slate-300"}`}
       />
       {label}
     </span>
   );
 };
 
-// ── Info Field ─────────────────────────────────────────────────
+// ── Field Component ──────────────────────────────────────────────
 const Field = ({ icon: IconComp, label, value }) => (
-  <div className="group flex items-start gap-3 rounded-xl border border-gray-100 bg-white px-4 py-3.5 shadow-sm transition hover:border-[#0b408e]/20 hover:shadow-md">
-    <span className="mt-0.5 text-[#0b408e]/50 transition group-hover:text-[#0b408e]">
-      <IconComp size={16} strokeWidth={1.8} />
-    </span>
+  <div className="group flex items-start gap-3.5 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition-all duration-300 hover:border-[#0b408e]/30 hover:shadow-md">
+    <div className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-[#0b408e] group-hover:bg-[#0b408e] group-hover:text-white transition-colors duration-300 shrink-0">
+      <IconComp size={18} />
+    </div>
     <div className="min-w-0 flex-1">
-      <p className="text-[10px] font-semibold uppercase tracking-widest text-gray-400">
+      <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
         {label}
       </p>
-      <p className="mt-0.5 truncate text-sm font-medium text-[#2D3436]">
+      <p className="mt-0.5 truncate text-sm font-semibold text-slate-800">
         {value || "—"}
       </p>
     </div>
   </div>
 );
 
-// ── Input ──────────────────────────────────────────────────────
+// ── Input Component ──────────────────────────────────────────────
 const Input = ({ label, ...props }) => (
   <div className="flex flex-col gap-1.5">
-    <label className="text-xs font-semibold text-[#2D3436]/60">{label}</label>
+    <label className="text-xs font-bold uppercase tracking-wider text-slate-700">{label}</label>
     <input
       {...props}
-      className="rounded-lg border border-gray-200 bg-[#F8F9FA] px-3 py-2.5 text-sm text-[#2D3436] placeholder-gray-300 outline-none transition focus:border-[#0b408e] focus:ring-2 focus:ring-[#0b408e]/10"
+      className="rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:bg-white focus:border-[#0b408e] focus:ring-2 focus:ring-[#0b408e]/20"
     />
   </div>
 );
 
-// ── Edit Modal ─────────────────────────────────────────────────
+// ── Edit Profile Modal ───────────────────────────────────────────
 const EditModal = ({ user, onClose, onSave }) => {
   const [form, setForm] = useState({
     first_name: user.first_name || "",
@@ -113,31 +114,28 @@ const EditModal = ({ user, onClose, onSave }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#2D3436]/40 px-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 px-4 backdrop-blur-sm"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl">
-        {/* top accent strip */}
+      <div className="relative w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl border border-slate-100">
         <div className="h-1.5 w-full bg-gradient-to-r from-[#0b408e] via-[#FFD700] to-[#9fe03c]" />
 
-        {/* header */}
-        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
           <div className="flex items-center gap-2">
-            <Pencil size={16} className="text-[#0b408e]" />
-            <h2 className="font-bold text-[#2D3436]">Edit Profile</h2>
+            <Pencil size={18} className="text-[#0b408e]" />
+            <h2 className="font-bold text-slate-800">Edit Profile Details</h2>
           </div>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-[#F8F9FA] hover:text-[#2D3436]"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
           >
             <X size={16} />
           </button>
         </div>
 
-        {/* form */}
-        <form onSubmit={handleSubmit} className="space-y-4 px-6 py-5">
+        <form onSubmit={handleSubmit} className="space-y-4 px-6 py-6">
           {error && (
-            <p className="rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-500 ring-1 ring-red-100">
+            <p className="rounded-xl bg-red-50 px-4 py-3 text-xs font-semibold text-red-500 border border-red-100">
               {error}
             </p>
           )}
@@ -177,14 +175,14 @@ const EditModal = ({ user, onClose, onSave }) => {
           />
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-[#2D3436]/60">
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-700">
               Gender
             </label>
             <select
               name="gender"
               value={form.gender}
               onChange={handleChange}
-              className="rounded-lg border border-gray-200 bg-[#F8F9FA] px-3 py-2.5 text-sm text-[#2D3436] outline-none transition focus:border-[#0b408e] focus:ring-2 focus:ring-[#0b408e]/10"
+              className="rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 text-sm text-slate-800 outline-none transition focus:bg-white focus:border-[#0b408e] focus:ring-2 focus:ring-[#0b408e]/20"
             >
               <option value="">Select gender</option>
               <option value="male">Male</option>
@@ -193,18 +191,18 @@ const EditModal = ({ user, onClose, onSave }) => {
             </select>
           </div>
 
-          <div className="flex gap-3 pt-1">
+          <div className="flex gap-3 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 rounded-xl border border-gray-200 py-2.5 text-sm font-semibold text-[#2D3436]/70 transition hover:bg-[#F8F9FA]"
+              className="flex-1 rounded-xl border border-slate-200 py-3 text-xs font-bold text-slate-600 transition hover:bg-slate-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 rounded-xl bg-[#0b408e] py-2.5 text-sm font-bold text-white shadow-md shadow-[#0b408e]/20 transition hover:bg-[#0a3578] disabled:opacity-60"
+              className="flex-1 rounded-xl bg-[#0b408e] py-3 text-xs font-bold text-white shadow-md shadow-[#0b408e]/20 transition hover:bg-[#093372] disabled:opacity-60"
             >
               {loading ? "Saving…" : "Save Changes"}
             </button>
@@ -215,10 +213,10 @@ const EditModal = ({ user, onClose, onSave }) => {
   );
 };
 
-// ── Password Input — defined OUTSIDE ChangePasswordModal ──────
+// ── Password Input Component ──────────────────────────────────────
 const PasswordInput = ({ label, name, value, onChange, show, onToggle }) => (
   <div className="flex flex-col gap-1.5">
-    <label className="text-xs font-semibold text-[#2D3436]/60">{label}</label>
+    <label className="text-xs font-bold uppercase tracking-wider text-slate-700">{label}</label>
     <div className="relative">
       <input
         type={show ? "text" : "password"}
@@ -227,30 +225,30 @@ const PasswordInput = ({ label, name, value, onChange, show, onToggle }) => (
         onChange={onChange}
         required
         placeholder="••••••••"
-        className="w-full rounded-lg border border-gray-200 bg-[#F8F9FA] px-3 py-2.5 pr-10 text-sm text-[#2D3436] placeholder-gray-300 outline-none transition focus:border-[#0b408e] focus:ring-2 focus:ring-[#0b408e]/10"
+        className="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-4 py-3 pr-10 text-sm text-slate-800 placeholder-slate-400 outline-none transition focus:bg-white focus:border-[#0b408e] focus:ring-2 focus:ring-[#0b408e]/20"
       />
       <button
         type="button"
         onClick={onToggle}
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#0b408e] transition"
+        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#0b408e] transition"
       >
-        {show ? <EyeOff size={15} /> : <Eye size={15} />}
+        {show ? <EyeOff size={16} /> : <Eye size={16} />}
       </button>
     </div>
   </div>
 );
 
-// ── Change Password Modal ──────────────────────────────────────
+// ── Change Password Modal ─────────────────────────────────────────
 const ChangePasswordModal = ({ userId, onClose }) => {
   const [form, setForm] = useState({
     current_password: "",
     new_password: "",
     confirm_password: "",
   });
-  const [loading, setLoading]         = useState(false);
-  const [error, setError]             = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [showCurrent, setShowCurrent] = useState(false);
-  const [showNew, setShowNew]         = useState(false);
+  const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
   const handleChange = (e) =>
@@ -280,7 +278,7 @@ const ChangePasswordModal = ({ userId, onClose }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           current_password: form.current_password,
-          new_password:     form.new_password,
+          new_password: form.new_password,
         }),
       });
       const data = await res.json();
@@ -297,28 +295,28 @@ const ChangePasswordModal = ({ userId, onClose }) => {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[#2D3436]/40 px-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 px-4 backdrop-blur-sm"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-white shadow-2xl">
+      <div className="relative w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl border border-slate-100">
         <div className="h-1.5 w-full bg-gradient-to-r from-[#0b408e] via-[#FFD700] to-[#9fe03c]" />
 
-        <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
+        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
           <div className="flex items-center gap-2">
-            <KeyRound size={16} className="text-[#0b408e]" />
-            <h2 className="font-bold text-[#2D3436]">Change Password</h2>
+            <KeyRound size={18} className="text-[#0b408e]" />
+            <h2 className="font-bold text-slate-800">Change Password</h2>
           </div>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 transition hover:bg-[#F8F9FA] hover:text-[#2D3436]"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
           >
             <X size={16} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 px-6 py-5">
+        <form onSubmit={handleSubmit} className="space-y-4 px-6 py-6">
           {error && (
-            <p className="rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-500 ring-1 ring-red-100">
+            <p className="rounded-xl bg-red-50 px-4 py-3 text-xs font-semibold text-red-500 border border-red-100">
               {error}
             </p>
           )}
@@ -332,7 +330,7 @@ const ChangePasswordModal = ({ userId, onClose }) => {
             onToggle={() => setShowCurrent((v) => !v)}
           />
 
-          <div className="h-px bg-gray-100" />
+          <div className="h-px bg-slate-100" />
 
           <PasswordInput
             label="New Password"
@@ -342,11 +340,6 @@ const ChangePasswordModal = ({ userId, onClose }) => {
             show={showNew}
             onToggle={() => setShowNew((v) => !v)}
           />
-          {form.new_password && form.new_password.length < 6 && (
-            <p className="mt-1.5 text-xs font-medium text-red-500">
-              ✗ Password must be at least 6 characters
-            </p>
-          )}
 
           <PasswordInput
             label="Confirm New Password"
@@ -357,39 +350,18 @@ const ChangePasswordModal = ({ userId, onClose }) => {
             onToggle={() => setShowConfirm((v) => !v)}
           />
 
-          {/* match indicator */}
-          {form.confirm_password && (
-            <p
-              className={`-mt-1 text-xs font-medium flex items-center gap-1 ${
-                form.new_password === form.confirm_password
-                  ? "text-[#5a8a1a]"
-                  : "text-red-400"
-              }`}
-            >
-              {form.new_password === form.confirm_password ? (
-                <>
-                  <CheckCircle size={12} /> Passwords match
-                </>
-              ) : (
-                <>
-                  <XCircle size={12} /> Passwords do not match
-                </>
-              )}
-            </p>
-          )}
-
-          <div className="flex gap-3 pt-1">
+          <div className="flex gap-3 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 rounded-xl border border-gray-200 py-2.5 text-sm font-semibold text-[#2D3436]/70 transition hover:bg-[#F8F9FA]"
+              className="flex-1 rounded-xl border border-slate-200 py-3 text-xs font-bold text-slate-600 transition hover:bg-slate-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 rounded-xl bg-[#0b408e] py-2.5 text-sm font-bold text-white shadow-md shadow-[#0b408e]/20 transition hover:bg-[#0a3578] disabled:opacity-60"
+              className="flex-1 rounded-xl bg-[#0b408e] py-3 text-xs font-bold text-white shadow-md shadow-[#0b408e]/20 transition hover:bg-[#093372] disabled:opacity-60"
             >
               {loading ? "Updating…" : "Change Password"}
             </button>
@@ -400,7 +372,7 @@ const ChangePasswordModal = ({ userId, onClose }) => {
   );
 };
 
-// ── Main Account Component ─────────────────────────────────────
+// ── Main Account Component ───────────────────────────────────────
 const Acc = ({ user: initialUser }) => {
   const [user, setUser] = useState(initialUser);
   const [modalOpen, setModalOpen] = useState(false);
@@ -437,50 +409,45 @@ const Acc = ({ user: initialUser }) => {
         />
       )}
 
-      <div className="flex flex-col w-full h-full">
-        {/* ── card ── */}
-        <div className="overflow-hidden h-full bg-white shadow-xl ring-1 ring-gray-100">
-          {/* banner */}
-          <div className="relative h-28 bg-[#0b408e] sm:h-36">
-            <div className="absolute -right-6 -top-6 h-36 w-36 rounded-full bg-[#FFD700]/20" />
-            <div className="absolute right-16 bottom-0 h-20 w-20 rounded-full bg-[#9fe03c]/15" />
-            <div className="absolute left-1/3 top-4 h-10 w-10 rounded-full bg-white/5" />
-            {/* gold bottom stripe */}
-            <div className="absolute bottom-0 left-0 h-1 w-full bg-gradient-to-r from-[#FFD700] via-[#9fe03c] to-transparent opacity-70" />
+      <div className="w-full">
+        <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xl overflow-hidden">
+          {/* Header Banner */}
+          <div className="relative h-36 md:h-44 bg-gradient-to-r from-[#071933] via-[#0b408e] to-[#071933] p-6 overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-[#FFD700]/10 rounded-full blur-[70px] pointer-events-none" />
+            <div className="absolute bottom-0 left-10 w-48 h-48 bg-[#9fe03c]/15 rounded-full blur-[60px] pointer-events-none" />
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-[#9fe03c] via-[#FFD700] to-transparent" />
           </div>
 
-          {/* avatar + title row */}
-          <div className="-mt-15 md:-mt-18  flex flex-col md:flex-row items-center md:items-end  p-2 md:p-4 ">
-            {/* avatar */}
-            <div className="relative ">
-              <div className="flex h-25 w-25 md:h-35 md:w-35 items-center justify-center rounded-2xl border-[3px] border-white bg-[#FFD700] text-4xl  font-extrabold text-[#0b408e] shadow-lg ">
-                {initials}
+          {/* Profile Header Row */}
+          <div className="px-6 md:px-10 pb-8 relative">
+            <div className="flex flex-col md:flex-row items-center md:items-end justify-between -mt-16 md:-mt-20 gap-4 mb-8">
+              <div className="flex flex-col md:flex-row items-center md:items-end gap-5 text-center md:text-left">
+                {/* Avatar Box */}
+                <div className="relative">
+                  <div className="w-28 h-28 md:w-32 md:h-32 rounded-3xl bg-[#FFD700] border-4 border-white shadow-xl flex items-center justify-center text-3xl md:text-4xl font-black text-[#0b408e]">
+                    {initials}
+                  </div>
+                  <span className="absolute bottom-1 right-1 w-4 h-4 rounded-full bg-[#9fe03c] border-2 border-white" />
+                </div>
+
+                {/* User Info */}
+                <div className="pb-1">
+                  <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 tracking-tight">
+                    {user.first_name} {user.last_name}
+                  </h1>
+                  <p className="text-sm font-medium text-slate-500 mt-0.5">{user.email}</p>
+                </div>
               </div>
-              {/* online dot */}
-              <span className="absolute bottom-1 right-1 h-3.5 w-3.5 rounded-full border-2 border-white bg-[#9fe03c]" />
+
+              <div className="pb-1">
+                <Badge label={user.role ?? "student"} active variant="gold" />
+              </div>
             </div>
 
-            {/* name / email / role */}
-            <div className="flex flex-1 flex-col justify-center items-center gap-1 mt-2  p-2 sm:flex-row sm:items-end sm:justify-between sm:pb-5">
-              <div className="flex flex-col md:items-start items-center">
-                <h1 className="text-xl font-extrabold leading-tight text-[#2D3436] sm:text-2xl">
-                  {user.first_name} {user.last_name}
-                </h1>
-                <p className="text-sm text-gray-400">{user.email}</p>
-              </div>
-              <Badge label={user.role ?? "student"} active variant="gold" />
-            </div>
-          </div>
-
-          {/* ── body ── */}
-          <div className="space-y-6 px-5 py-6 sm:px-8 flex flex-col items-center">
-            {/* divider */}
-            <div className="h-px bg-gradient-to-r from-[#0b408e]/10 via-[#FFD700]/40 to-transparent" />
-
-            {/* info grid */}
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:w-2/3 ">
+            {/* Information Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
               <Field icon={Mail} label="Email Address" value={user.email} />
-              <Field icon={Phone} label="Mobile" value={user.mobile} />
+              <Field icon={Phone} label="Mobile Phone" value={user.mobile} />
               <Field icon={MapPin} label="Home Address" value={user.address} />
               <Field
                 icon={User}
@@ -500,33 +467,28 @@ const Acc = ({ user: initialUser }) => {
               )}
             </div>
 
-            {/* footer row */}
-            <div className="flex flex-col items-start w-full justify-between gap-3 sm:flex-row sm:items-center">
-              {/* meta info */}
-              <div className="flex flex-wrap items-center gap-4 text-xs text-gray-400">
-                <span className="flex items-center gap-1">
-                  <Clock4 size={12} />
-                  Updated {lastUpdated}
-                </span>
+            {/* Bottom Actions Bar */}
+            <div className="pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-2 text-xs text-slate-400 font-medium">
+                <Clock4 size={14} />
+                <span>Last updated {lastUpdated}</span>
               </div>
 
-              {/* edit button */}
-              <div className="flex items-center gap-2">
-                {/* 👇 new button */}
+              <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
                 <button
                   onClick={() => setPwModalOpen(true)}
-                  className="flex items-center gap-2 rounded-xl border border-[#0b408e]/30 px-5 py-2.5 text-sm font-bold text-[#0b408e] transition hover:bg-[#0b408e]/5 active:scale-[0.97]"
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 hover:text-[#0b408e] transition-all duration-200"
                 >
-                  <KeyRound size={14} />
-                  Change Password
+                  <KeyRound size={15} />
+                  <span>Change Password</span>
                 </button>
 
                 <button
                   onClick={() => setModalOpen(true)}
-                  className="flex items-center gap-2 rounded-xl bg-[#0b408e] px-5 py-2.5 text-sm font-bold text-white shadow-md shadow-[#0b408e]/20 transition hover:bg-[#0a3578] active:scale-[0.97]"
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#0b408e] text-white text-xs font-bold hover:bg-[#093372] transition-all duration-200 shadow-md shadow-[#0b408e]/20"
                 >
-                  <Pencil size={14} />
-                  Edit Profile
+                  <Pencil size={15} />
+                  <span>Edit Profile</span>
                 </button>
               </div>
             </div>
