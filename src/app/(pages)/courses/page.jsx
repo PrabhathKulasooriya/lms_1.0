@@ -2,29 +2,9 @@
 
 import { prisma } from "@/lib/prisma";
 import { unstable_cache } from "next/cache";
-import { GraduationCap, BookOpen, FileText, ArrowRight } from "lucide-react";
+import { GraduationCap, BookOpen, Filter, Sparkles } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
-
-import grade10 from "@/assets/course-images/grade10.png";
-import grade11 from "@/assets/course-images/grade11.png";
-import pp from "@/assets/course-images/pp.png";
-
-
-// ─── Static fallback images ────────────────────────────────────────────────────
-const STATIC_IMAGES = {
-  "theory-10": grade10,
-  "theory-11": grade11,
-  pastpaper: pp,
-};
-
-function getCourseImage(course) {
-  if (course.image_url) return course.image_url;
-  if (course.type === "pastpaper") return STATIC_IMAGES["pastpaper"];
-  return (
-    STATIC_IMAGES[`theory-${course.grade}`] ?? "/course-images/default.jpg"
-  );
-}
+import CourseCardClient from "@/app/_components/CourseCardClient";
 
 const getCourses = unstable_cache(
   async () => {
@@ -44,69 +24,14 @@ const getCourses = unstable_cache(
 
 const GRADES = [10, 11];
 
-// ─── Course Card ──────────────────────────────────────────────────────────────
-function CourseCard({ course }) {
-  const isPastPaper = course.type === "pastpaper";
-  const imageUrl = getCourseImage(course);
-
-  return (
-    <Link href={`/courses/${course.id}`} className="group block">
-      <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl hover:shadow-[#0b408e]/8 transition-all duration-300 hover:-translate-y-1">
-        {/* Image + gradient overlay */}
-        <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-100">
-          <Image
-            src={imageUrl}
-            alt={course.title}
-            fill
-            className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0b408e] via-[#0b408e]/30 to-transparent opacity-70" />
-
-          {/* Overlay text — only the label is tracked/uppercase; title is normal weight */}
-          <div className="absolute bottom-0 left-0 w-full px-2  pt-8">
-            <h3 className="text-white text-lg font-bold leading-snug">
-              {course.title}
-            </h3>
-            <p className="text-[#9fe03c] text-[10px] font-semibold uppercase tracking-[0.22em] mb-1.5">
-              {isPastPaper ? "Past Paper" : `Grade ${course.grade} · Theory`}
-            </p>
-          </div>
-        </div>
-
-        {/* Card footer */}
-        <div className="grid grid-cols-2 divide-x divide-gray-100 border-t border-gray-50">
-          {/* Left Half: Price */}
-          <div className="px-5 py-4 flex flex-col justify-center">
-            <p className="text-[11px] text-gray-500 font-semibold uppercase tracking-wider mb-0.5">
-              Price
-            </p>
-            <p className="text-[#0b408e] font-bold text-base truncate">
-              LKR {Number(course.price).toLocaleString()}
-            </p>
-          </div>
-
-          {/* Right Half: Action Button */}
-          <div className="px-5 py-4 flex items-center justify-center">
-            <button className="w-full py-2 bg-[#0b408e] hover:bg-[#082f6b] text-white text-sm font-semibold rounded-xl transition-colors shadow-sm">
-              View Details
-            </button>
-          </div>
-        </div>
-      </div>
-    </Link>
-  );
-}
-
-// ─── Filter Pill ──────────────────────────────────────────────────────────────
 function FilterPill({ href, active, children }) {
   return (
     <Link
       href={href}
-      className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
+      className={`px-4 py-2 rounded-full text-xs font-bold tracking-wide uppercase transition-all duration-300 ${
         active
-          ? "bg-[#0b408e] text-white shadow-md shadow-[#0b408e]/20"
-          : "bg-white text-gray-500 border border-gray-200 hover:border-[#0b408e]/30 hover:text-[#0b408e]"
+          ? "bg-[#9fe03c] text-[#0b408e] shadow-md shadow-[#9fe03c]/20 scale-[1.02]"
+          : "bg-white/10 backdrop-blur-md border border-white/15 text-slate-200 hover:bg-white/20 hover:text-white"
       }`}
     >
       {children}
@@ -114,23 +39,21 @@ function FilterPill({ href, active, children }) {
   );
 }
 
-// ─── Section heading ──────────────────────────────────────────────────────────
 function SectionHeading({ label, count }) {
   return (
-    <div className="flex items-center gap-3 mb-6">
-      <span className="w-1 h-5 rounded-full bg-[#9fe03c]" />
-      <h2 className="text-sm font-semibold text-[#0b408e] tracking-wide">
+    <div className="flex items-center gap-3.5 mb-8">
+      <span className="w-1.5 h-6 rounded-full bg-[#9fe03c]" />
+      <h2 className="text-lg md:text-xl font-extrabold text-[#0b408e] tracking-tight">
         {label}
       </h2>
-      <span className="text-xs font-bold text-[#9fe03c] bg-[#0b408e] px-2 py-0.5 rounded-full leading-none">
+      <span className="text-xs font-bold text-[#0b408e] bg-[#9fe03c] px-2.5 py-0.5 rounded-full leading-none shadow-sm">
         {count}
       </span>
-      <div className="flex-1 h-px bg-gray-100" />
+      <div className="flex-1 h-px bg-slate-200" />
     </div>
   );
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
 export default async function Page({ searchParams }) {
   const params = (await searchParams) || {};
   const { grade, type } = params;
@@ -160,59 +83,57 @@ export default async function Page({ searchParams }) {
 
   const pageTitle =
     typeParam === "pastpaper"
-      ? "Past Papers"
+      ? "Past Paper Discussions"
       : typeParam === "theory" && gradeParam
-        ? `Grade ${gradeParam} Courses`
+        ? `Grade ${gradeParam} Commerce Theory`
         : typeParam === "theory"
           ? "Theory Courses"
           : gradeParam
             ? `Grade ${gradeParam} Courses`
-            : "All Courses";
+            : "Explore All Courses";
 
   return (
-    <div className="pt-16 min-h-screen w-full bg-gray-50 selection:bg-[#9fe03c] selection:text-[#0b408e]">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-100 px-4 md:px-8 py-5">
-        <div className="max-w-6xl mx-auto flex flex-col gap-4">
-          {/* Title row */}
-          <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded-xl bg-[#0b408e]/6 border border-[#0b408e]/10">
-              <GraduationCap size={20} className="text-[#0b408e]" />
-            </div>
-            <h1 className="text-xl font-bold text-gray-900">{pageTitle}</h1>
-            <span className="text-[11px] font-bold text-[#9fe03c] bg-[#0b408e] px-2 py-0.5 rounded-full">
-              {totalCount}
-            </span>
-            {(gradeParam || typeParam) && (
-              <Link
-                href="/courses"
-                className="ml-1 text-xs text-gray-400 hover:text-[#0b408e] transition-colors"
-              >
-                View all →
-              </Link>
-            )}
+    <div className="min-h-screen w-full bg-slate-50 selection:bg-[#9fe03c] selection:text-[#0b408e]">
+      {/* Header Banner */}
+      <div className="relative pt-28 pb-16 bg-[#071933] text-white overflow-hidden">
+        {/* Background Blur Orbs */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-[#0b408e]/40 rounded-full blur-[130px] pointer-events-none" />
+
+        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 flex flex-col items-center text-center">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[#9fe03c] text-xs font-bold uppercase tracking-wider mb-4">
+            <GraduationCap size={14} className="text-[#FFD700]" />
+            <span>NexLearn Catalog</span>
           </div>
 
-          {/* Filters */}
-          <div className="flex flex-wrap items-center gap-2">
+          {/* Title */}
+          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white mb-3">
+            {pageTitle}
+          </h1>
+          <p className="text-slate-300 text-sm md:text-base max-w-2xl leading-relaxed mb-8">
+            Comprehensive Grade 10 & 11 Commerce theory lessons, revision modules, and past paper discussions.
+          </p>
+
+          {/* Filter Pills Bar */}
+          <div className="flex flex-wrap items-center justify-center gap-2.5 p-2 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10">
             <FilterPill href="/courses" active={!typeParam && !gradeParam}>
-              All
+              All Courses ({courses.length})
             </FilterPill>
             <FilterPill
               href="/courses?type=theory"
               active={typeParam === "theory" && !gradeParam}
             >
-              Theory
+              Theory ({theoryCourses.length})
             </FilterPill>
             <FilterPill
               href="/courses?type=pastpaper"
               active={typeParam === "pastpaper"}
             >
-              Past Papers
+              Past Papers ({pastPaperCourses.length})
             </FilterPill>
             {(typeParam === null || typeParam === "theory") && (
               <>
-                <span className="text-gray-200 select-none">|</span>
+                <span className="text-white/20 select-none mx-1">|</span>
                 {GRADES.map((g) => (
                   <FilterPill
                     key={g}
@@ -228,15 +149,26 @@ export default async function Page({ searchParams }) {
         </div>
       </div>
 
-      {/* Content */}
-      <div className="max-w-6xl mx-auto px-4 md:px-8 py-10 flex flex-col gap-12">
+      {/* Main Content Area */}
+      <div className="max-w-7xl mx-auto px-6 lg:px-12 py-16">
         {totalCount === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 gap-3">
-            <BookOpen size={36} className="text-gray-200" />
-            <p className="text-sm text-gray-400">No courses available</p>
+          <div className="flex flex-col items-center justify-center py-24 text-center bg-white rounded-3xl border border-slate-200/80 p-12 max-w-md mx-auto shadow-sm">
+            <BookOpen size={48} className="text-slate-300 mb-4" />
+            <h3 className="text-lg font-bold text-slate-800 mb-1">
+              No Courses Found
+            </h3>
+            <p className="text-xs text-slate-500 mb-6">
+              There are currently no courses matching the selected filters.
+            </p>
+            <Link
+              href="/courses"
+              className="px-5 py-2.5 rounded-xl bg-[#0b408e] text-white text-xs font-bold hover:bg-[#093372] transition"
+            >
+              View All Courses
+            </Link>
           </div>
         ) : (
-          <>
+          <div className="space-y-16">
             {showTheory &&
               gradesToShow.map((g) => {
                 const gradeCourses = coursesByGrade[g];
@@ -245,13 +177,13 @@ export default async function Page({ searchParams }) {
                   <section key={g}>
                     {!gradeParam && (
                       <SectionHeading
-                        label={`Grade ${g}`}
+                        label={`Grade ${g} Commerce Theory`}
                         count={gradeCourses.length}
                       />
                     )}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                       {gradeCourses.map((course) => (
-                        <CourseCard key={course.id} course={course} />
+                        <CourseCardClient key={course.id} course={course} />
                       ))}
                     </div>
                   </section>
@@ -262,18 +194,18 @@ export default async function Page({ searchParams }) {
               <section>
                 {typeParam !== "pastpaper" && (
                   <SectionHeading
-                    label="Past Papers"
+                    label="Past Paper Discussions & Marking Schemes"
                     count={pastPaperCourses.length}
                   />
                 )}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {pastPaperCourses.map((course) => (
-                    <CourseCard key={course.id} course={course} />
+                    <CourseCardClient key={course.id} course={course} />
                   ))}
                 </div>
               </section>
             )}
-          </>
+          </div>
         )}
       </div>
     </div>

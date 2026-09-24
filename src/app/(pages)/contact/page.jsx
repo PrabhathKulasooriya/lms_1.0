@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, Phone, MapPin, Send, MessageCircle } from "lucide-react";
+import { Mail, Phone, MapPin, Send, MessageCircle, Clock, Sparkles } from "lucide-react";
 import { FaFacebookF, FaWhatsapp, FaTiktok } from "react-icons/fa6";
 import toast, { Toaster } from "react-hot-toast";
 import Link from "next/link";
@@ -44,129 +44,149 @@ const ContactPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8F9FA] pt-28 pb-20 px-6 selection:bg-[#9fe03c] selection:text-[#0b408e]">
+    <div className="min-h-screen bg-slate-50 pt-28 pb-20 px-6 lg:px-12 selection:bg-[#9fe03c] selection:text-[#0b408e]">
       <Toaster position="top-center" reverseOrder={false} />
 
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-16"
+          transition={{ duration: 0.6 }}
+          className="text-center max-w-2xl mx-auto mb-16"
         >
-          <h1 className="text-4xl md:text-5xl font-black text-[#0b408e] uppercase tracking-tight mb-4">
-            Get in <span className="text-[#9fe03c]">Touch</span>
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#0b408e]/10 text-[#0b408e] text-xs font-bold tracking-wider uppercase mb-3">
+            <MessageCircle size={14} className="text-[#0b408e]" />
+            <span>සම්බන්ධ වන්න</span>
+          </div>
+          <h1 className="text-3xl md:text-5xl font-extrabold text-[#0b408e] tracking-tight mb-4">
+            We&apos;d Love to Hear From You
           </h1>
-          <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-            Have questions about our courses or need technical support? Our team
-            is here to help you every step of the way.
+          <p className="text-slate-600 text-sm md:text-base leading-relaxed">
+            Have questions about course enrollment, class schedules, or LMS access? Send us a message and our team will get back to you promptly.
           </p>
-          <div className="w-24 h-1.5 bg-[#FFD700] mx-auto mt-6 rounded-full" />
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-          {/* Contact Information Card */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start max-w-6xl mx-auto">
+          {/* Contact Details Card (Left) */}
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
+            initial={{ opacity: 0, x: -24 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-            className="lg:col-span-5 bg-[#0b408e] rounded-[2.5rem] p-10 text-white shadow-2xl relative overflow-hidden"
+            transition={{ duration: 0.7, ease: [0.21, 0.47, 0.32, 0.98] }}
+            className="lg:col-span-5 bg-[#071933] rounded-3xl p-8 md:p-10 text-white shadow-2xl relative overflow-hidden border border-white/10 flex flex-col justify-between"
           >
-            {/* Decorative circles */}
-            <div className="absolute top-0 right-0 w-40 h-40 bg-white/5 rounded-full -mr-20 -mt-20" />
-            <div className="absolute bottom-0 left-0 w-32 h-32 bg-[#9fe03c]/20 rounded-full -ml-16 -mb-16" />
+            {/* Ambient Background Orbs */}
+            <div className="absolute top-0 right-0 w-48 h-48 bg-[#0b408e]/50 rounded-full blur-[80px] pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-36 h-36 bg-[#9fe03c]/20 rounded-full blur-[70px] pointer-events-none" />
 
-            <h2 className="text-2xl font-bold mb-8 relative z-10">
-              Contact Information
-            </h2>
+            <div className="relative z-10">
+              <span className="inline-block px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-[#9fe03c] text-xs font-bold uppercase tracking-wider mb-4">
+                Quick Contact Info
+              </span>
+              <h2 className="text-2xl font-extrabold text-white tracking-tight mb-8">
+                Direct Channels
+              </h2>
 
-            <div className="space-y-8 relative z-10">
-              <Link href={"tel:+94711562002"} className="flex items-start gap-5 group">
-                <div className="bg-white/10 p-3 rounded-2xl group-hover:bg-[#9fe03c] group-hover:text-[#0b408e] transition-all duration-300">
-                  <Phone size={24} />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-300 uppercase tracking-widest font-bold mb-1">
-                    Call Us
-                  </p>
-                  <p className="text-lg font-medium">071 156 2002</p>
-                </div>
-              </Link>
-
-              
+              <div className="space-y-6">
+                {/* Phone */}
                 <Link
-                  href="mailto:info@nexlearn.lk?subject=Inquiry from NexLearn Website"
-                  className="flex items-start gap-5 group"
+                  href="tel:0711562002"
+                  className="flex items-center gap-4 group p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300"
                 >
-                  <div className="bg-white/10 p-3 rounded-2xl group-hover:bg-[#9fe03c] group-hover:text-[#0b408e] transition-all duration-300">
-                    <Mail size={24} />
+                  <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-[#9fe03c] group-hover:bg-[#9fe03c] group-hover:text-[#0b408e] transition-colors duration-300 shrink-0">
+                    <Phone size={20} />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-300 uppercase tracking-widest font-bold mb-1">
-                      Email Us
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                      Call Us
                     </p>
-                    <p className="text-lg font-medium">info@nexlearn.lk</p>
+                    <p className="text-base font-bold text-white group-hover:text-[#9fe03c] transition-colors">
+                      071 156 2002
+                    </p>
                   </div>
                 </Link>
-              
 
-              <div className="flex items-start gap-5 group">
-                <div className="bg-white/10 p-3 rounded-2xl group-hover:bg-[#9fe03c] group-hover:text-[#0b408e] transition-all duration-300">
-                  <MapPin size={24} />
-                </div>
-                <div>
-                  <p className="text-sm text-gray-300 uppercase tracking-widest font-bold mb-1">
-                    Location
-                  </p>
-                  <p className="text-lg font-medium leading-snug">
-                    Kuliyapitiya, Sri Lanka
-                  </p>
+                {/* Email */}
+                <a
+                  href="mailto:info@nexlearn.lk?subject=Inquiry from NexLearn Website"
+                  className="flex items-center gap-4 group p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-[#9fe03c] group-hover:bg-[#9fe03c] group-hover:text-[#0b408e] transition-colors duration-300 shrink-0">
+                    <Mail size={20} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                      Email Us
+                    </p>
+                    <p className="text-base font-bold text-white group-hover:text-[#9fe03c] transition-colors">
+                      info@nexlearn.lk
+                    </p>
+                  </div>
+                </a>
+
+                {/* Location */}
+                <div className="flex items-center gap-4 p-3.5 rounded-2xl bg-white/5 border border-white/10">
+                  <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-[#9fe03c] shrink-0">
+                    <MapPin size={20} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                      Location
+                    </p>
+                    <p className="text-base font-bold text-white">
+                      Kuliyapitiya, Sri Lanka
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="mt-16 relative z-10">
-              <p className="text-sm text-gray-300 uppercase tracking-widest font-bold mb-6 text-center lg:text-left">
-                Follow Our Journey
+            {/* Social Links */}
+            <div className="relative z-10 mt-10 pt-6 border-t border-white/10">
+              <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-4">
+                Follow Us
               </p>
-              <div className="flex gap-4 justify-center lg:justify-start">
-                {[
-                  {
-                    Icon: FaFacebookF,
-                    color: "hover:bg-[#1877F2]",
-                    href: "https://www.facebook.com/share/1ECvTQxR5o/",
-                  },
-                  {
-                    Icon: FaWhatsapp,
-                    color: "hover:bg-[#25D366]",
-                    href: "https://api.whatsapp.com/message/YFJHB7SESANDB1",
-                  },
-                  { Icon: FaTiktok, color: "hover:bg-black", href: "#" },
-                ].map((social, i) => (
-                  <Link
-                    key={i}
-                    href={social.href}
-                    target="_blank"
-                    className={`bg-white/10 p-4 rounded-full transition-all duration-300 ${social.color} hover:-translate-y-2`}
-                  >
-                    <social.Icon size={20} />
-                  </Link>
-                ))}
+              <div className="flex gap-3">
+                <Link
+                  href="https://www.facebook.com/share/1ECvTQxR5o/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center hover:bg-[#1877F2] hover:border-[#1877F2] hover:-translate-y-1 transition-all duration-300"
+                >
+                  <FaFacebookF size={15} />
+                </Link>
+                <Link
+                  href="https://api.whatsapp.com/message/YFJHB7SESANDB1"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center hover:bg-[#25D366] hover:border-[#25D366] hover:-translate-y-1 transition-all duration-300"
+                >
+                  <FaWhatsapp size={16} />
+                </Link>
+                <Link
+                  href="#"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center hover:bg-black hover:border-black hover:-translate-y-1 transition-all duration-300"
+                >
+                  <FaTiktok size={15} />
+                </Link>
               </div>
             </div>
           </motion.div>
 
-          {/* Contact Form */}
+          {/* Contact Form Card (Right) */}
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
+            initial={{ opacity: 0, x: 24 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4 }}
-            className="lg:col-span-7 bg-white rounded-[2.5rem] p-10 shadow-xl border border-gray-100"
+            transition={{ duration: 0.7, ease: [0.21, 0.47, 0.32, 0.98] }}
+            className="lg:col-span-7 bg-white rounded-3xl p-8 md:p-10 shadow-xl border border-slate-200/80"
           >
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-[#0b408e] uppercase tracking-wider ml-2">
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {/* Full Name */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
                     Full Name
                   </label>
                   <input
@@ -175,12 +195,14 @@ const ContactPage = () => {
                     onChange={handleChange}
                     value={formData.name}
                     required
-                    placeholder="John Doe"
-                    className="w-full px-6 py-4 rounded-2xl bg-[#F8F9FA] border border-gray-200 focus:border-[#9fe03c] focus:outline-none transition-all duration-300"
+                    placeholder="Isuru Prabhath"
+                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0b408e] focus:ring-2 focus:ring-[#0b408e]/20 text-slate-800 text-sm placeholder-slate-400 outline-none transition duration-200"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold text-[#0b408e] uppercase tracking-wider ml-2">
+
+                {/* Email Address */}
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
                     Email Address
                   </label>
                   <input
@@ -189,14 +211,15 @@ const ContactPage = () => {
                     onChange={handleChange}
                     value={formData.email}
                     required
-                    placeholder="john@example.com"
-                    className="w-full px-6 py-4 rounded-2xl bg-[#F8F9FA] border border-gray-200 focus:border-[#9fe03c] focus:outline-none transition-all duration-300"
+                    placeholder="student@example.com"
+                    className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0b408e] focus:ring-2 focus:ring-[#0b408e]/20 text-slate-800 text-sm placeholder-slate-400 outline-none transition duration-200"
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-[#0b408e] uppercase tracking-wider ml-2">
+              {/* Subject */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
                   Subject
                 </label>
                 <input
@@ -205,37 +228,45 @@ const ContactPage = () => {
                   onChange={handleChange}
                   value={formData.subject}
                   required
-                  placeholder="Inquiry about Course Enrollment"
-                  className="w-full px-6 py-4 rounded-2xl bg-[#F8F9FA] border border-gray-200 focus:border-[#9fe03c] focus:outline-none transition-all duration-300"
+                  placeholder="Inquiry about Grade 10 Commerce Class"
+                  className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0b408e] focus:ring-2 focus:ring-[#0b408e]/20 text-slate-800 text-sm placeholder-slate-400 outline-none transition duration-200"
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-bold text-[#0b408e] uppercase tracking-wider ml-2">
+              {/* Message */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
                   Your Message
                 </label>
                 <textarea
-                  rows="5"
+                  rows={5}
                   name="message"
                   onChange={handleChange}
                   value={formData.message}
                   required
-                  placeholder="Write your message here..."
-                  className="w-full px-6 py-4 rounded-2xl bg-[#F8F9FA] border border-gray-100 focus:border-[#9fe03c] focus:outline-none transition-all duration-300 resize-none"
-                ></textarea>
+                  placeholder="Write your message or question here..."
+                  className="w-full px-4 py-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:border-[#0b408e] focus:ring-2 focus:ring-[#0b408e]/20 text-slate-800 text-sm placeholder-slate-400 outline-none transition duration-200 resize-none"
+                />
               </div>
 
+              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full md:w-fit px-12 py-4 bg-[#9fe03c] text-[#0b408e] font-black rounded-2xl flex items-center justify-center gap-3 hover:bg-[#0b408e] hover:text-white transition-all duration-500 shadow-lg shadow-[#9fe03c]/20 disabled:opacity-50"
+                className="w-full md:w-auto px-8 py-3.5 bg-[#0b408e] hover:bg-[#093372] text-white font-bold text-sm rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-[#0b408e]/25 hover:shadow-xl hover:scale-[1.01] active:scale-95 transition-all duration-300 disabled:opacity-70"
               >
                 {isSubmitting ? (
-                  <div className="w-6 h-6 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  <span className="flex items-center gap-2">
+                    <svg className="animate-spin h-4 w-4 text-white" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    Sending Message...
+                  </span>
                 ) : (
                   <>
-                    <Send size={20} />
-                    SEND MESSAGE
+                    <Send size={16} />
+                    <span>SEND MESSAGE</span>
                   </>
                 )}
               </button>
