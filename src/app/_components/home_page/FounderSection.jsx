@@ -18,12 +18,12 @@ const FounderSection = () => {
           transition={{ duration: 0.6 }}
           className="text-center max-w-2xl mx-auto mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#0b408e]/10 text-[#0b408e] text-xs font-bold tracking-wider uppercase mb-3">
+          {/* <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#0b408e]/10 text-[#0b408e] text-xs font-bold tracking-wider uppercase mb-3">
             <UserCheck size={14} className="text-[#0b408e]" />
             <span>දේශක සහ නිර්මාතෘ</span>
-          </div>
+          </div> */}
           <h2 className="text-3xl md:text-4xl font-extrabold text-[#0b408e] tracking-tight">
-            දේශකතුමන් පිළිබඳ හැඳින්වීම
+            Founder & CEO
           </h2>
         </motion.div>
 
@@ -51,7 +51,7 @@ const FounderSection = () => {
             {/* Profile Header on Image */}
             <div className="relative z-20 mt-auto">
               <span className="inline-block px-3 py-1 rounded-full bg-[#9fe03c] text-[#0b408e] text-xs font-bold uppercase tracking-wider mb-2">
-                Founder & Chief Lecturer
+                Founder & CEO
               </span>
               <h3 className="text-3xl font-extrabold text-white tracking-tight mb-1">
                 Hasindu Kanishka
@@ -97,7 +97,7 @@ const FounderSection = () => {
                   </li>
                   <li className="flex items-start gap-3 text-slate-700 text-sm md:text-base leading-relaxed">
                     <CheckCircle2 size={18} className="text-[#9fe03c] shrink-0 mt-0.5" />
-                    <span>මූල්‍ය විගණනය (Financial Audit) ක්ෂේත්‍රයේ වසර 1 ක පළපුරුද්ද.</span>
+                    <span>මූල්‍ය විගණනය (Financial Audit) ක්ෂේත්‍රයේ වසරක පළපුරුද්ද.</span>
                   </li>
                 </ul>
               </div>

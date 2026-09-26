@@ -68,12 +68,12 @@ export default function StatsSection() {
           transition={{ duration: 0.6 }}
           className="text-center max-w-2xl mx-auto mb-16"
         >
-          {/* <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[#9fe03c] text-xs font-bold tracking-wider uppercase mb-3">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-[#9fe03c] text-xs font-bold tracking-wider uppercase mb-3">
             <Award size={14} className="text-[#FFD700]" />
-            <span>අපගේ ප්‍රගතිය</span>
-          </div> */}
+            <span>සිසුන් සහ දෙමාපියන්ගේ විශ්වාසය</span>
+          </div>
           <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
-            සිසුන් සහ දෙමාපියන්ගේ විශ්වාසය
+            Safeguarding the trust of our students and parents
           </h2>
         </motion.div>
 
@@ -102,7 +102,12 @@ export default function StatsSection() {
 
               {/* Number Counter */}
               <div className="text-4xl md:text-5xl font-black text-white tracking-tight mb-2 flex items-center justify-center">
-                <CountUp end={stat.number} duration={3} enableScrollSpy scrollSpyOnce />
+                <CountUp
+                  end={stat.number}
+                  duration={3}
+                  enableScrollSpy
+                  scrollSpyOnce
+                />
                 <span className="text-[#9fe03c] ml-1">{stat.suffix}</span>
               </div>
 

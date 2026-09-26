@@ -38,7 +38,7 @@ const Footer = () => {
       >
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
           {/* Brand Column */}
-          <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-5 ">
             <Link
               href={"/"}
               onClick={handleHomeClick}
@@ -47,12 +47,13 @@ const Footer = () => {
               <Image
                 src={logo}
                 alt="NexLearn.lk Logo"
-                className="h-auto w-44"
+                className="h-auto w-44 "
               />
             </Link>
 
             <p className="text-slate-300 text-sm font-normal leading-relaxed max-w-xs">
-              The premier online learning platform empowering Sri Lankan O/L Commerce students to achieve academic excellence.
+              The premier online learning platform empowering Sri Lankan O/L
+              Commerce students to achieve academic excellence.
             </p>
 
             {/* Social Links */}
@@ -74,7 +75,7 @@ const Footer = () => {
                 <FaWhatsapp size={16} />
               </Link>
               <Link
-                href="#"
+                href="https://www.tiktok.com/@nexlearn.lk?_r=1&_t=ZS-9A3rbWqbhlY"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center hover:bg-black hover:border-black hover:-translate-y-1 transition-all duration-300"
@@ -176,7 +177,8 @@ const Footer = () => {
               ) : (
                 <>
                   <p className="text-xs text-slate-300 leading-relaxed">
-                    Access your personalized LMS dashboard to view lessons and resources.
+                    Access your personalized LMS dashboard to view lessons and
+                    resources.
                   </p>
                   <Link
                     href="/login"
@@ -194,7 +196,9 @@ const Footer = () => {
         {/* Footer Bottom Bar */}
         <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-slate-400">
           <p className="uppercase tracking-wider font-medium text-center sm:text-left">
-            © {currentYear} <span className="text-white font-semibold">NexLearn.lk</span> — ALL RIGHTS RESERVED
+            © {currentYear}{" "}
+            <span className="text-white font-semibold">NexLearn.lk</span> — ALL
+            RIGHTS RESERVED
           </p>
 
           <div className="flex items-center gap-1.5 tracking-wider uppercase font-medium">

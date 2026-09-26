@@ -22,12 +22,12 @@ import image4 from "@/assets/slider/4.webp";
 const sliderData = [
   {
     image: image1,
-    badge: "NexLearn LMS • Sri Lanka",
+    badge: "NexLearn.LK • Sri Lanka",
     heading: "Empower Your Future in Commerce",
     description:
       "The premier online learning destination designed for Sri Lankan Ordinary Level students to master Commerce and achieve top grades.",
-    primaryCta: { text: "පාඨමාලා නරඹන්න", href: "#courses" },
-    secondaryCta: { text: "ලියාපදිංචි වන්න", href: "/register" },
+    primaryCta: { text: "View Courses", href: "#courses" },
+    secondaryCta: { text: "Register Now", href: "/register" },
   },
   {
     image: image2,
@@ -35,8 +35,14 @@ const sliderData = [
     heading: "Master Your O/L Commerce Syllabus",
     description:
       "Simplified theory lessons, structured study notes, and targeted revision guidance specifically tailored for Grade 10 & 11.",
-    primaryCta: { text: "Grade 10 Theory", href: "/courses?type=theory&grade=10" },
-    secondaryCta: { text: "Grade 11 Theory", href: "/courses?type=theory&grade=11" },
+    primaryCta: {
+      text: "Grade 10 Theory",
+      href: "/courses?type=theory&grade=10",
+    },
+    secondaryCta: {
+      text: "Grade 11 Theory",
+      href: "/courses?type=theory&grade=11",
+    },
   },
   {
     image: image3,
@@ -44,8 +50,8 @@ const sliderData = [
     heading: "Ace Your O/L Commerce Exams",
     description:
       "Deep-dive past paper discussions, marking scheme breakdowns, and model answers to maximize your exam performance.",
-    primaryCta: { text: "ප්‍රශ්න පත්‍ර සාකච්ඡා", href: "/courses?type=pastpaper" },
-    secondaryCta: { text: "වැඩිදුර විස්තර", href: "/contact" },
+    primaryCta: { text: "View Courses", href: "#courses" },
+    secondaryCta: { text: "Contact", href: "/contact" },
   },
   {
     image: image4,
@@ -53,8 +59,8 @@ const sliderData = [
     heading: "Your Proven Path to an 'A' Grade",
     description:
       "Turn your academic ambitions into reality with structured learning paths, expert instruction, and continuous guidance.",
-    primaryCta: { text: "පාඨමාලා තෝරන්න", href: "#courses" },
-    secondaryCta: { text: "ලොගින් වන්න", href: "/login" },
+    primaryCta: { text: "Grade 11 Theory", href: "#courses" },
+    secondaryCta: { text: "LogIn", href: "/login" },
   },
 ];
 

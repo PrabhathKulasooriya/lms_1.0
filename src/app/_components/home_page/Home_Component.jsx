@@ -26,11 +26,6 @@ const features = [
     desc: "10 සහ 11 ශ්‍රේණි ව්‍යාපාර හා ගිණුම්කරණ අධ්‍යයනය විෂය නිර්දේශය සරලව හා මුල සිට ආවරණය කිරීම.",
   },
   {
-    icon: FileCheck2,
-    title: "ප්‍රශ්න පත්‍ර සාකච්ඡා (Paper Discussions)",
-    desc: "පසුගිය විභාග ප්‍රශ්න පත්‍ර සහ ආදර්ශ ප්‍රශ්න පත්‍ර නිවැරදි ලකුණු දීමේ පටිපාටියට අනුව සාකච්ඡා කිරීම.",
-  },
-  {
     icon: Layers,
     title: "ක්‍රමවත් පාඩම් මාලාව (Structured Modules)",
     desc: "පාඩමෙන් පාඩමට සංවිධානාත්මකව පිළියෙළ කරන ලද වීඩියෝ පාඩම් සහ නිබන්ධන මාලාව.",
@@ -39,6 +34,11 @@ const features = [
     icon: Sparkles,
     title: "විශිෂ්ට සාමාර්ථ ඉලක්කය (Targeted 'A' Grade)",
     desc: "සාමාන්‍ය පෙළ විභාගයෙන් විශිෂ්ට 'A' සාමාර්ථයක් ලබා ගැනීමට මඟ පෙන්වන විශේෂ ක්‍රමවේදය.",
+  },
+  {
+    icon: FileCheck2,
+    title: "මුද්‍රිත නිබන්ධන කට්ටලය (Printed Tutes Set)",
+    desc: "ආකර්ෂණීය මෙන්ම විධිමත් මුද්‍රිත නිබන්ධන කට්ටලයක් නිවසටම ගෙන්වාගැනීමේ ක්‍රමවේදය.",
   },
 ];
 
@@ -77,12 +77,11 @@ const Home = () => {
           transition={{ duration: 0.6, ease: "easeOut" }}
           className="text-center max-w-2xl mx-auto mb-14"
         >
-          
           <h2 className="text-3xl md:text-4xl font-extrabold text-[#0b408e] tracking-tight mb-3">
-            ඔබට ගැළපෙන පාඨමාලාව තෝරාගන්න
+            Select Your Course
           </h2>
           <p className="text-slate-600 text-sm md:text-base leading-relaxed">
-            10 & 11 ශ්‍රේණි සිද්ධාන්ත සහ ප්‍රශ්න පත්‍ර සාකච්ඡා පාඨමාලා
+            Grade 10 & 11 Theory and Past Paper Discussions
           </p>
         </motion.div>
 
@@ -118,7 +117,10 @@ const Home = () => {
                   Grade 10 • Commerce
                 </span>
                 <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white group-hover:bg-[#9fe03c] group-hover:text-[#0b408e] transition-all duration-300">
-                  <ArrowRight size={18} className="transition-transform duration-300 group-hover:translate-x-0.5" />
+                  <ArrowRight
+                    size={18}
+                    className="transition-transform duration-300 group-hover:translate-x-0.5"
+                  />
                 </div>
               </div>
 
@@ -128,7 +130,8 @@ const Home = () => {
                   10 ශ්‍රේණිය
                 </h3>
                 <p className="text-slate-300 text-xs md:text-sm font-normal line-clamp-2">
-                  සම්පූර්ණ විෂය නිර්දේශය මුල සිට සරලව සාකච්ඡා කෙරෙන සිද්ධාන්ත පාඨමාලාව.
+                  සම්පූර්ණ විෂය නිර්දේශය මුල සිට සරලව සාකච්ඡා කෙරෙන සිද්ධාන්ත
+                  පාඨමාලාව.
                 </p>
                 <div className="w-12 h-1 bg-[#9fe03c] mt-4 rounded-full transition-all duration-500 group-hover:w-28" />
               </div>
@@ -159,7 +162,10 @@ const Home = () => {
                   Grade 11 • Commerce
                 </span>
                 <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white group-hover:bg-[#9fe03c] group-hover:text-[#0b408e] transition-all duration-300">
-                  <ArrowRight size={18} className="transition-transform duration-300 group-hover:translate-x-0.5" />
+                  <ArrowRight
+                    size={18}
+                    className="transition-transform duration-300 group-hover:translate-x-0.5"
+                  />
                 </div>
               </div>
 
@@ -169,7 +175,8 @@ const Home = () => {
                   11 ශ්‍රේණිය
                 </h3>
                 <p className="text-slate-300 text-xs md:text-sm font-normal line-clamp-2">
-                  සාමාන්‍ය පෙළ විභාගය ඉලක්ක කරගත් පූර්ණ සිද්ධාන්ත හා පුනරීක්ෂණ පාඨමාලාව.
+                  සාමාන්‍ය පෙළ විභාගය ඉලක්ක කරගත් පූර්ණ සිද්ධාන්ත හා පුනරීක්ෂණ
+                  පාඨමාලාව.
                 </p>
                 <div className="w-12 h-1 bg-[#9fe03c] mt-4 rounded-full transition-all duration-500 group-hover:w-28" />
               </div>
@@ -177,12 +184,13 @@ const Home = () => {
           </motion.div>
 
           {/* Past Paper Discussion Card */}
-          <motion.div variants={itemVariants} className="md:col-span-2">
+
+          {/* <motion.div variants={itemVariants} className="md:col-span-2">
             <Link
               href="/courses?type=pastpaper"
               className="group relative flex flex-col justify-between h-56 md:h-64 rounded-3xl overflow-hidden border border-slate-200/80 bg-white shadow-md hover:shadow-2xl hover:shadow-[#0b408e]/15 transition-all duration-500 hover:-translate-y-1.5"
             >
-              {/* Background Image & Overlay */}
+             
               <div className="absolute inset-0 z-0">
                 <Image
                   src={bg_2}
@@ -194,7 +202,7 @@ const Home = () => {
                 <div className="absolute inset-0 bg-gradient-to-r from-[#0b408e]/95 via-[#0b408e]/80 to-[#061933]/90 transition-opacity duration-500" />
               </div>
 
-              {/* Content */}
+              
               <div className="relative z-10 p-6 md:p-8 flex flex-col justify-between h-full">
                 <div className="flex justify-between items-start">
                   <span className="inline-block px-3 py-1 rounded-full bg-[#FFD700] text-[#0b408e] text-xs font-bold uppercase tracking-wider shadow-sm">
@@ -216,7 +224,7 @@ const Home = () => {
                 </div>
               </div>
             </Link>
-          </motion.div>
+          </motion.div> */}
         </motion.div>
       </section>
 
@@ -232,10 +240,10 @@ const Home = () => {
           >
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#9fe03c]/20 text-[#0b408e] text-xs font-bold tracking-wider uppercase mb-3">
               <Sparkles size={14} className="text-[#0b408e]" />
-              <span>NexLearn විශේෂතා</span>
+              <span>Why NexLearn.lk?</span>
             </div>
             <h2 className="text-3xl md:text-4xl font-extrabold text-[#0b408e] tracking-tight">
-              ඇයි NexLearn තෝරාගත යුත්තේ?
+              NexLearn.lk තෝරාගත යුත්තේ ඇයි?
             </h2>
           </motion.div>
 

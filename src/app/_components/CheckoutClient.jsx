@@ -15,6 +15,12 @@ import {
   Info,
   CheckCircle2,
   Banknote,
+  UploadCloud,
+  FileText,
+  X,
+  CheckCircle,
+  Loader2,
+  Clock,
 } from "lucide-react";
 import { getPayHereFormData } from "@/app/api/actions/checkout";
 import toast from "react-hot-toast";
@@ -50,11 +56,62 @@ const BANK_DETAILS = [
 ];
 
 export default function CheckoutClient({ course, courseId }) {
-  const [openSection, setOpenSection] = useState(null);
+  const [openSection, setOpenSection] = useState("bank");
   const [loading, setLoading] = useState(false);
   const { data: session } = useSession();
 
+  // ── Bank slip upload UI states (Frontend UI only) ──────────────────────────
+  const [slipFile, setSlipFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [depositorName, setDepositorName] = useState("");
+  const [referenceNo, setReferenceNo] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+
   const toggle = (key) => setOpenSection((prev) => (prev === key ? null : key));
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File size must be less than 10MB");
+      return;
+    }
+
+    setSlipFile(file);
+    setIsSubmitted(false);
+
+    if (file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setPreviewUrl(null);
+    }
+  };
+
+  const handleRemoveFile = () => {
+    setSlipFile(null);
+    setPreviewUrl(null);
+    setIsSubmitted(false);
+  };
+
+  const handleSubmitSlip = (e) => {
+    e.preventDefault();
+    if (!slipFile) {
+      toast.error("Please select your bank transfer slip before submitting.");
+      return;
+    }
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setIsSubmitted(true);
+      toast.success("Payment slip submitted successfully!");
+    }, 1200);
+  };
 
   // ── Initiate PayHere card payment ────────────────────────────────────────
   const handleCardPayment = async () => {
@@ -298,8 +355,8 @@ export default function CheckoutClient({ course, courseId }) {
               </h2>
             </div>
 
-            {/* ── Option 1: Card Payment ──────────────────────────────────── */}
-            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+            {/* ── Option 1: Card Payment (Hidden from UI as requested) ────── */}
+            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden hidden">
               <button
                 onClick={() => toggle("card")}
                 className="w-full flex items-center justify-between px-6 py-5 hover:bg-gray-50/60 transition-colors text-left"
@@ -480,6 +537,155 @@ export default function CheckoutClient({ course, courseId }) {
                         </span>
                       </div>
                     </div>
+                  </div>
+
+                  {/* ── Bank Payment Slip Upload UI ────────────────────── */}
+                  <div className="mt-4 bg-white border border-gray-200 rounded-2xl p-5 shadow-xs">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <UploadCloud size={16} className="text-[#0b408e]" />
+                        <p className="text-xs font-semibold text-gray-900 uppercase tracking-wider">
+                          Upload Payment Slip
+                        </p>
+                      </div>
+                      <span className="text-[10px] bg-[#0b408e]/10 text-[#0b408e] px-2 py-0.5 rounded-full font-medium">
+                        Instant Upload
+                      </span>
+                    </div>
+
+                    {isSubmitted ? (
+                      <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-center space-y-3">
+                        <div className="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center mx-auto text-emerald-600">
+                          <CheckCircle size={22} />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-emerald-900">
+                            Slip Submitted Successfully!
+                          </h4>
+                          <p className="text-xs text-emerald-700 mt-1 leading-relaxed">
+                            Your bank transfer receipt has been received. Our team will verify the transaction and activate your course within 24 hours.
+                          </p>
+                        </div>
+                        <div className="flex items-center justify-center gap-2 text-xs text-emerald-800 bg-emerald-100/70 py-1.5 px-3 rounded-lg w-fit mx-auto font-medium">
+                          <Clock size={13} />
+                          Status: Pending Verification
+                        </div>
+                        {slipFile && (
+                          <p className="text-[11px] text-emerald-600 italic">
+                            Uploaded File: {slipFile.name}
+                          </p>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setIsSubmitted(false)}
+                          className="text-xs text-[#0b408e] hover:underline font-medium pt-1 block mx-auto"
+                        >
+                          Upload a different slip
+                        </button>
+                      </div>
+                    ) : (
+                      <form onSubmit={handleSubmitSlip} className="space-y-4">
+                        {/* File Upload Drop Zone */}
+                        {!slipFile ? (
+                          <label className="border-2 border-dashed border-gray-300 hover:border-[#0b408e] bg-gray-50/60 hover:bg-blue-50/30 rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer transition-all group">
+                            <input
+                              type="file"
+                              accept="image/*,.pdf"
+                              onChange={handleFileChange}
+                              className="hidden"
+                            />
+                            <div className="w-12 h-12 bg-white border border-gray-200 rounded-2xl flex items-center justify-center shadow-xs text-gray-400 group-hover:text-[#0b408e] group-hover:border-[#0b408e]/30 transition-all mb-2">
+                              <UploadCloud size={24} />
+                            </div>
+                            <p className="text-xs font-semibold text-gray-700 group-hover:text-[#0b408e]">
+                              Click to select or drag &amp; drop slip here
+                            </p>
+                            <p className="text-[10px] text-gray-400 mt-1">
+                              Supports JPG, PNG, WEBP or PDF (Max 10MB)
+                            </p>
+                          </label>
+                        ) : (
+                          <div className="border border-gray-200 rounded-xl p-3.5 bg-gray-50 flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3 overflow-hidden">
+                              {previewUrl ? (
+                                <img
+                                  src={previewUrl}
+                                  alt="Slip preview"
+                                  className="w-12 h-12 rounded-lg object-cover border border-gray-200 shrink-0"
+                                />
+                              ) : (
+                                <div className="w-12 h-12 rounded-lg bg-blue-100 text-[#0b408e] flex items-center justify-center shrink-0">
+                                  <FileText size={20} />
+                                </div>
+                              )}
+                              <div className="min-w-0">
+                                <p className="text-xs font-semibold text-gray-800 truncate">
+                                  {slipFile.name}
+                                </p>
+                                <p className="text-[10px] text-gray-400">
+                                  {(slipFile.size / (1024 * 1024)).toFixed(2)} MB
+                                </p>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={handleRemoveFile}
+                              className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors shrink-0"
+                              title="Remove slip"
+                            >
+                              <X size={16} />
+                            </button>
+                          </div>
+                        )}
+
+                        {/* Optional detail fields */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-[11px] font-medium text-gray-600 mb-1">
+                              Depositor Name (Optional)
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="e.g. A.B. Perera"
+                              value={depositorName}
+                              onChange={(e) => setDepositorName(e.target.value)}
+                              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-xl focus:outline-none focus:border-[#0b408e] bg-white"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[11px] font-medium text-gray-600 mb-1">
+                              Ref No / Reg Email (Optional)
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="e.g. Ref # or email"
+                              value={referenceNo}
+                              onChange={(e) => setReferenceNo(e.target.value)}
+                              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-xl focus:outline-none focus:border-[#0b408e] bg-white"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Submit Button */}
+                        <button
+                          type="submit"
+                          disabled={!slipFile || isSubmitting}
+                          className="w-full py-3 rounded-xl bg-[#0b408e] hover:bg-[#0b408e]/90 text-white text-xs font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-xs"
+                        >
+                          {isSubmitting ? (
+                            <>
+                              <Loader2 size={14} className="animate-spin" />
+                              Submitting Slip...
+                            </>
+                          ) : (
+                            <>
+                              <UploadCloud size={14} />
+                              Submit Payment Slip
+                            </>
+                          )}
+                        </button>
+                      </form>
+                    )}
                   </div>
 
                   {/* Step-by-step instructions */}
