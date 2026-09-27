@@ -153,3 +153,128 @@ export async function sendVerificationEmail(
 </html>`,
   });
 }
+
+export async function sendBankSlipReceivedEmail(toEmail, userName, courseTitle, amount) {
+  try {
+    await resend.emails.send({
+      from: "NexLearn <noreply@nexlearn.lk>",
+      to: toEmail,
+      subject: `Payment Slip Received – ${courseTitle}`,
+      html: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Payment Slip Received</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f3f4f6;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding: 40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" style="max-width:480px;background:#ffffff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);overflow:hidden;">
+          <tr>
+            <td style="background:#0b408e;padding:28px 32px;text-align:center;">
+              <span style="font-size:22px;font-weight:800;color:#ffffff;">NexLearn</span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:36px 32px 24px;">
+              <h1 style="margin:0 0 12px;font-size:20px;font-weight:700;color:#111827;">Payment Slip Received!</h1>
+              <p style="margin:0 0 16px;font-size:14px;color:#4b5563;line-height:1.6;">
+                Hi ${userName || "Student"},
+              </p>
+              <p style="margin:0 0 16px;font-size:14px;color:#4b5563;line-height:1.6;">
+                We have received your payment transfer slip for <strong>${courseTitle}</strong> (Amount: LKR ${Number(amount).toLocaleString()}).
+              </p>
+              <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:16px;margin-bottom:20px;">
+                <p style="margin:0;font-size:13px;color:#1e40af;line-height:1.5;">
+                  🔍 <strong>Under Review:</strong> Our administrative team is reviewing your bank deposit. Once verified, your course enrollment will be automatically activated and you will receive a confirmation email.
+                </p>
+              </div>
+              <p style="margin:0;font-size:13px;color:#6b7280;">
+                If you have any urgent questions, feel free to contact us via WhatsApp (071 156 2002).
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#f9fafb;border-top:1px solid #e5e7eb;padding:16px 32px;text-align:center;">
+              <p style="margin:0;font-size:12px;color:#9ca3af;">© ${new Date().getFullYear()} NexLearn · nexlearn.lk</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`,
+    });
+  } catch (error) {
+    console.error("[sendBankSlipReceivedEmail]", error);
+  }
+}
+
+export async function sendEnrollmentApprovedEmail(toEmail, userName, courseTitle) {
+  try {
+    await resend.emails.send({
+      from: "NexLearn <noreply@nexlearn.lk>",
+      to: toEmail,
+      subject: `Payment Verified & Course Enrolled! – ${courseTitle}`,
+      html: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Enrollment Confirmed</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f3f4f6;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding: 40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" style="max-width:480px;background:#ffffff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);overflow:hidden;">
+          <tr>
+            <td style="background:#0b408e;padding:28px 32px;text-align:center;">
+              <span style="font-size:22px;font-weight:800;color:#ffffff;">NexLearn</span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:36px 32px 24px;">
+              <div style="background:#ecfdf5;border-radius:50%;width:56px;height:56px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+                <span style="font-size:28px;">🎉</span>
+              </div>
+              <h1 style="margin:0 0 12px;font-size:20px;font-weight:700;color:#111827;text-align:center;">Enrollment Approved!</h1>
+              <p style="margin:0 0 16px;font-size:14px;color:#4b5563;line-height:1.6;">
+                Hi ${userName || "Student"},
+              </p>
+              <p style="margin:0 0 16px;font-size:14px;color:#4b5563;line-height:1.6;">
+                Great news! Your bank payment transfer slip for <strong>${courseTitle}</strong> has been verified and approved by our team.
+              </p>
+              <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px;margin-bottom:24px;text-align:center;">
+                <p style="margin:0 0 12px;font-size:14px;font-weight:600;color:#166534;">
+                  You now have full access to your course lessons & study materials.
+                </p>
+                <a href="https://www.nexlearn.lk/dashboard" style="display:inline-block;background:#0b408e;color:#ffffff;text-decoration:none;font-weight:700;font-size:14px;padding:12px 24px;border-radius:8px;">
+                  Go to Dashboard
+                </a>
+              </div>
+              <p style="margin:0;font-size:13px;color:#6b7280;text-align:center;">
+                Thank you for learning with NexLearn!
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#f9fafb;border-top:1px solid #e5e7eb;padding:16px 32px;text-align:center;">
+              <p style="margin:0;font-size:12px;color:#9ca3af;">© ${new Date().getFullYear()} NexLearn · nexlearn.lk</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`,
+    });
+  } catch (error) {
+    console.error("[sendEnrollmentApprovedEmail]", error);
+  }
+}
+

@@ -74,8 +74,8 @@ export default function CheckoutClient({ course, courseId }) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("File size must be less than 10MB");
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File size must be less than 5MB");
       return;
     }
 
@@ -99,18 +99,40 @@ export default function CheckoutClient({ course, courseId }) {
     setIsSubmitted(false);
   };
 
-  const handleSubmitSlip = (e) => {
+  const handleSubmitSlip = async (e) => {
     e.preventDefault();
     if (!slipFile) {
       toast.error("Please select your bank transfer slip before submitting.");
       return;
     }
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      setIsSubmitting(true);
+
+      const formData = new FormData();
+      formData.append("file", slipFile);
+      formData.append("courseId", courseId);
+      formData.append("amount", course.price);
+      if (depositorName) formData.append("depositorName", depositorName);
+      if (referenceNo) formData.append("referenceNo", referenceNo);
+
+      const res = await fetch("/api/bank-slips", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to submit payment slip");
+      }
+
       setIsSubmitted(true);
       toast.success("Payment slip submitted successfully!");
-    }, 1200);
+    } catch (err) {
+      console.error(err);
+      toast.error(err.message || "Failed to upload payment slip.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // ── Initiate PayHere card payment ────────────────────────────────────────
@@ -601,7 +623,7 @@ export default function CheckoutClient({ course, courseId }) {
                               Click to select or drag &amp; drop slip here
                             </p>
                             <p className="text-[10px] text-gray-400 mt-1">
-                              Supports JPG, PNG, WEBP or PDF (Max 10MB)
+                              Supports JPG, PNG, WEBP or PDF (Max 5MB)
                             </p>
                           </label>
                         ) : (

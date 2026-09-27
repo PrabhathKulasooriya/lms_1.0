@@ -30,6 +30,7 @@ model users {
   purchases          purchases[]
   enrollments        enrollments[]
   verificationTokens VerificationToken[]
+  bank_slips         bank_slips[]
 }
 
 enum Gender {
@@ -62,6 +63,7 @@ model courses {
   cart_items    cart_items[]
   purchase_items purchase_items[]
   enrollments   enrollments[]
+  bank_slips    bank_slips[]
 }
 
 model lessons {
@@ -168,4 +170,28 @@ enum TokenType {
 model system_settings {
   key   String @id @db.VarChar(50)
   value String @db.Text
+}
+
+enum BankSlipStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model bank_slips {
+  id             Int            @id @default(autoincrement())
+  user_id        Int
+  course_id      Int
+  amount         Decimal        @db.Decimal(10, 2)
+  slip_url       String         @db.VarChar(500)
+  public_id      String?        @db.VarChar(255)
+  depositor_name String?        @db.VarChar(255)
+  reference_no   String?        @db.VarChar(255)
+  status         BankSlipStatus @default(PENDING)
+  rejection_note String?        @db.Text
+  created_at     DateTime?      @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime?      @updatedAt @db.Timestamptz(6)
+
+  user           users          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  course         courses        @relation(fields: [course_id], references: [id], onDelete: Cascade)
 }

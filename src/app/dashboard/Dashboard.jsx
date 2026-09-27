@@ -11,6 +11,8 @@ import EnrollmentList from "../_admin_components/EnrollmentsList";
 import LessonList from "../_admin_components/LessonsList";
 import TuteDispatch from "../_admin_components/TuteDispatch";
 import GlobalExpirySettings from "../_admin_components/GlobalExpirySettings";
+import BankSlipReview from "../_admin_components/BankSlipReview";
+import PendingSlips from "../_user_components/PendingSlips";
 
 const Dashboard = ({ courses = [], user = null, enrollment = [] }) => {
   const [activeComponent, setActiveComponent] = useState("account");
@@ -41,6 +43,8 @@ const Dashboard = ({ courses = [], user = null, enrollment = [] }) => {
         <div className="max-w-7xl mx-auto">
           {activeComponent === "account" && <Acc user={user} />}
 
+          {isAdmin && activeComponent === "bank-slips" && <BankSlipReview />}
+
           {isAdmin && activeComponent === "all-courses" && (
             <CourseList initialCourses={courses} />
           )}
@@ -68,8 +72,13 @@ const Dashboard = ({ courses = [], user = null, enrollment = [] }) => {
           )}
 
           {/* User Specific Views */}
-          {!isAdmin && activeComponent === "courses" && (
-            <UserCourseList enrollments={enrollment} />
+          {!isAdmin && (
+            <>
+              <PendingSlips />
+              {activeComponent === "courses" && (
+                <UserCourseList enrollments={enrollment} />
+              )}
+            </>
           )}
         </div>
       </main>
