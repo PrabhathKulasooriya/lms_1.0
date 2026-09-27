@@ -73,7 +73,7 @@ const Navbar = () => {
               onClick={() => handleNavClick("/")}
               className="flex-shrink-0"
             >
-              <Image src={logo} alt="Logo" className="h-auto w-60" />
+              <Image src={logo} alt="Logo" className="h-auto w-60" priority />
             </Link>
           </div>
 

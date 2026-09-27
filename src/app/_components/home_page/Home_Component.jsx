@@ -105,6 +105,7 @@ const Home = () => {
                   src={bg_1}
                   alt="10 ශ්‍රේණිය"
                   fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   placeholder="blur"
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                 />
@@ -150,6 +151,7 @@ const Home = () => {
                   src={bg_1}
                   alt="11 ශ්‍රේණිය"
                   fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   placeholder="blur"
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                 />
