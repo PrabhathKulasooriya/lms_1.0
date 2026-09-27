@@ -21,7 +21,7 @@ const Sidebar = ({ activeComponent, setActiveComponent, role }) => {
   const navItems = [
     { key: "account", label: "My Account", icon: User, show: true },
     { key: "courses", label: "My Courses", icon: GraduationCap, show: true },
-    { key: "bank-slips", label: "Bank Slips", icon: FileCheck, show: role === "admin" },
+    { key: "bank-slips", label: "Bank Slips", icon: FileCheck, show: true },
     { key: "all-courses", label: "Manage Courses", icon: GraduationCap, show: role === "admin" },
     { key: "lessons", label: "Manage Lessons", icon: LibraryBig, show: role === "admin" },
     { key: "users", label: "Manage Users", icon: Users, show: role === "admin" },

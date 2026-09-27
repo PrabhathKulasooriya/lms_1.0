@@ -26,7 +26,7 @@ export async function POST(request, { params }) {
       where: { id: slipId },
       include: {
         user: { select: { id: true, first_name: true, last_name: true, email: true } },
-        course: { select: { id: true, title: true, grade: true } },
+        course: { select: { id: true, title: true, grade: true, type: true } },
       },
     });
 
@@ -86,9 +86,12 @@ export async function POST(request, { params }) {
       }
     });
 
+    // Format full course title with Grade / Type
+    const fullCourseTitle = `${bankSlip.course.title}${bankSlip.course.grade ? ` (Grade ${bankSlip.course.grade})` : ""}${bankSlip.course.type === "pastpaper" ? " (Past Paper)" : ""}`;
+
     // Send Approval Email to Student
     const userName = `${bankSlip.user.first_name || ""} ${bankSlip.user.last_name || ""}`.trim() || "Student";
-    sendEnrollmentApprovedEmail(bankSlip.user.email, userName, bankSlip.course.title);
+    sendEnrollmentApprovedEmail(bankSlip.user.email, userName, fullCourseTitle);
 
     return ok({ message: "Bank slip approved and student enrolled successfully!" });
   } catch (error) {

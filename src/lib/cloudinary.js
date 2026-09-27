@@ -13,7 +13,7 @@ cloudinary.config({
  * @param {string} folder - Destination folder in Cloudinary
  * @returns {Promise<{ secure_url: string, public_id: string }>}
  */
-export async function uploadToCloudinary(buffer, folder = "nexlearn/bank_slips") {
+export async function uploadToCloudinary(buffer, folder = "nexlearn/bank_slips", filename = null) {
   const cloud_name = process.env.CLOUDINARY_CLOUD_NAME?.trim().replace(/^["']|["']$/g, "");
   const api_key = process.env.CLOUDINARY_API_KEY?.trim().replace(/^["']|["']$/g, "");
   const api_secret = process.env.CLOUDINARY_API_SECRET?.trim().replace(/^["']|["']$/g, "");
@@ -31,12 +31,18 @@ export async function uploadToCloudinary(buffer, folder = "nexlearn/bank_slips")
     secure: true,
   });
 
+  const uploadOptions = {
+    folder,
+    resource_type: "auto",
+  };
+
+  if (filename) {
+    uploadOptions.public_id = filename;
+  }
+
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
-      {
-        folder,
-        resource_type: "auto",
-      },
+      uploadOptions,
       (error, result) => {
         if (error) {
           console.error("Cloudinary Upload Error Details:", error);

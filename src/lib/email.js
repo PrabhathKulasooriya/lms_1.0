@@ -278,3 +278,61 @@ export async function sendEnrollmentApprovedEmail(toEmail, userName, courseTitle
   }
 }
 
+export async function sendAdminNewBankSlipNotificationEmail(studentName, studentEmail, courseTitle, amount) {
+  try {
+    await resend.emails.send({
+      from: "NexLearn Alert <noreply@nexlearn.lk>",
+      to: "nexlearnlk@gmail.com",
+      subject: `New Payment Slip Awaiting Approval – ${courseTitle}`,
+      html: `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>New Bank Slip Uploaded</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f3f4f6;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding: 40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" style="max-width:480px;background:#ffffff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.08);overflow:hidden;">
+          <tr>
+            <td style="background:#0b408e;padding:24px 32px;text-align:center;">
+              <span style="font-size:20px;font-weight:800;color:#ffffff;">NexLearn Admin Alert</span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:32px 28px;">
+              <h2 style="margin:0 0 12px;font-size:18px;font-weight:700;color:#111827;">New Payment Slip Awaiting Approval</h2>
+              <p style="margin:0 0 16px;font-size:14px;color:#4b5563;line-height:1.6;">
+                A new bank transfer payment slip has been submitted and is waiting for review and approval.
+              </p>
+              <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;margin-bottom:20px;font-size:13px;color:#334155;line-height:1.6;">
+                <p style="margin:0 0 6px;"><strong>Student:</strong> ${studentName || "Student"} (${studentEmail})</p>
+                <p style="margin:0 0 6px;"><strong>Course:</strong> ${courseTitle}</p>
+                <p style="margin:0;"><strong>Amount:</strong> LKR ${Number(amount).toLocaleString()}</p>
+              </div>
+              <div style="text-align:center;margin-top:20px;">
+                <a href="https://www.nexlearn.lk/dashboard" style="display:inline-block;background:#0b408e;color:#ffffff;text-decoration:none;font-weight:700;font-size:14px;padding:12px 24px;border-radius:8px;">
+                  Open Admin Dashboard
+                </a>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#f9fafb;border-top:1px solid #e5e7eb;padding:14px 32px;text-align:center;">
+              <p style="margin:0;font-size:12px;color:#9ca3af;">NexLearn LMS Admin Notification</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`,
+    });
+  } catch (error) {
+    console.error("[sendAdminNewBankSlipNotificationEmail]", error);
+  }
+}
+

@@ -72,13 +72,9 @@ const Dashboard = ({ courses = [], user = null, enrollment = [] }) => {
           )}
 
           {/* User Specific Views */}
-          {!isAdmin && (
-            <>
-              <PendingSlips />
-              {activeComponent === "courses" && (
-                <UserCourseList enrollments={enrollment} />
-              )}
-            </>
+          {!isAdmin && activeComponent === "bank-slips" && <PendingSlips />}
+          {!isAdmin && activeComponent === "courses" && (
+            <UserCourseList enrollments={enrollment} />
           )}
         </div>
       </main>

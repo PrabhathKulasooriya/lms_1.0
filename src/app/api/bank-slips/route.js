@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { uploadToCloudinary } from "@/lib/cloudinary";
-import { sendBankSlipReceivedEmail } from "@/lib/email";
+import { sendBankSlipReceivedEmail, sendAdminNewBankSlipNotificationEmail } from "@/lib/email";
 
 // Helper responses
 const ok = (data, status = 200) =>
@@ -98,7 +98,7 @@ export async function POST(request) {
     // Verify Course exists
     const course = await prisma.courses.findUnique({
       where: { id: courseId },
-      select: { id: true, title: true, price: true },
+      select: { id: true, title: true, price: true, grade: true, type: true },
     });
 
     if (!course) {
@@ -112,8 +112,13 @@ export async function POST(request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
+    // Generate custom filename: userid_courseid_timestamp_4randomdigits
+    const timestamp = Math.floor(Date.now() / 1000);
+    const random4Digits = Math.floor(1000 + Math.random() * 9000);
+    const customFilename = `${userId}_${courseId}_${timestamp}_${random4Digits}`;
+
     // Upload to Cloudinary
-    const uploadResult = await uploadToCloudinary(buffer, "nexlearn/bank_slips");
+    const uploadResult = await uploadToCloudinary(buffer, "nexlearn/bank_slips", customFilename);
 
     // Save Bank Slip Record in DB
     const bankSlip = await prisma.bank_slips.create({
@@ -129,13 +134,19 @@ export async function POST(request) {
       },
       include: {
         user: { select: { id: true, first_name: true, last_name: true, email: true } },
-        course: { select: { id: true, title: true } },
+        course: { select: { id: true, title: true, grade: true, type: true } },
       },
     });
 
+    // Format full course title with Grade / Type
+    const fullCourseTitle = `${course.title}${course.grade ? ` (Grade ${course.grade})` : ""}${course.type === "pastpaper" ? " (Past Paper)" : ""}`;
+
     // Send email notification to student asynchronously
     const userName = `${session.user.first_name || ""} ${session.user.last_name || ""}`.trim() || session.user.name;
-    sendBankSlipReceivedEmail(session.user.email, userName, course.title, amount);
+    sendBankSlipReceivedEmail(session.user.email, userName, fullCourseTitle, amount);
+
+    // Send notification email to admin (nexlearnlk@gmail.com)
+    sendAdminNewBankSlipNotificationEmail(userName, session.user.email, fullCourseTitle, amount);
 
     return ok({ message: "Payment slip submitted successfully", bankSlip }, 201);
   } catch (error) {
