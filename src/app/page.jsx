@@ -3,6 +3,7 @@
  * Unauthorized copying of this file, via any medium is strictly prohibited.
  * Proprietary and confidential.
  */
+import FaqSection from "./_components/home_page/FaqSection";
 import Footer from "./_components/home_page/Footer";
 import FounderSection from "./_components/home_page/FounderSection";
 import Home_Component from "./_components/home_page/Home_Component";
@@ -82,6 +83,7 @@ export default function Home() {
       <Home_Component />
       <StatsSection />
       <FounderSection />
+      <FaqSection />
       <Footer />
     </div>
   );
