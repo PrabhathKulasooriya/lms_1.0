@@ -7,6 +7,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, EffectFade, Autoplay } from "swiper/modules";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, ArrowRight, GraduationCap, ShieldCheck } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 // Swiper CSS
 import "swiper/css";
@@ -27,7 +28,7 @@ const sliderData = [
     description:
       "The premier online learning destination designed for Sri Lankan Ordinary Level students to master Commerce and achieve top grades.",
     primaryCta: { text: "View Courses", href: "#courses" },
-    secondaryCta: { text: "Register Now", href: "/register" },
+    secondaryCta: { text: "Register Now", href: "/register", authOnly: true },
   },
   {
     image: image2,
@@ -60,13 +61,21 @@ const sliderData = [
     description:
       "Turn your academic ambitions into reality with structured learning paths, expert instruction, and continuous guidance.",
     primaryCta: { text: "Grade 11 Theory", href: "#courses" },
-    secondaryCta: { text: "LogIn", href: "/login" },
+    secondaryCta: { text: "LogIn", href: "/login", authOnly: true },
   },
 ];
 
 const ImageSlider = () => {
   const [activeIndex, setActiveIndex] = useState(0);
+  const { data: session } = useSession();
+  const isSignedIn = Boolean(session);
 
+  const resolveCta = (cta) => {
+    if (cta.authOnly && isSignedIn) {
+      return { text: "Go to Dashboard", href: "/dashboard" };
+    }
+    return cta;
+  };
   return (
     <section className="relative w-full h-[520px] md:h-[640px] bg-[#071933] overflow-hidden">
       {/* Custom Swiper Styles */}
@@ -115,95 +124,106 @@ const ImageSlider = () => {
         onSlideChange={(swiper) => setActiveIndex(swiper.realIndex)}
         className="hero-slider h-full w-full"
       >
-        {sliderData.map((slide, index) => (
-          <SwiperSlide key={index} className="relative h-full w-full overflow-hidden">
-            {/* Background Image Layer with subtle zoom transition */}
-            <div className="absolute inset-0 z-0">
-              <Image
-                src={slide.image}
-                alt={slide.heading}
-                fill
-                priority={index === 0}
-                className={`object-cover object-center transition-transform duration-[7000ms] ease-out ${
-                  activeIndex === index ? "scale-105" : "scale-100"
-                }`}
-              />
-              {/* Dual Dark Gradient Overlays for High Text Contrast */}
-              <div className="absolute inset-0 bg-gradient-to-r from-[#06162d]/90 via-[#06162d]/70 to-transparent z-10" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#071933] via-transparent to-black/30 z-10" />
-            </div>
+        {sliderData.map((slide, index) => {
+          const primaryCta = resolveCta(slide.primaryCta);
+          const secondaryCta = resolveCta(slide.secondaryCta);
 
-            {/* Slide Content Layer */}
-            <div className="relative z-20 h-full max-w-7xl mx-auto px-6 lg:px-12 flex flex-col justify-center">
-              <AnimatePresence mode="wait">
-                {activeIndex === index && (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 24 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -16 }}
-                    transition={{ duration: 0.7, ease: [0.21, 0.47, 0.32, 0.98] }}
-                    className="max-w-2xl flex flex-col items-start gap-4 md:gap-5 pt-8"
-                  >
-                    {/* Badge */}
+          return (
+            <SwiperSlide
+              key={index}
+              className="relative h-full w-full overflow-hidden"
+            >
+              {/* Background Image Layer with subtle zoom transition */}
+              <div className="absolute inset-0 z-0">
+                <Image
+                  src={slide.image}
+                  alt={slide.heading}
+                  fill
+                  priority={index === 0}
+                  className={`object-cover object-center transition-transform duration-[7000ms] ease-out ${
+                    activeIndex === index ? "scale-105" : "scale-100"
+                  }`}
+                />
+                {/* Dual Dark Gradient Overlays for High Text Contrast */}
+                <div className="absolute inset-0 bg-gradient-to-r from-[#06162d]/90 via-[#06162d]/70 to-transparent z-10" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#071933] via-transparent to-black/30 z-10" />
+              </div>
+
+              {/* Slide Content Layer */}
+              <div className="relative z-20 h-full max-w-7xl mx-auto px-6 lg:px-12 flex flex-col justify-center">
+                <AnimatePresence mode="wait">
+                  {activeIndex === index && (
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.5, delay: 0.1 }}
-                      className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[#9fe03c] text-xs font-semibold tracking-wide uppercase"
-                    >
-                      <Sparkles size={13} className="text-[#FFD700]" />
-                      <span>{slide.badge}</span>
-                    </motion.div>
-
-                    {/* Heading */}
-                    <motion.h1
-                      initial={{ opacity: 0, y: 16 }}
+                      key={index}
+                      initial={{ opacity: 0, y: 24 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, delay: 0.2 }}
-                      className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.15] drop-shadow-sm"
+                      exit={{ opacity: 0, y: -16 }}
+                      transition={{
+                        duration: 0.7,
+                        ease: [0.21, 0.47, 0.32, 0.98],
+                      }}
+                      className="max-w-2xl flex flex-col items-start gap-4 md:gap-5 pt-8"
                     >
-                      {slide.heading}
-                    </motion.h1>
-
-                    {/* Description */}
-                    <motion.p
-                      initial={{ opacity: 0, y: 16 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, delay: 0.3 }}
-                      className="text-base md:text-lg text-slate-200/90 font-normal leading-relaxed max-w-xl"
-                    >
-                      {slide.description}
-                    </motion.p>
-
-                    {/* Action Buttons */}
-                    <motion.div
-                      initial={{ opacity: 0, y: 16 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.6, delay: 0.4 }}
-                      className="flex flex-wrap items-center gap-3.5 pt-2"
-                    >
-                      <Link
-                        href={slide.primaryCta.href}
-                        className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#9fe03c] text-[#0b408e] text-sm font-bold shadow-lg shadow-[#9fe03c]/20 hover:bg-[#FFD700] hover:scale-[1.02] active:scale-95 transition-all duration-300"
+                      {/* Badge */}
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.5, delay: 0.1 }}
+                        className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[#9fe03c] text-xs font-semibold tracking-wide uppercase"
                       >
-                        <span>{slide.primaryCta.text}</span>
-                        <ArrowRight size={16} />
-                      </Link>
+                        <Sparkles size={13} className="text-[#FFD700]" />
+                        <span>{slide.badge}</span>
+                      </motion.div>
 
-                      <Link
-                        href={slide.secondaryCta.href}
-                        className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm font-semibold backdrop-blur-md border border-white/20 hover:scale-[1.02] active:scale-95 transition-all duration-300"
+                      {/* Heading */}
+                      <motion.h1
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.2 }}
+                        className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-[1.15] drop-shadow-sm"
                       >
-                        <span>{slide.secondaryCta.text}</span>
-                      </Link>
+                        {slide.heading}
+                      </motion.h1>
+
+                      {/* Description */}
+                      <motion.p
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.3 }}
+                        className="text-base md:text-lg text-slate-200/90 font-normal leading-relaxed max-w-xl"
+                      >
+                        {slide.description}
+                      </motion.p>
+
+                      {/* Action Buttons */}
+                      <motion.div
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.4 }}
+                        className="flex flex-wrap items-center gap-3.5 pt-2"
+                      >
+                        <Link
+                          href={primaryCta.href}
+                          className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-[#9fe03c] text-[#0b408e] text-sm font-bold shadow-lg shadow-[#9fe03c]/20 hover:bg-[#FFD700] hover:scale-[1.02] active:scale-95 transition-all duration-300"
+                        >
+                          <span>{primaryCta.text}</span>
+                          <ArrowRight size={16} />
+                        </Link>
+
+                        <Link
+                          href={secondaryCta.href}
+                          className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm font-semibold backdrop-blur-md border border-white/20 hover:scale-[1.02] active:scale-95 transition-all duration-300"
+                        >
+                          <span>{secondaryCta.text}</span>
+                        </Link>
+                      </motion.div>
                     </motion.div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </SwiperSlide>
-        ))}
+                  )}
+                </AnimatePresence>
+              </div>
+            </SwiperSlide>
+          );
+        })}
       </Swiper>
 
       {/* Decorative Bottom Wave Divider */}

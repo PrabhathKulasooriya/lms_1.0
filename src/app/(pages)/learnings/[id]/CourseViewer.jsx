@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import dynamic from "next/dynamic";
+import "youtube-video-element/react"; // Preload lazy chunk for react-player to fix loading issue
 import {
   BookOpen,
   GraduationCap,
@@ -13,8 +15,55 @@ import {
   ChevronUp,
   Maximize,
   Loader2,
+  Play,
+  Pause,
+  Volume2,
+  VolumeX,
+  Settings,
 } from "lucide-react";
-import LessonAccordion from "@/app/_components/LessonAccordion";
+
+// Dynamically import ReactPlayer with SSR disabled for production optimization
+const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
+
+// ─── Native YouTube Embed Player ─────────────────────────────────────────────────
+function NativeYouTubePlayer({ url, title, onReady, onError }) {
+  const getYouTubeId = (rawUrl) => {
+    if (!rawUrl) return null;
+    const cleanUrl = rawUrl.trim();
+    const regExp =
+      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
+    const match = cleanUrl.match(regExp);
+    return match && match[2].length === 11 ? match[2] : null;
+  };
+
+  const videoId = getYouTubeId(url);
+
+  if (!videoId) {
+    return (
+      <ReactPlayer
+        url={url}
+        controls={true}
+        width="100%"
+        height="100%"
+        onReady={onReady}
+        onError={onError}
+      />
+    );
+  }
+
+  return (
+    <iframe
+      key={videoId}
+      src={`https://www.youtube.com/embed/${videoId}?controls=1&rel=0&modestbranding=1`}
+      title={title || "Course Video"}
+      className="w-full h-full border-none rounded-2xl"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allowFullScreen
+      onLoad={onReady}
+      onError={onError}
+    />
+  );
+}
 
 export default function CourseViewer({ course }) {
   const defaultResource = course.lessons?.[0]?.resources?.[0] || null;
@@ -26,18 +75,30 @@ export default function CourseViewer({ course }) {
   const [isLoading, setIsLoading] = useState(true);
   const pdfWrapperRef = useRef(null);
 
-  // ── FIX: Added a safety timeout to prevent infinite loading ──
+  // Helper to format YouTube URLs to standard watch format (supports watch, short, and embed URLs)
+  const formatVideoUrl = (url) => {
+    if (!url) return "";
+    const cleanUrl = url.trim();
+    if (cleanUrl.includes("youtube.com/embed/")) {
+      const videoId = cleanUrl.split("youtube.com/embed/")[1]?.split("?")[0];
+      if (videoId) return `https://www.youtube.com/watch?v=${videoId}`;
+    }
+    if (cleanUrl.includes("youtu.be/")) {
+      const videoId = cleanUrl.split("youtu.be/")[1]?.split("?")[0];
+      if (videoId) return `https://www.youtube.com/watch?v=${videoId}`;
+    }
+    return cleanUrl;
+  };
+
+  // Safety timeout & loading reset on resource change
   useEffect(() => {
     if (activeResource) {
       setIsLoading(true);
 
-      // Fallback: Force the loader to disappear after 2 seconds
-      // just in case the iframe's native PDF plugin blocks the onLoad event.
       const safetyTimer = setTimeout(() => {
         setIsLoading(false);
       }, 2000);
 
-      // Cleanup timer if the user clicks another resource quickly
       return () => clearTimeout(safetyTimer);
     }
   }, [activeResource]);
@@ -69,7 +130,7 @@ export default function CourseViewer({ course }) {
   const totalLessons = course.lessons?.length || 0;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 md:px-8 py-8 flex flex-col gap-6">
+    <div className="max-w-[1440px] mx-auto px-4 md:px-8 lg:px-12 py-8 flex flex-col gap-6">
       {/* ── Course Header Card ── */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-6">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
@@ -116,7 +177,7 @@ export default function CourseViewer({ course }) {
       {/* ── Player & Content Split ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: Video/PDF Player */}
-        <div className="lg:col-span-2 bg-black rounded-2xl overflow-hidden shadow-sm flex items-center justify-center min-h-[400px] h-full max-h-[600px]  border border-gray-200 relative">
+        <div className="lg:col-span-2 bg-black rounded-2xl overflow-hidden shadow-sm flex items-center justify-center w-full aspect-video border border-gray-200 relative">
           {!activeResource ? (
             <div className="text-gray-400">
               Select a resource to begin viewing.
@@ -126,7 +187,7 @@ export default function CourseViewer({ course }) {
               {/* ── Loading Overlay ── */}
               {isLoading && (
                 <div
-                  className={`absolute inset-0 z-10 flex items-center justify-center ${
+                  className={`absolute inset-0 z-30 flex items-center justify-center pointer-events-none ${
                     activeResource.type === "video" ? "bg-black" : "bg-white"
                   }`}
                 >
@@ -135,19 +196,15 @@ export default function CourseViewer({ course }) {
               )}
 
               {activeResource.type === "video" ? (
-                <video
-                  key={activeResource.id}
-                  src={activeResource.file_url}
-                  controls
-                  controlsList="nodownload"
-                  disablePictureInPicture
-                  onContextMenu={handleContextMenu}
-                  onLoadedData={() => setIsLoading(false)}
-                  onError={() => setIsLoading(false)}
-                  className="w-full h-full object-contain bg-black"
-                >
-                  Your browser does not support the video tag.
-                </video>
+                <div className="relative w-full h-full bg-black flex items-center justify-center overflow-hidden">
+                  <NativeYouTubePlayer
+                    key={activeResource.id}
+                    url={activeResource.file_url}
+                    title={activeResource.title}
+                    onReady={() => setIsLoading(false)}
+                    onError={() => setIsLoading(false)}
+                  />
+                </div>
               ) : activeResource.type === "pdf" ? (
                 <div
                   ref={pdfWrapperRef}
@@ -178,7 +235,7 @@ export default function CourseViewer({ course }) {
         </div>
 
         {/* Right Column: Lessons Accordion */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col h-full  overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col h-full overflow-hidden">
           <div className="p-4 border-b border-gray-100 bg-gray-50 flex items-center gap-2 shrink-0">
             <GraduationCap size={20} className="text-blue-600" />
             <h2 className="text-base font-bold text-gray-900">

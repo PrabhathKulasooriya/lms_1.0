@@ -5,7 +5,8 @@ import { prisma } from "@/lib/prisma";
 // Body: { title?, type?, file_url?, sequence? }
 export async function PUT(request, { params }) {
   try {
-    const id = parseInt(params.id);
+    const { id: idParam } = await params;
+    const id = parseInt(idParam);
     if (isNaN(id)) {
       return NextResponse.json({ message: "Invalid ID" }, { status: 400 });
     }
@@ -51,7 +52,8 @@ export async function PUT(request, { params }) {
 // ── DELETE /api/resources/[id] ────────────────────────────────────────────────
 export async function DELETE(request, { params }) {
   try {
-    const id = parseInt(params.id);
+    const { id: idParam } = await params;
+    const id = parseInt(idParam);
     if (isNaN(id)) {
       return NextResponse.json({ message: "Invalid ID" }, { status: 400 });
     }
@@ -79,7 +81,8 @@ export async function DELETE(request, { params }) {
 // ── GET /api/resources/[id] ─────────────────────────────────────────────────────
 export async function GET(request, { params }) {
   try {
-    const id = parseInt(params.id);
+    const { id: idParam } = await params;
+    const id = parseInt(idParam);
     if (isNaN(id))
       return NextResponse.json({ message: "Invalid ID" }, { status: 400 });
 

@@ -4,7 +4,8 @@ import {prisma} from "@/lib/prisma";
 // ── GET /api/lessons/[id] ─────────────────────────────────────────────────────
 export async function GET(request, { params }) {
   try {
-    const id = parseInt(params.id);
+    const { id: idParam } = await params;
+    const id = parseInt(idParam);
     if (isNaN(id)) {
       return NextResponse.json({ message: "Invalid ID" }, { status: 400 });
     }
@@ -131,7 +132,8 @@ export async function PUT(request, { params }) {
 // Cascades to resources via Prisma schema (onDelete: Cascade)
 export async function DELETE(request, { params }) {
   try {
-    const id = parseInt(params.id);
+    const { id: idParam } = await params;
+    const id = parseInt(idParam);
     if (isNaN(id)) {
       return NextResponse.json({ message: "Invalid ID" }, { status: 400 });
     }
