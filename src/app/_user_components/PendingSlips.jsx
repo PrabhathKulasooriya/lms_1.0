@@ -98,7 +98,9 @@ export default function PendingSlips() {
 
                   {/* Course */}
                   <td className="py-3.5 px-4 font-bold text-slate-800">
-                    {slip.course?.title || "Course Payment"}
+                    {slip.course
+                      ? `${slip.course.title}${slip.course.grade ? ` (Grade ${slip.course.grade})` : ""}${slip.course.type === "pastpaper" ? " (Past Paper)" : ""}`
+                      : "Course Payment"}
                   </td>
 
                   {/* Amount */}

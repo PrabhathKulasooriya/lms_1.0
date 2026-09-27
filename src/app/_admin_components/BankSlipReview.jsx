@@ -172,7 +172,7 @@ export default function BankSlipReview() {
             <p><strong>Email:</strong> ${slip.user?.email || "N/A"}</p>
             <p><strong>Mobile:</strong> ${slip.user?.mobile || "N/A"}</p>
             <p><strong>Address:</strong> ${slip.user?.address || "N/A"}</p>
-            <p><strong>Course:</strong> ${slip.course?.title || "N/A"}</p>
+            <p><strong>Course:</strong> ${slip.course ? `${slip.course.title}${slip.course.grade ? ` (Grade ${slip.course.grade})` : ""}${slip.course.type === "pastpaper" ? " (Past Paper)" : ""}` : "N/A"}</p>
             <p><strong>Amount:</strong> LKR ${Number(slip.amount).toLocaleString()}</p>
             <p><strong>Submitted Date:</strong> ${new Date(slip.created_at).toLocaleString()}</p>
           </div>
@@ -316,7 +316,11 @@ export default function BankSlipReview() {
 
                       {/* Course & Amount */}
                       <td className="py-4 px-6">
-                        <div className="font-bold text-slate-800 line-clamp-1">{slip.course?.title}</div>
+                        <div className="font-bold text-slate-800 line-clamp-1">
+                          {slip.course
+                            ? `${slip.course.title}${slip.course.grade ? ` (Grade ${slip.course.grade})` : ""}${slip.course.type === "pastpaper" ? " (Past Paper)" : ""}`
+                            : "N/A"}
+                        </div>
                         <div className="text-xs font-extrabold text-[#0b408e] mt-0.5">
                           LKR {Number(slip.amount).toLocaleString()}
                         </div>
