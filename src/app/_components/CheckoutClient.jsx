@@ -60,11 +60,9 @@ export default function CheckoutClient({ course, courseId }) {
   const [loading, setLoading] = useState(false);
   const { data: session } = useSession();
 
-  // ── Bank slip upload UI states (Frontend UI only) ──────────────────────────
+  // ── Bank slip upload UI states ──────────────────────────────────────────
   const [slipFile, setSlipFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
-  const [depositorName, setDepositorName] = useState("");
-  const [referenceNo, setReferenceNo] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -112,8 +110,6 @@ export default function CheckoutClient({ course, courseId }) {
       formData.append("file", slipFile);
       formData.append("courseId", courseId);
       formData.append("amount", course.price);
-      if (depositorName) formData.append("depositorName", depositorName);
-      if (referenceNo) formData.append("referenceNo", referenceNo);
 
       const res = await fetch("/api/bank-slips", {
         method: "POST",
@@ -660,33 +656,7 @@ export default function CheckoutClient({ course, courseId }) {
                           </div>
                         )}
 
-                        {/* Optional detail fields */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          <div>
-                            <label className="block text-[11px] font-medium text-gray-600 mb-1">
-                              Depositor Name (Optional)
-                            </label>
-                            <input
-                              type="text"
-                              placeholder="e.g. A.B. Perera"
-                              value={depositorName}
-                              onChange={(e) => setDepositorName(e.target.value)}
-                              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-xl focus:outline-none focus:border-[#0b408e] bg-white"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-[11px] font-medium text-gray-600 mb-1">
-                              Ref No / Reg Email (Optional)
-                            </label>
-                            <input
-                              type="text"
-                              placeholder="e.g. Ref # or email"
-                              value={referenceNo}
-                              onChange={(e) => setReferenceNo(e.target.value)}
-                              className="w-full px-3 py-2 text-xs border border-gray-200 rounded-xl focus:outline-none focus:border-[#0b408e] bg-white"
-                            />
-                          </div>
-                        </div>
+
 
                         {/* Submit Button */}
                         <button
