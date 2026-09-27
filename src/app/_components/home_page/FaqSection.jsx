@@ -13,7 +13,8 @@ const faqs = [
       "වෙබ් අඩවියේ 'Register' හෝ 'Sign Up' ගොනුව වෙත ගොස් ඔබගේ ගිණුම සාදාගන්න.",
       "ඔබට අවශ්‍ය ශ්‍රේණිය (10 ශ්‍රේණිය හෝ 11 ශ්‍රේණිය) තෝරාගන්න.",
       "පාඨමාලා පිටුවේ ඇති 'Enroll Now' හෝ 'Buy Now' ක්ලික් කරන්න.",
-      "ගෙවීම් ක්‍රමවේදය ( Bank Transfer) තෝරා ගෙවීම සම්පූර්ණ කරන්න."
+      "ගෙවීම් ක්‍රමවේදය ( Bank Transfer) හරහා ගෙවීම සම්පූර්ණ කරන්න.",
+      "ගෙවීම් සාර්ථකව සිදු වූ පසු ඔබගේ ගිණුම සක්‍රීය කරනු ලැබේ."
     ]
   },
   {
@@ -66,10 +67,10 @@ const FaqSection = () => {
           transition={{ duration: 0.6 }}
           className="text-center max-w-2xl mx-auto mb-14"
         >
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#0b408e]/10 text-[#0b408e] text-xs font-bold tracking-wider uppercase mb-3">
+          {/* <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#0b408e]/10 text-[#0b408e] text-xs font-bold tracking-wider uppercase mb-3">
             <HelpCircle size={14} className="text-[#0b408e]" />
             <span>නිතර අසන ප්‍රශ්න (FAQ)</span>
-          </div>
+          </div> */}
           <h2 className="text-3xl md:text-4xl font-extrabold text-[#0b408e] tracking-tight mb-3">
             Frequently Asked Questions
           </h2>
