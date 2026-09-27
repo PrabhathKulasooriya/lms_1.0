@@ -56,24 +56,24 @@ export default function BankSlipReview() {
     fetchBankSlips();
   }, []);
 
-  // Filter bank slips
-  const filteredSlips = bankSlips.filter((slip) => {
-    const matchesTab = activeTab === "ALL" || slip.status === activeTab;
-    const searchLower = search.toLowerCase();
-    const userName = `${slip.user?.first_name || ""} ${slip.user?.last_name || ""}`.toLowerCase();
-    const userEmail = (slip.user?.email || "").toLowerCase();
-    const courseTitle = (slip.course?.title || "").toLowerCase();
-    const refNo = (slip.reference_no || "").toLowerCase();
+  // Filter and sort bank slips by created_at descending
+  const filteredSlips = bankSlips
+    .filter((slip) => {
+      const matchesTab = activeTab === "ALL" || slip.status === activeTab;
+      const searchLower = search.toLowerCase();
+      const userName = `${slip.user?.first_name || ""} ${slip.user?.last_name || ""}`.toLowerCase();
+      const userEmail = (slip.user?.email || "").toLowerCase();
+      const courseTitle = (slip.course?.title || "").toLowerCase();
 
-    const matchesSearch =
-      !search ||
-      userName.includes(searchLower) ||
-      userEmail.includes(searchLower) ||
-      courseTitle.includes(searchLower) ||
-      refNo.includes(searchLower);
+      const matchesSearch =
+        !search ||
+        userName.includes(searchLower) ||
+        userEmail.includes(searchLower) ||
+        courseTitle.includes(searchLower);
 
-    return matchesTab && matchesSearch;
-  });
+      return matchesTab && matchesSearch;
+    })
+    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
   const pendingCount = bankSlips.filter((s) => s.status === "PENDING").length;
 
@@ -144,7 +144,6 @@ export default function BankSlipReview() {
       window.URL.revokeObjectURL(blobUrl);
     } catch (err) {
       console.error(err);
-      // Fallback: open in new window
       window.open(url, "_blank");
     }
   };
@@ -172,10 +171,9 @@ export default function BankSlipReview() {
             <p><strong>Student Name:</strong> ${userName}</p>
             <p><strong>Email:</strong> ${slip.user?.email || "N/A"}</p>
             <p><strong>Mobile:</strong> ${slip.user?.mobile || "N/A"}</p>
+            <p><strong>Address:</strong> ${slip.user?.address || "N/A"}</p>
             <p><strong>Course:</strong> ${slip.course?.title || "N/A"}</p>
             <p><strong>Amount:</strong> LKR ${Number(slip.amount).toLocaleString()}</p>
-            <p><strong>Depositor Name:</strong> ${slip.depositor_name || "N/A"}</p>
-            <p><strong>Ref No:</strong> ${slip.reference_no || "N/A"}</p>
             <p><strong>Submitted Date:</strong> ${new Date(slip.created_at).toLocaleString()}</p>
           </div>
           <h3>Uploaded Bank Slip Image:</h3>
@@ -217,10 +215,10 @@ export default function BankSlipReview() {
         {/* Tabs */}
         <div className="flex items-center gap-1.5 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
           {[
-            { key: "PENDING", label: `Pending (${pendingCount})`, color: "amber" },
-            { key: "APPROVED", label: "Approved", color: "emerald" },
-            { key: "REJECTED", label: "Rejected", color: "red" },
-            { key: "ALL", label: "All Submissions", color: "slate" },
+            { key: "PENDING", label: `Pending (${pendingCount})` },
+            { key: "APPROVED", label: "Approved" },
+            { key: "REJECTED", label: "Rejected" },
+            { key: "ALL", label: "All Submissions" },
           ].map((tab) => {
             const isActive = activeTab === tab.key;
             return (
@@ -252,7 +250,7 @@ export default function BankSlipReview() {
         </div>
       </div>
 
-      {/* Bank Slip List Container */}
+      {/* Bank Slips Table List */}
       {loading ? (
         <div className="bg-white rounded-3xl p-12 text-center text-slate-400 text-sm">
           <Loader2 size={24} className="animate-spin mx-auto mb-3 text-[#0b408e]" />
@@ -269,167 +267,148 @@ export default function BankSlipReview() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {filteredSlips.map((slip) => {
-            const userName = `${slip.user?.first_name || ""} ${slip.user?.last_name || ""}`.trim() || "Student";
-            const isPending = slip.status === "PENDING";
-            const isApproved = slip.status === "APPROVED";
-            const isRejected = slip.status === "REJECTED";
+        <div className="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-slate-50/80 border-b border-slate-100 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                  <th className="py-4 px-6">Submitted Date</th>
+                  <th className="py-4 px-6">Student Details</th>
+                  <th className="py-4 px-6">Course & Amount</th>
+                  <th className="py-4 px-6">Status</th>
+                  <th className="py-4 px-6 text-center">Slip File</th>
+                  <th className="py-4 px-6 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-xs">
+                {filteredSlips.map((slip) => {
+                  const userName = `${slip.user?.first_name || ""} ${slip.user?.last_name || ""}`.trim() || "Student";
+                  const isPending = slip.status === "PENDING";
+                  const isApproved = slip.status === "APPROVED";
+                  const isRejected = slip.status === "REJECTED";
 
-            return (
-              <div
-                key={slip.id}
-                className="bg-white rounded-3xl border border-slate-200/80 shadow-md shadow-slate-100 overflow-hidden flex flex-col justify-between hover:shadow-lg transition-all duration-300"
-              >
-                <div>
-                  {/* Top Bar Status */}
-                  <div className="px-6 py-3.5 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                      Slip ID: #{slip.id}
-                    </span>
-
-                    {isPending && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-bold">
-                        <Clock size={13} />
-                        Pending Review
-                      </span>
-                    )}
-                    {isApproved && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold">
-                        <CheckCircle2 size={13} />
-                        Approved & Enrolled
-                      </span>
-                    )}
-                    {isRejected && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-100 text-red-800 text-xs font-bold">
-                        <XCircle size={13} />
-                        Rejected
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Main Info Body */}
-                  <div className="p-6 space-y-4">
-                    {/* Student Info */}
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-2xl bg-[#0b408e]/10 text-[#0b408e] flex items-center justify-center font-bold text-sm shrink-0">
-                        <User size={18} />
-                      </div>
-                      <div className="min-w-0">
-                        <h3 className="text-base font-extrabold text-slate-800 leading-tight">
-                          {userName}
-                        </h3>
-                        <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 mt-1">
-                          <span className="flex items-center gap-1">
-                            <Mail size={12} className="text-slate-400" />
-                            {slip.user?.email || "No email"}
-                          </span>
-                          {slip.user?.mobile && (
-                            <span className="flex items-center gap-1">
-                              <Phone size={12} className="text-slate-400" />
-                              {slip.user.mobile}
-                            </span>
-                          )}
+                  return (
+                    <tr key={slip.id} className="hover:bg-slate-50/60 transition-colors">
+                      {/* Submitted Date */}
+                      <td className="py-4 px-6 whitespace-nowrap text-slate-500">
+                        <div className="font-semibold text-slate-700">
+                          {new Date(slip.created_at).toLocaleDateString()}
                         </div>
-                        {slip.user?.address && (
-                          <p className="text-[11px] text-slate-400 flex items-center gap-1 mt-1 truncate">
-                            <MapPin size={11} className="shrink-0" />
-                            {slip.user.address}
-                          </p>
+                        <div className="text-[11px] text-slate-400">
+                          {new Date(slip.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                        </div>
+                      </td>
+
+                      {/* Student Details */}
+                      <td className="py-4 px-6">
+                        <div className="font-bold text-slate-800 text-sm">{userName}</div>
+                        <div className="text-slate-500 flex items-center gap-1.5 mt-0.5">
+                          <Mail size={11} className="text-slate-400" />
+                          <span>{slip.user?.email}</span>
+                        </div>
+                        {slip.user?.mobile && (
+                          <div className="text-slate-500 flex items-center gap-1.5 mt-0.5">
+                            <Phone size={11} className="text-slate-400" />
+                            <span>{slip.user.mobile}</span>
+                          </div>
                         )}
-                      </div>
-                    </div>
+                      </td>
 
-                    {/* Course & Payment details box */}
-                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 space-y-2 text-xs">
-                      <div className="flex items-center justify-between border-b border-slate-200/60 pb-2">
-                        <span className="font-semibold text-slate-700 flex items-center gap-1.5">
-                          <BookOpen size={14} className="text-[#0b408e]" />
-                          {slip.course?.title}
-                        </span>
-                        <span className="font-extrabold text-sm text-[#0b408e]">
+                      {/* Course & Amount */}
+                      <td className="py-4 px-6">
+                        <div className="font-bold text-slate-800 line-clamp-1">{slip.course?.title}</div>
+                        <div className="text-xs font-extrabold text-[#0b408e] mt-0.5">
                           LKR {Number(slip.amount).toLocaleString()}
-                        </span>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-600 pt-1">
-                        <div>
-                          <span className="text-slate-400 block">Depositor Name:</span>
-                          <span className="font-medium text-slate-700">{slip.depositor_name || "N/A"}</span>
                         </div>
-                        <div>
-                          <span className="text-slate-400 block">Ref / Reg Email:</span>
-                          <span className="font-medium text-slate-700">{slip.reference_no || "N/A"}</span>
+                      </td>
+
+                      {/* Status */}
+                      <td className="py-4 px-6 whitespace-nowrap">
+                        {isPending && (
+                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-[11px] font-bold">
+                            <Clock size={12} />
+                            Pending Review
+                          </span>
+                        )}
+                        {isApproved && (
+                          <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-bold">
+                            <CheckCircle2 size={12} />
+                            Approved & Enrolled
+                          </span>
+                        )}
+                        {isRejected && (
+                          <div className="space-y-1">
+                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-100 text-red-800 text-[11px] font-bold">
+                              <XCircle size={12} />
+                              Rejected
+                            </span>
+                            {slip.rejection_note && (
+                              <p className="text-[10px] text-red-600 italic max-w-xs">{slip.rejection_note}</p>
+                            )}
+                          </div>
+                        )}
+                      </td>
+
+                      {/* Slip File buttons */}
+                      <td className="py-4 px-6 text-center whitespace-nowrap">
+                        <div className="inline-flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+                          <button
+                            onClick={() => setPreviewSlip(slip)}
+                            className="p-1.5 rounded-lg bg-white shadow-xs hover:text-[#0b408e] text-slate-600 transition-colors"
+                            title="View Slip"
+                          >
+                            <Eye size={14} />
+                          </button>
+                          <button
+                            onClick={() => handleDownload(slip.slip_url, `slip_${userName.replace(/\s+/g, "_")}.png`)}
+                            className="p-1.5 rounded-lg bg-white shadow-xs hover:text-[#0b408e] text-slate-600 transition-colors"
+                            title="Download Slip"
+                          >
+                            <Download size={14} />
+                          </button>
+                          <button
+                            onClick={() => handlePrint(slip)}
+                            className="p-1.5 rounded-lg bg-white shadow-xs hover:text-[#0b408e] text-slate-600 transition-colors"
+                            title="Print Slip"
+                          >
+                            <Printer size={14} />
+                          </button>
                         </div>
-                      </div>
+                      </td>
 
-                      <div className="text-[10px] text-slate-400 pt-1">
-                        Submitted on: {new Date(slip.created_at).toLocaleString()}
-                      </div>
-                    </div>
-
-                    {/* Rejection Note if present */}
-                    {isRejected && slip.rejection_note && (
-                      <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-xs text-red-800">
-                        <strong>Rejection Reason:</strong> {slip.rejection_note}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Footer Buttons */}
-                <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 space-y-3">
-                  {/* View / Download / Print options */}
-                  <div className="flex items-center justify-between gap-2">
-                    <button
-                      onClick={() => setPreviewSlip(slip)}
-                      className="flex-1 py-2 px-3 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
-                    >
-                      <Eye size={14} className="text-[#0b408e]" />
-                      View Slip
-                    </button>
-                    <button
-                      onClick={() => handleDownload(slip.slip_url, `bank_slip_${userName.replace(/\s+/g, "_")}.png`)}
-                      className="flex-1 py-2 px-3 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
-                    >
-                      <Download size={14} className="text-slate-600" />
-                      Download
-                    </button>
-                    <button
-                      onClick={() => handlePrint(slip)}
-                      className="p-2 rounded-xl bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 text-xs font-semibold flex items-center justify-center transition-colors"
-                      title="Print Slip"
-                    >
-                      <Printer size={15} />
-                    </button>
-                  </div>
-
-                  {/* Primary Approval / Rejection Controls */}
-                  {isPending && (
-                    <div className="flex items-center gap-2 pt-1">
-                      <button
-                        onClick={() => handleApprove(slip.id)}
-                        disabled={actionLoading}
-                        className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-1.5 disabled:opacity-50"
-                      >
-                        <CheckCircle2 size={15} />
-                        Approve & Enroll Student
-                      </button>
-
-                      <button
-                        onClick={() => setRejectingSlip(slip)}
-                        disabled={actionLoading}
-                        className="py-2.5 px-4 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold transition-colors flex items-center justify-center gap-1 disabled:opacity-50"
-                      >
-                        <XCircle size={15} />
-                        Reject
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            );
-          })}
+                      {/* Actions */}
+                      <td className="py-4 px-6 text-right whitespace-nowrap">
+                        {isPending ? (
+                          <div className="inline-flex items-center gap-2">
+                            <button
+                              onClick={() => handleApprove(slip.id)}
+                              disabled={actionLoading}
+                              className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs inline-flex items-center gap-1.5 disabled:opacity-50"
+                            >
+                              <CheckCircle2 size={14} />
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => setRejectingSlip(slip)}
+                              disabled={actionLoading}
+                              className="px-3 py-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 text-xs font-bold transition-colors inline-flex items-center gap-1 disabled:opacity-50"
+                            >
+                              <XCircle size={14} />
+                              Reject
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-slate-400 text-[11px] font-medium italic">
+                            Completed
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
