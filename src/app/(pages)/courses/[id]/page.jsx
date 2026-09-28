@@ -52,6 +52,7 @@ export default async function CoursePage({ params }) {
 
   const session = await auth();
   const userId = session?.user?.id;
+  const userRole = session?.user?.role;
 
   let isEnrolled = false;
   if (userId) {
@@ -172,13 +173,15 @@ export default async function CoursePage({ params }) {
 
                 {/* CTA */}
                 <div className="flex flex-col gap-2.5">
-                  <PurchaseButton
-                    courseId={course.id}
-                    userId={userId}
-                    price={Number(course.price)}
-                    title={course.title}
-                    isEnrolled={isEnrolled}
-                  />
+                  {session && userRole === "admin" && (
+                    <PurchaseButton
+                      courseId={course.id}
+                      userId={userId}
+                      price={Number(course.price)}
+                      title={course.title}
+                      isEnrolled={isEnrolled}
+                    />
+                  )}
                   <p className="flex items-center justify-center gap-2 py-2.5 rounded-2xl text-sm font-medium text-[#ffffff] border border-[#0b408e]/20  bg-[#0b408e] transition-all cursor-not-allowed">
                     Available Soon!
                   </p>
