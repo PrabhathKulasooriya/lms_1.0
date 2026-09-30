@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import dynamic from "next/dynamic";
-import "youtube-video-element/react"; // Preload lazy chunk for react-player to fix loading issue
 import {
   BookOpen,
   GraduationCap,
@@ -15,55 +13,9 @@ import {
   ChevronUp,
   Maximize,
   Loader2,
-  Play,
-  Pause,
-  Volume2,
-  VolumeX,
-  Settings,
 } from "lucide-react";
 
-// Dynamically import ReactPlayer with SSR disabled for production optimization
-const ReactPlayer = dynamic(() => import("react-player"), { ssr: false });
-
-// ─── Native YouTube Embed Player ─────────────────────────────────────────────────
-function NativeYouTubePlayer({ url, title, onReady, onError }) {
-  const getYouTubeId = (rawUrl) => {
-    if (!rawUrl) return null;
-    const cleanUrl = rawUrl.trim();
-    const regExp =
-      /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
-    const match = cleanUrl.match(regExp);
-    return match && match[2].length === 11 ? match[2] : null;
-  };
-
-  const videoId = getYouTubeId(url);
-
-  if (!videoId) {
-    return (
-      <ReactPlayer
-        url={url}
-        controls={true}
-        width="100%"
-        height="100%"
-        onReady={onReady}
-        onError={onError}
-      />
-    );
-  }
-
-  return (
-    <iframe
-      key={videoId}
-      src={`https://www.youtube.com/embed/${videoId}?controls=1&rel=0&modestbranding=1`}
-      title={title || "Course Video"}
-      className="w-full h-full border-none rounded-2xl"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-      allowFullScreen
-      onLoad={onReady}
-      onError={onError}
-    />
-  );
-}
+import YouTubePlayer from "./YouTubePlayer";
 
 export default function CourseViewer({ course }) {
   const defaultResource = course.lessons?.[0]?.resources?.[0] || null;
@@ -74,21 +26,6 @@ export default function CourseViewer({ course }) {
 
   const [isLoading, setIsLoading] = useState(true);
   const pdfWrapperRef = useRef(null);
-
-  // Helper to format YouTube URLs to standard watch format (supports watch, short, and embed URLs)
-  const formatVideoUrl = (url) => {
-    if (!url) return "";
-    const cleanUrl = url.trim();
-    if (cleanUrl.includes("youtube.com/embed/")) {
-      const videoId = cleanUrl.split("youtube.com/embed/")[1]?.split("?")[0];
-      if (videoId) return `https://www.youtube.com/watch?v=${videoId}`;
-    }
-    if (cleanUrl.includes("youtu.be/")) {
-      const videoId = cleanUrl.split("youtu.be/")[1]?.split("?")[0];
-      if (videoId) return `https://www.youtube.com/watch?v=${videoId}`;
-    }
-    return cleanUrl;
-  };
 
   // Safety timeout & loading reset on resource change
   useEffect(() => {
@@ -197,7 +134,7 @@ export default function CourseViewer({ course }) {
 
               {activeResource.type === "video" ? (
                 <div className="relative w-full h-full bg-black flex items-center justify-center overflow-hidden">
-                  <NativeYouTubePlayer
+                  <YouTubePlayer
                     key={activeResource.id}
                     url={activeResource.file_url}
                     title={activeResource.title}
