@@ -172,7 +172,7 @@ export default function CourseViewer({ course }) {
         </div>
 
         {/* Right Column: Lessons Accordion */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col h-full overflow-hidden">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex flex-col lg:h-full overflow-hidden">
           <div className="p-4 border-b border-gray-100 bg-gray-50 flex items-center gap-2 shrink-0">
             <GraduationCap size={20} className="text-blue-600" />
             <h2 className="text-base font-bold text-gray-900">
@@ -183,7 +183,7 @@ export default function CourseViewer({ course }) {
             </span>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+          <div className="lg:flex-1 lg:min-h-0 lg:overflow-y-auto p-4 flex flex-col gap-3">
             {course.lessons?.map((lesson) => (
               <div
                 key={lesson.id}
