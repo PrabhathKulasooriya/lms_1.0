@@ -28,30 +28,92 @@ function Mask({ style }) {
   );
 }
 
+const getFsElement = () =>
+  document.fullscreenElement || document.webkitFullscreenElement || null;
+
 export default function YouTubePlayer({ url, title, onReady, onError }) {
   const wrapperRef = useRef(null);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isNativeFs, setIsNativeFs] = useState(false); // real Fullscreen API
+  const [isFakeFs, setIsFakeFs] = useState(false); // CSS fullscreen (iPhone)
+  const [isPortrait, setIsPortrait] = useState(false);
   const videoId = getYouTubeId(url);
 
-  // Track fullscreen state of OUR wrapper (not the iframe)
+  const isFullscreen = isNativeFs || isFakeFs;
+
+  // ── Real fullscreen state (wrapper only, never the iframe) ──
   useEffect(() => {
-    const onChange = () =>
-      setIsFullscreen(document.fullscreenElement === wrapperRef.current);
+    const onChange = () => {
+      const active = getFsElement() === wrapperRef.current;
+      setIsNativeFs(active);
+      if (!active) {
+        try {
+          screen.orientation?.unlock?.();
+        } catch {}
+      }
+    };
     document.addEventListener("fullscreenchange", onChange);
-    return () => document.removeEventListener("fullscreenchange", onChange);
+    document.addEventListener("webkitfullscreenchange", onChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", onChange);
+      document.removeEventListener("webkitfullscreenchange", onChange);
+    };
   }, []);
 
-  const toggleFullscreen = () => {
+  // ── Track device orientation (used to auto-rotate the CSS fullscreen) ──
+  useEffect(() => {
+    const mq = window.matchMedia("(orientation: portrait)");
+    const update = () => setIsPortrait(mq.matches);
+    update();
+    mq.addEventListener?.("change", update);
+    return () => mq.removeEventListener?.("change", update);
+  }, []);
+
+  // ── CSS fullscreen: lock page scroll + Escape to exit ──
+  useEffect(() => {
+    if (!isFakeFs) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e) => {
+      if (e.key === "Escape") setIsFakeFs(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [isFakeFs]);
+
+  const enterFullscreen = async () => {
     const el = wrapperRef.current;
     if (!el) return;
-    if (!document.fullscreenElement) {
-      el.requestFullscreen?.().catch((err) =>
-        console.error(`Fullscreen error: ${err.message}`),
-      );
+
+    const request = el.requestFullscreen || el.webkitRequestFullscreen;
+    if (request) {
+      try {
+        await request.call(el);
+        // Android / iPad: rotate to landscape while fullscreen (best effort)
+        try {
+          await screen.orientation?.lock?.("landscape");
+        } catch {}
+      } catch {
+        setIsFakeFs(true);
+      }
     } else {
-      document.exitFullscreen();
+      // iPhone Safari: no Fullscreen API on a div -> CSS fullscreen
+      setIsFakeFs(true);
     }
   };
+
+  const exitFullscreen = () => {
+    if (isFakeFs) {
+      setIsFakeFs(false);
+      return;
+    }
+    (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
+  };
+
+  const toggleFullscreen = () =>
+    isFullscreen ? exitFullscreen() : enterFullscreen();
 
   if (!videoId) {
     return (
@@ -77,12 +139,40 @@ export default function YouTubePlayer({ url, title, onReady, onError }) {
     playsinline: "1",
   });
 
+  // CSS fullscreen layout. If the phone is held upright, rotate the player
+  // 90° so the video fills the screen sideways.
+  let wrapperStyle;
+  if (isFakeFs) {
+    wrapperStyle = isPortrait
+      ? {
+          position: "fixed",
+          top: 0,
+          left: "100%",
+          width: "100dvh",
+          height: "100dvw",
+          transform: "rotate(90deg)",
+          transformOrigin: "top left",
+          zIndex: 9999,
+        }
+      : {
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          height: "100%",
+          zIndex: 9999,
+        };
+  }
+
   // Mask sizes differ slightly between normal and fullscreen layouts
-  const bottomHeight = isFullscreen ? "7.5%" : "10%";
+  // YouTube's controls have a fixed pixel size, so on small (mobile) players
+  // a percentage alone is too short. max() keeps a minimum height in px.
+  const bottomHeight = isFullscreen ? "max(7.5%, 56px)" : "max(10%, 60px)";
 
   return (
     <div
       ref={wrapperRef}
+      style={wrapperStyle}
       className="group relative w-full h-full bg-black overflow-hidden"
     >
       <iframe
@@ -104,20 +194,32 @@ export default function YouTubePlayer({ url, title, onReady, onError }) {
 
       {/* Bottom-left: share + watch later */}
       <Mask
-        style={{ bottom: 0, left: 0, width: "25%", height: bottomHeight }}
+        style={{
+          bottom: 0,
+          left: 0,
+          width: "max(25%, 150px)",
+          height: bottomHeight,
+        }}
       />
 
       {/* Bottom-right: "More videos" + YouTube logo */}
       <Mask
-        style={{ bottom: 0, right: 0, width: "32%", height: bottomHeight }}
+        style={{
+          bottom: 0,
+          right: 0,
+          width: "max(32%, 240px)",
+          height: bottomHeight,
+        }}
       />
 
-      {/* Custom fullscreen button (targets the wrapper, so masks stay) */}
+      {/* Custom fullscreen button (targets the wrapper, so masks stay).
+          Always slightly visible so touch users can find it. */}
       <button
         type="button"
         onClick={toggleFullscreen}
         title={isFullscreen ? "Exit Full Screen" : "Full Screen"}
-        className="absolute z-20 right-4 p-2.5 rounded-lg bg-gray-800/60 hover:bg-gray-800 text-white backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100 focus:opacity-100"
+        aria-label={isFullscreen ? "Exit full screen" : "Full screen"}
+        className="absolute z-20 right-4 p-2.5 rounded-lg bg-gray-800/60 hover:bg-gray-800 text-white backdrop-blur-sm transition-all opacity-70 hover:opacity-100 focus:opacity-100"
         style={{ bottom: "16%" }}
       >
         {isFullscreen ? <Minimize size={20} /> : <Maximize size={20} />}
