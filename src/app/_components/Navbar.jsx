@@ -5,13 +5,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { Menu, X, BookOpen, LogIn, Mail, Home, LogOut } from "lucide-react";
+import { Menu, X, BookOpen, LogIn, Mail, Home, LogOut, Images } from "lucide-react";
 import logo from "@/assets/logos/logo_1.png";
 
 
 const rightNavLinks = [
   { name: "Home", href: "/", icon: Home },
   { name: "Courses", href: "/courses", icon: BookOpen },
+  { name: "Gallery", href: "/gallery", icon: Images },
   { name: "Contact Us", href: "/contact", icon: Mail },
 ];
 

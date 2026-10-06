@@ -13,6 +13,7 @@ import {
   Bolt,
   GalleryVertical,
   FileCheck,
+  Images,
 } from "lucide-react";
 
 const Sidebar = ({ activeComponent, setActiveComponent, role }) => {
@@ -24,6 +25,7 @@ const Sidebar = ({ activeComponent, setActiveComponent, role }) => {
     { key: "bank-slips", label: "Bank Slips", icon: FileCheck, show: true },
     { key: "all-courses", label: "Manage Courses", icon: GraduationCap, show: role === "admin" },
     { key: "lessons", label: "Manage Lessons", icon: LibraryBig, show: role === "admin" },
+    { key: "gallery", label: "Manage Gallery", icon: Images, show: role === "admin" },
     { key: "users", label: "Manage Users", icon: Users, show: role === "admin" },
     { key: "enrollments", label: "Enrollments", icon: NotebookPen, show: role === "admin" },
     { key: "tute", label: "Send Tutes", icon: FileText, show: role === "admin" },

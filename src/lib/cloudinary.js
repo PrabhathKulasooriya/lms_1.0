@@ -59,4 +59,20 @@ export async function uploadToCloudinary(buffer, folder = "nexlearn/bank_slips",
   });
 }
 
+/**
+ * Deletes an asset from Cloudinary by its public_id
+ * @param {string} public_id
+ * @returns {Promise<any>}
+ */
+export async function deleteFromCloudinary(public_id) {
+  if (!public_id) return null;
+  try {
+    return await cloudinary.uploader.destroy(public_id);
+  } catch (error) {
+    console.error("Cloudinary Delete Error:", error);
+    return null;
+  }
+}
+
 export default cloudinary;
+

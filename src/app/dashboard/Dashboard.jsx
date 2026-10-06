@@ -13,6 +13,7 @@ import TuteDispatch from "../_admin_components/TuteDispatch";
 import GlobalExpirySettings from "../_admin_components/GlobalExpirySettings";
 import BankSlipReview from "../_admin_components/BankSlipReview";
 import PendingSlips from "../_user_components/PendingSlips";
+import GalleryManager from "../_admin_components/GalleryManager";
 
 const Dashboard = ({ courses = [], user = null, enrollment = [] }) => {
   const [activeComponent, setActiveComponent] = useState("account");
@@ -69,6 +70,10 @@ const Dashboard = ({ courses = [], user = null, enrollment = [] }) => {
 
           {isAdmin && activeComponent === "settings" && (
             <GlobalExpirySettings />
+          )}
+
+          {isAdmin && activeComponent === "gallery" && (
+            <GalleryManager />
           )}
 
           {/* User Specific Views */}
