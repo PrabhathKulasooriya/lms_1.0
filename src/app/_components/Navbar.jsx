@@ -91,8 +91,7 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
-            {/* <Link href >
-            </Link> */}
+           
           </div>
 
           {/* DESKTOP AUTH */}
@@ -104,9 +103,7 @@ const Navbar = () => {
                   className={`${authButtonBase} text-[#9fe03c] hover:scale-105 hover:text-accent`}
                 >
                   <span className="text-white  font-bold">
-                    {session.user.role === "admin"
-                      ? "Dashboard"
-                      : `Hi, ${session.user.first_name}`}
+                    Dashboard
                   </span>
                 </Link>
 

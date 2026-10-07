@@ -182,9 +182,13 @@ export default async function CoursePage({ params }) {
                       isEnrolled={isEnrolled}
                     />
                   )}
-                  <p className="flex items-center justify-center gap-2 py-2.5 rounded-2xl text-sm font-medium text-[#ffffff] border border-[#0b408e]/20  bg-[#0b408e] transition-all cursor-not-allowed">
-                    Available Soon!
-                  </p>
+
+                  {!session || userRole !== "admin" ? (
+                    <p className="flex items-center justify-center gap-2 py-2.5 rounded-2xl text-sm font-medium text-[#ffffff] border border-[#0b408e]/20  bg-[#0b408e] transition-all cursor-not-allowed">
+                      Available Soon!
+                    </p>
+                  ) : null}
+
                   {isEnrolled && (
                     <Link
                       href={`/learnings/${course.id}`}
@@ -194,12 +198,7 @@ export default async function CoursePage({ params }) {
                       View Course
                     </Link>
                   )}
-                  {!isEnrolled && (
-                    <p className="text-[10px] text-center text-gray-400 leading-relaxed">
-                      Secure payment processing. We do not store your payment
-                      information.
-                    </p>
-                  )}
+                  
                 </div>
 
                 {/* Features */}

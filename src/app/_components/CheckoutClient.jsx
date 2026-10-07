@@ -1,12 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
-  CreditCard,
   Building2,
-  ChevronDown,
   AlertTriangle,
   Phone,
   Mail,
@@ -21,8 +19,9 @@ import {
   CheckCircle,
   Loader2,
   Clock,
+  Copy,
+  Check,
 } from "lucide-react";
-import { getPayHereFormData } from "@/app/api/actions/checkout";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
 
@@ -46,27 +45,113 @@ function ContactRow({ icon: Icon, href, label, color = "text-[#0b408e]" }) {
   );
 }
 
-// ─── Bank account details — fill in your real details ─────────────────────────
-const BANK_DETAILS = [
-  { label: "Account Name", value: "YOUR ACCOUNT NAME HERE" },
-  { label: "Account Number", value: "XXXX XXXX XXXX" },
-  { label: "Bank", value: "YOUR BANK NAME HERE" },
-  { label: "Branch", value: "YOUR BRANCH NAME HERE" },
-  { label: "Branch Code", value: "XXXX" },
+// ─── Supported Banks Config ─────────────────────────────────────────────────
+const BANKS = [
+  {
+    id: "boc",
+    name: "Bank of Ceylon (BOC)",
+    shortName: "BOC",
+    branch: "Bingiriya",
+    accountNumber: "9856593",
+    accountName: "R.M.H.K.Rathnayaka",
+    logo: "/banks/boc.png",
+    accentText: "text-amber-700",
+    accentBg: "bg-amber-500/10",
+  },
+  {
+    id: "commercial",
+    name: "Commercial Bank",
+    shortName: "COMBANK",
+    branch: "Hettipola",
+    accountNumber: "8019382728",
+    accountName: "R.M.H.K.Rathnayaka",
+    logo: "/banks/commercial.png",
+    accentText: "text-blue-700",
+    accentBg: "bg-blue-600/10",
+  },
+  {
+    id: "hnb",
+    name: "Hatton National Bank (HNB)",
+    shortName: "HNB",
+    branch: "Hettipola",
+    accountNumber: "152020099202",
+    accountName: "R.M.H.K.Rathnayaka",
+    logo: "/banks/hnb.png",
+    accentText: "text-orange-700",
+    accentBg: "bg-orange-500/10",
+  },
 ];
 
+function BankLogo({ bank, size = "md" }) {
+  const [hasError, setHasError] = useState(false);
+  const sizeClasses =
+    size === "lg"
+      ? "w-14 h-14 text-sm"
+      : "w-11 h-11 text-xs";
+
+  return (
+    <div
+      className={`${sizeClasses} rounded-2xl bg-white border border-gray-200/80 shadow-xs flex items-center justify-center p-1.5 shrink-0 overflow-hidden relative`}
+    >
+      {!hasError && bank.logo ? (
+        <img
+          src={bank.logo}
+          alt={bank.name}
+          className="w-full h-full object-contain"
+          onError={() => setHasError(true)}
+        />
+      ) : (
+        <span
+          className={`font-bold tracking-tight text-center ${
+            bank.accentText || "text-gray-700"
+          }`}
+        >
+          {bank.shortName}
+        </span>
+      )}
+    </div>
+  );
+}
+
 export default function CheckoutClient({ course, courseId }) {
-  const [openSection, setOpenSection] = useState("bank");
-  const [loading, setLoading] = useState(false);
   const { data: session } = useSession();
+
+  // ── Selected Bank Modal State ──────────────────────────────────────────
+  const [selectedBankModal, setSelectedBankModal] = useState(null);
+  const [copiedField, setCopiedField] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setSelectedBankModal(null);
+      }
+    };
+    if (selectedBankModal) {
+      document.body.style.overflow = "hidden";
+      window.addEventListener("keydown", handleKeyDown);
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [selectedBankModal]);
+
+  const handleCopyAccount = (accountNumber) => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(accountNumber);
+      setCopiedField(true);
+      toast.success("Account number copied to clipboard!");
+      setTimeout(() => setCopiedField(false), 2000);
+    }
+  };
 
   // ── Bank slip upload UI states ──────────────────────────────────────────
   const [slipFile, setSlipFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-
-  const toggle = (key) => setOpenSection((prev) => (prev === key ? null : key));
 
   const handleFileChange = (e) => {
     const file = e.target.files?.[0];
@@ -128,49 +213,6 @@ export default function CheckoutClient({ course, courseId }) {
       toast.error(err.message || "Failed to upload payment slip.");
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  // ── Initiate PayHere card payment ────────────────────────────────────────
-  const handleCardPayment = async () => {
-    try {
-      setLoading(true);
-      const fullName =
-        session?.user?.name ||
-        [session?.user?.first_name, session?.user?.last_name]
-          .filter(Boolean)
-          .join(" ") ||
-        "Customer";
-
-      const formData = await getPayHereFormData(
-        courseId,
-        Number(course.price),
-        course.title,
-        session.user.email,
-        fullName,
-      );
-
-      // Build a hidden form and submit to PayHere sandbox
-      const form = document.createElement("form");
-      form.method = "POST";
-      // ⚠️  Change to https://www.payhere.lk/pay/checkout for production
-      form.action = "https://sandbox.payhere.lk/pay/checkout";
-
-      Object.entries(formData).forEach(([key, value]) => {
-        const input = document.createElement("input");
-        input.type = "hidden";
-        input.name = key;
-        input.value = value;
-        form.appendChild(input);
-      });
-
-      document.body.appendChild(form);
-      form.submit();
-      // Note: setLoading(false) is intentionally omitted — page navigates away
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to initiate payment. Please try again.");
-      setLoading(false);
     }
   };
 
@@ -244,10 +286,9 @@ export default function CheckoutClient({ course, courseId }) {
                     <span className="font-medium text-gray-800">
                       strictly non-refundable under any circumstance whatsoever
                     </span>
-                    . Once a purchase is completed — whether via card payment or
-                    bank transfer — no refunds, partial refunds, or credits will
-                    be issued. Please review the course description carefully
-                    before making a payment.
+                    . Once a purchase is completed via bank transfer, no refunds,
+                    partial refunds, or credits will be issued. Please review the
+                    course description carefully before making a payment.
                   </p>
                 </section>
 
@@ -275,17 +316,15 @@ export default function CheckoutClient({ course, courseId }) {
                 {/* Payment Terms */}
                 <section>
                   <div className="flex items-center gap-2 mb-2">
-                    <CreditCard size={14} className="text-[#0b408e] shrink-0" />
+                    <Building2 size={14} className="text-[#0b408e] shrink-0" />
                     <p className="text-[11px] font-semibold text-gray-700 uppercase tracking-wide">
                       Payment
                     </p>
                   </div>
                   <p className="pl-5">
-                    All prices are in Sri Lankan Rupees (LKR). Card payments are
-                    processed securely via PayHere; NexLearn does not store your
-                    card details at any point. For bank transfers, enrollment is
-                    activated manually by our team within 24 hours of receipt
-                    verification.
+                    All prices are in Sri Lankan Rupees (LKR). For bank transfers,
+                    enrollment is activated manually by our team within 24 hours of
+                    receipt verification.
                   </p>
                 </section>
 
@@ -322,15 +361,14 @@ export default function CheckoutClient({ course, courseId }) {
                       className="text-amber-500 shrink-0"
                     />
                     <p className="text-[11px] font-semibold text-gray-700 uppercase tracking-wide">
-                      Payment Disputes
+                      Payment Inquiries
                     </p>
                   </div>
                   <p className="pl-5">
-                    If a payment is deducted from your account but enrollment is
-                    not reflected, please contact us immediately with your
-                    payment receipt. We will investigate and resolve the issue
-                    promptly. Initiating a chargeback without first contacting
-                    us may result in permanent account suspension.
+                    If a payment is transferred from your account and your receipt
+                    is uploaded but enrollment is not reflected within 24 hours,
+                    please contact us immediately with your transaction reference. We
+                    will investigate and resolve the issue promptly.
                   </p>
                 </section>
 
@@ -364,142 +402,18 @@ export default function CheckoutClient({ course, courseId }) {
             </div>
           </div>
 
-          {/* ── RIGHT: Payment Options ────────────────────────────────────── */}
+          {/* ── RIGHT: Payment Method ────────────────────────────────────── */}
           <div className="sticky top-24 flex flex-col gap-4">
             <div className="flex items-center gap-2 mb-1 px-1">
               <span className="w-1 h-4 rounded-full bg-[#0b408e]" />
               <h2 className="text-sm font-semibold text-gray-900">
-                Choose Payment Method
+                Payment Method
               </h2>
             </div>
 
-            {/* ── Option 1: Card Payment (Hidden from UI as requested) ────── */}
-            <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden hidden">
-              <button
-                onClick={() => toggle("card")}
-                className="w-full flex items-center justify-between px-6 py-5 hover:bg-gray-50/60 transition-colors text-left"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-2xl bg-[#0b408e]/8 flex items-center justify-center shrink-0">
-                    <CreditCard size={16} className="text-[#0b408e]" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900">
-                      Pay with Card
-                    </p>
-                    <p className="text-[10px] text-gray-400 mt-0.5">
-                      Visa &amp; Mastercard — Secured by PayHere
-                    </p>
-                  </div>
-                </div>
-                <ChevronDown
-                  size={16}
-                  className={`text-gray-400 shrink-0 transition-transform duration-200 ${
-                    openSection === "card" ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-
-              {openSection === "card" && (
-                <div className="px-6 pb-6 border-t border-gray-100">
-                  {/* Do not close warning */}
-                  <div className="mt-4 bg-amber-50 border border-amber-100 rounded-2xl p-4 flex gap-3">
-                    <AlertTriangle
-                      size={14}
-                      className="text-amber-500 shrink-0 mt-0.5"
-                    />
-                    <div className="text-xs text-amber-800 space-y-2">
-                      <p className="font-semibold">
-                        Important — Please Read Before Proceeding
-                      </p>
-                      <ul className="space-y-1 text-amber-700">
-                        <li>
-                          • Do <strong>not</strong> close, refresh, or press the
-                          browser back button while payment is being processed.
-                        </li>
-                        <li>
-                          • Do <strong>not</strong> cancel the payment once you
-                          have been redirected to the PayHere payment page.
-                        </li>
-                        <li>
-                          • After payment, you will be automatically redirected
-                          back to your course. Please wait and do not close the
-                          tab.
-                        </li>
-                        <li>
-                          • If you are redirected back unexpectedly, wait a few
-                          minutes — enrollment may still be processing.
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-
-                  {/* Deducted but not enrolled */}
-                  <div className="mt-3 bg-red-50 border border-red-100 rounded-2xl p-4 flex gap-3">
-                    <ShieldAlert
-                      size={14}
-                      className="text-red-500 shrink-0 mt-0.5"
-                    />
-                    <div className="text-xs text-red-800 space-y-2">
-                      <p className="font-semibold">
-                        Payment Deducted but Not Enrolled?
-                      </p>
-                      <p className="text-red-700">
-                        If money was deducted from your account but you were not
-                        enrolled, please contact us immediately with your
-                        payment receipt and we will resolve it as soon as
-                        possible.
-                      </p>
-                      <div className="space-y-1.5 pt-1">
-                        <a
-                          href={`tel:${PHONE_RAW}`}
-                          className="flex items-center gap-1.5 text-red-700 hover:text-red-900 transition-colors font-medium"
-                        >
-                          <Phone size={11} /> {PHONE}
-                        </a>
-                        <a
-                          href={`https://wa.me/${WHATSAPP}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1.5 text-red-700 hover:text-red-900 transition-colors font-medium"
-                        >
-                          <MessageCircle size={11} /> WhatsApp: {PHONE}
-                        </a>
-                        <a
-                          href={`mailto:${EMAIL}?subject=Payment Issue - Course Enrollment`}
-                          className="flex items-center gap-1.5 text-red-700 hover:text-red-900 transition-colors font-medium"
-                        >
-                          <Mail size={11} /> {EMAIL}
-                        </a>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Pay button */}
-                  <button
-                    onClick={handleCardPayment}
-                    disabled={loading}
-                    className="mt-5 w-full py-3.5 rounded-2xl bg-[#0b408e] hover:bg-[#0b408e]/90 text-white text-sm font-semibold transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                  >
-                    <CreditCard size={15} />
-                    {loading
-                      ? "Redirecting to PayHere..."
-                      : `Pay LKR ${price} Securely`}
-                  </button>
-                  <p className="text-[10px] text-center text-gray-400 mt-2 leading-relaxed">
-                    You will be redirected to PayHere&apos;s secure payment
-                    page. NexLearn does not store your card information.
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* ── Option 2: Bank Transfer ─────────────────────────────────── */}
+            {/* ── Direct Bank Transfer ─────────────────────────────────── */}
             <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
-              <button
-                onClick={() => toggle("bank")}
-                className="w-full flex items-center justify-between px-6 py-5 hover:bg-gray-50/60 transition-colors text-left"
-              >
+              <div className="px-6 py-5 border-b border-gray-100">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-2xl bg-[#9fe03c]/12 flex items-center justify-center shrink-0">
                     <Building2 size={16} className="text-[#4a7a1e]" />
@@ -513,47 +427,65 @@ export default function CheckoutClient({ course, courseId }) {
                     </p>
                   </div>
                 </div>
-                <ChevronDown
-                  size={16}
-                  className={`text-gray-400 shrink-0 transition-transform duration-200 ${
-                    openSection === "bank" ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
+              </div>
 
-              {openSection === "bank" && (
-                <div className="px-6 pb-6 border-t border-gray-100">
-                  {/* Account details */}
-                  <div className="mt-4 bg-gray-50 rounded-2xl p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Banknote size={13} className="text-[#0b408e]" />
-                      <p className="text-[11px] font-semibold text-gray-700 uppercase tracking-wider">
-                        Bank Account Details
-                      </p>
-                    </div>
-                    <div className="space-y-0">
-                      {BANK_DETAILS.map(({ label, value }) => (
-                        <div
-                          key={label}
-                          className="flex items-center justify-between py-2.5 border-b border-gray-100 last:border-0"
-                        >
-                          <span className="text-[11px] text-gray-400">
-                            {label}
-                          </span>
-                          <span className="text-xs font-semibold text-gray-700 text-right max-w-[55%]">
-                            {value}
-                          </span>
-                        </div>
-                      ))}
-                      {/* Amount highlighted */}
-                      <div className="flex items-center justify-between pt-3">
-                        <span className="text-[11px] font-semibold text-gray-600">
-                          Transfer Amount
-                        </span>
-                        <span className="text-sm font-bold text-[#0b408e]">
-                          LKR {price}
-                        </span>
+              <div className="px-6 pb-6">
+                  {/* Bank selection cards */}
+                  <div className="mt-4 bg-gray-50/80 rounded-2xl p-4 border border-gray-100">
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <div className="flex items-center gap-2">
+                        <Banknote size={15} className="text-[#0b408e]" />
+                        <p className="text-[11px] font-semibold text-gray-800 uppercase tracking-wider">
+                          Select a Bank for Account Details
+                        </p>
                       </div>
+                      
+                    </div>
+
+                    <p className="text-xs text-gray-500 mb-3 leading-relaxed">
+                      Click any bank below to view its account number, branch, and transfer instructions:
+                    </p>
+
+                    {/* Bank Selection Buttons */}
+                    <div className="space-y-2.5">
+                      {BANKS.map((bank) => (
+                        <button
+                          key={bank.id}
+                          type="button"
+                          onClick={() => setSelectedBankModal(bank)}
+                          className="w-full flex items-center justify-between p-3 bg-white hover:bg-blue-50/40 rounded-2xl border border-gray-200/80 hover:border-[#0b408e]/40 shadow-xs transition-all duration-150 group text-left cursor-pointer"
+                        >
+                          <div className="flex items-center gap-3 min-w-0">
+                            <BankLogo bank={bank} size="md" />
+                            <div className="min-w-0">
+                              <p className="text-xs font-semibold text-gray-900 group-hover:text-[#0b408e] transition-colors truncate">
+                                {bank.name}
+                              </p>
+                              <p className="text-[11px] text-gray-400 mt-0.5">
+                                {bank.branch} Branch
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-1.5 pl-2 shrink-0">
+                            <span className="text-[11px] font-medium text-gray-500 group-hover:text-[#0b408e] transition-colors hidden sm:inline">
+                              View Details
+                            </span>
+                            <div className="w-7 h-7 rounded-full bg-gray-100 group-hover:bg-[#0b408e] flex items-center justify-center text-gray-500 group-hover:text-white transition-all">
+                              <Building2 size={13} />
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Transfer amount reminder */}
+                    <div className="mt-3.5 pt-3 border-t border-gray-200/60 flex items-center justify-between">
+                      <span className="text-[11px] font-semibold text-gray-600">
+                        Transfer Amount
+                      </span>
+                      <span className="text-sm font-bold text-[#0b408e]">
+                        LKR {price}
+                      </span>
                     </div>
                   </div>
 
@@ -692,14 +624,10 @@ export default function CheckoutClient({ course, courseId }) {
                       </p>
                       <ol className="space-y-1.5 text-blue-800">
                         <li>
-                          <strong>1.</strong> Take a clear screenshot or photo
-                          of your bank payment slip / receipt.
+                          <strong>1.</strong> Take a clear screenshot or photo of your bank payment slip / receipt.
                         </li>
                         <li>
-                          <strong>2.</strong> Send the receipt to us via
-                          WhatsApp or email, along with your{" "}
-                          <strong>registered email address</strong> and the{" "}
-                          <strong>course name</strong> you purchased.
+                          <strong>2.</strong> Upload the slip in the designated upload field and click <strong>Submit Payment Slip</strong> button.
                         </li>
                         <li>
                           <strong>3.</strong> Our team will verify the payment
@@ -714,47 +642,162 @@ export default function CheckoutClient({ course, courseId }) {
                     </div>
                   </div>
 
-                  {/* Send receipt to */}
-                  <div className="mt-3 bg-[#9fe03c]/8 border border-[#9fe03c]/25 rounded-2xl p-4">
-                    <p className="text-[11px] font-semibold text-[#4a7a1e] mb-3">
-                      Send Your Receipt To
-                    </p>
-                    <div className="space-y-2">
-                      <a
-                        href={`https://wa.me/${WHATSAPP}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-xs text-gray-700 hover:text-[#25D366] transition-colors font-medium"
-                      >
-                        <MessageCircle size={13} className="text-[#25D366]" />
-                        WhatsApp: {PHONE}
-                      </a>
-                      <a
-                        href={`mailto:${EMAIL}?subject=Bank Transfer Receipt - ${course.title}`}
-                        className="flex items-center gap-2 text-xs text-gray-700 hover:text-[#0b408e] transition-colors font-medium"
-                      >
-                        <Mail size={13} className="text-[#0b408e]" />
-                        {EMAIL}
-                      </a>
-                    </div>
-                    <p className="text-[10px] text-gray-400 mt-3 leading-relaxed">
+                 
+                 
+                    
+                    <p className="text-[10px]  text-gray-400 mt-2  leading-relaxed px-2 mb-2">
                       Please allow up to 24 hours on business days. For urgent
                       matters, WhatsApp is the fastest channel.
                     </p>
-                  </div>
-                </div>
-              )}
-            </div>
 
-            {/* Reassurance note */}
-            <p className="text-[10px] text-center text-gray-400 leading-relaxed px-2">
-              By completing your purchase you agree to NexLearn&apos;s Terms
-              &amp; Conditions, including the no-refund policy outlined on this
-              page.
-            </p>
+                    <p className="text-[10px] text-gray-400 leading-relaxed px-2">
+                      By completing your purchase you agree to NexLearn&apos;s Terms
+                      &amp; Conditions, including the no-refund policy outlined on this
+                      page.
+                    </p>
+                 
+                </div>
+              </div>
+              
+            </div>
           </div>
         </div>
-      </div>
+
+      {/* ── Bank Details Modal (Dark semi-transparent blurred background) ── */}
+      {selectedBankModal && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setSelectedBankModal(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md transition-all duration-200"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden transform transition-all"
+          >
+            {/* Top accent line */}
+            <div className="h-1.5 bg-gradient-to-r from-[#0b408e] via-[#9fe03c] to-[#0b408e]" />
+
+            <div className="p-6">
+              {/* Header */}
+              <div className="flex items-start justify-between gap-3 pb-4 border-b border-gray-100">
+                <div className="flex items-center gap-3">
+                  <BankLogo bank={selectedBankModal} size="lg" />
+                  <div>
+                    <span className="text-[10px] font-bold text-[#0b408e] uppercase tracking-wider bg-[#0b408e]/10 px-2.5 py-0.5 rounded-full inline-block mb-1">
+                      Direct Deposit
+                    </span>
+                    <h3 className="text-base font-bold text-gray-900 leading-snug">
+                      {selectedBankModal.name}
+                    </h3>
+                    <p className="text-xs text-gray-500">
+                      {selectedBankModal.branch} Branch
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedBankModal(null)}
+                  className="p-1.5 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors cursor-pointer"
+                  title="Close modal"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              {/* Transfer Amount Banner */}
+              <div className="my-4 bg-[#0b408e]/5 border border-[#0b408e]/15 rounded-2xl p-3.5 flex items-center justify-between">
+                <div>
+                  <p className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+                    Required Transfer Amount
+                  </p>
+                  <p className="text-lg font-extrabold text-[#0b408e]">
+                    LKR {price}
+                  </p>
+                </div>
+                <span className="text-[11px] font-medium text-gray-600 bg-white border border-gray-200/80 px-2.5 py-1 rounded-xl shadow-2xs">
+                  {course.title}
+                </span>
+              </div>
+
+              {/* Bank Details Breakdown */}
+              <div className="space-y-3 bg-gray-50/80 border border-gray-100 rounded-2xl p-4">
+                {/* Account Number with 1-click Copy */}
+                <div className="pb-3 border-b border-gray-200/60">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">
+                      Account Number
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyAccount(selectedBankModal.accountNumber)}
+                      className={`inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer ${
+                        copiedField
+                          ? "bg-emerald-600 text-white"
+                          : "bg-[#0b408e] text-white hover:bg-[#0b408e]/90"
+                      }`}
+                    >
+                      {copiedField ? (
+                        <>
+                          <Check size={12} /> Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Copy size={12} /> Copy Number
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <p className="text-xl font-bold font-mono tracking-wider text-gray-900 select-all">
+                    {selectedBankModal.accountNumber}
+                  </p>
+                </div>
+
+                {/* Account Name */}
+                <div className="flex items-center justify-between py-1 border-b border-gray-200/60">
+                  <span className="text-xs text-gray-500">Account Name</span>
+                  <span className="text-xs font-bold text-gray-900 text-right">
+                    {selectedBankModal.accountName}
+                  </span>
+                </div>
+
+                {/* Bank */}
+                <div className="flex items-center justify-between py-1 border-b border-gray-200/60">
+                  <span className="text-xs text-gray-500">Bank</span>
+                  <span className="text-xs font-semibold text-gray-800 text-right">
+                    {selectedBankModal.name}
+                  </span>
+                </div>
+
+                {/* Branch */}
+                <div className="flex items-center justify-between py-1">
+                  <span className="text-xs text-gray-500">Branch</span>
+                  <span className="text-xs font-semibold text-gray-800 text-right">
+                    {selectedBankModal.branch}
+                  </span>
+                </div>
+              </div>
+
+              {/* Instructions notice */}
+              <div className="mt-4 flex items-start gap-2.5 text-xs text-amber-900 bg-amber-50/70 border border-amber-200/60 p-3 rounded-2xl">
+                <Info size={15} className="text-amber-600 shrink-0 mt-0.5" />
+                <p className="leading-relaxed text-[11px]">
+                  Use your <strong>registered email address</strong> as the deposit remarks/reference. Keep your payment slip/receipt ready to upload below.
+                </p>
+              </div>
+
+              {/* Done button */}
+              <button
+                type="button"
+                onClick={() => setSelectedBankModal(null)}
+                className="mt-5 w-full py-3 rounded-xl bg-[#0b408e] hover:bg-[#0b408e]/90 text-white text-xs font-semibold transition-all shadow-xs cursor-pointer"
+              >
+                Done — Proceed to Upload Slip
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
