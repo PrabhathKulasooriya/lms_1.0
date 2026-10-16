@@ -32,7 +32,7 @@ const getCourses = unstable_cache(
     });
   },
   ["courses-data"],
-  { tags: ["courses-data"], revalidate: 86400 },
+  { tags: ["courses-data"], revalidate: 86400 }, // 86400
 );
 
 export default async function CoursePage({ params }) {
@@ -103,6 +103,8 @@ export default async function CoursePage({ params }) {
                   <p className="text-[#9fe03c] text-[10px] font-semibold uppercase tracking-[0.22em] mb-2">
                     {isPastPaper
                       ? "Past Paper"
+                      : course.type === "mcq"
+                      ? course.grade ? `Grade ${course.grade} · MCQ Practice` : "MCQ Practice"
                       : `Grade ${course.grade} · Theory`}
                   </p>
                   {/* Gold bar */}
@@ -121,6 +123,18 @@ export default async function CoursePage({ params }) {
                       </span>
                       <span className="text-xs font-medium px-3 py-1 rounded-full bg-[#9fe03c]/12 text-[#4a7a1e] border border-[#9fe03c]/25">
                         Theory
+                      </span>
+                    </>
+                  )}
+                  {course.type === "mcq" && (
+                    <>
+                      {course.grade && (
+                        <span className="text-xs font-medium px-3 py-1 rounded-full bg-[#0b408e]/6 text-[#0b408e] border border-[#0b408e]/10">
+                          Grade {course.grade}
+                        </span>
+                      )}
+                      <span className="text-xs font-medium px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        MCQ Practice
                       </span>
                     </>
                   )}
@@ -146,6 +160,8 @@ export default async function CoursePage({ params }) {
                     {course.description ||
                       (course.type === "theory"
                         ? `A structured Grade ${course.grade} programme covering the full syllabus with theory lessons and practical exercises for ${course.title}.`
+                        : course.type === "mcq"
+                        ? `Practice and evaluate your knowledge with 20-minute MCQ test batches for ${course.title}.`
                         : "Comprehensive G.C.E O/L past paper discussions with model answers and exam techniques to maximise your score.")}
                   </p>
                 </div>
@@ -204,7 +220,7 @@ export default async function CoursePage({ params }) {
                 {/* Features */}
                 <div className="pt-5 border-t border-gray-100 flex flex-col gap-3">
                   <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
-                    What's included
+                    What&apos;s included
                   </p>
                   {[
                     { icon: ShieldCheck, label: "Full course access" },

@@ -14,6 +14,7 @@ import {
   GalleryVertical,
   FileCheck,
   Images,
+  FileQuestion,
 } from "lucide-react";
 
 const Sidebar = ({ activeComponent, setActiveComponent, role }) => {
@@ -22,6 +23,7 @@ const Sidebar = ({ activeComponent, setActiveComponent, role }) => {
   const navItems = [
     { key: "account", label: "My Account", icon: User, show: true },
     { key: "courses", label: "My Courses", icon: GraduationCap, show: true },
+    { key: "mcq-history", label: "MCQ Practice History", icon: FileQuestion, show: true },
     { key: "bank-slips", label: "Bank Slips", icon: FileCheck, show: true },
     { key: "all-courses", label: "Manage Courses", icon: GraduationCap, show: role === "admin" },
     { key: "lessons", label: "Manage Lessons", icon: LibraryBig, show: role === "admin" },

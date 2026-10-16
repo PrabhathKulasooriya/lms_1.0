@@ -70,14 +70,33 @@ export async function POST(request, { params }) {
 
       // 2. Create or activate enrollment if not present
       if (!existingEnrollment) {
-        await tx.enrollments.create({
-          data: {
-            user_id: bankSlip.user_id,
-            course_id: bankSlip.course_id,
-            expires_at: expiresAt,
-            is_active: true,
-          },
-        });
+        try {
+          await tx.enrollments.create({
+            data: {
+              user_id: bankSlip.user_id,
+              course_id: bankSlip.course_id,
+              expires_at: expiresAt,
+              is_active: true,
+            },
+          });
+        } catch (createErr) {
+          if (createErr?.code === "P2002") {
+            // Sequence desync recovery: resync sequence and retry
+            await tx.$executeRawUnsafe(
+              `SELECT setval(pg_get_serial_sequence('enrollments', 'id'), COALESCE((SELECT MAX(id) FROM enrollments), 1), true);`
+            );
+            await tx.enrollments.create({
+              data: {
+                user_id: bankSlip.user_id,
+                course_id: bankSlip.course_id,
+                expires_at: expiresAt,
+                is_active: true,
+              },
+            });
+          } else {
+            throw createErr;
+          }
+        }
       } else if (!existingEnrollment.is_active) {
         await tx.enrollments.update({
           where: { id: existingEnrollment.id },
@@ -87,7 +106,13 @@ export async function POST(request, { params }) {
     });
 
     // Format full course title with Grade / Type
-    const fullCourseTitle = `${bankSlip.course.title}${bankSlip.course.grade ? ` (Grade ${bankSlip.course.grade})` : ""}${bankSlip.course.type === "pastpaper" ? " (Past Paper)" : ""}`;
+    const courseTypeLabel =
+      bankSlip.course.type === "mcq"
+        ? " (MCQ Practice)"
+        : bankSlip.course.type === "pastpaper"
+        ? " (Past Paper)"
+        : "";
+    const fullCourseTitle = `${bankSlip.course.title}${bankSlip.course.grade ? ` (Grade ${bankSlip.course.grade})` : ""}${courseTypeLabel}`;
 
     // Send Approval Email to Student
     const userName = `${bankSlip.user.first_name || ""} ${bankSlip.user.last_name || ""}`.trim() || "Student";

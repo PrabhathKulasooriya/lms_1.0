@@ -65,6 +65,7 @@ export default async function Page({ searchParams }) {
 
   const theoryCourses = courses.filter((c) => c.type === "theory");
   const pastPaperCourses = courses.filter((c) => c.type === "pastpaper");
+  const mcqCourses = courses.filter((c) => c.type === "mcq");
 
   const gradesToShow = gradeParam ? [gradeParam] : GRADES;
   const coursesByGrade = gradesToShow.reduce((acc, g) => {
@@ -72,25 +73,39 @@ export default async function Page({ searchParams }) {
     return acc;
   }, {});
 
+  const mcqByGrade = gradesToShow.reduce((acc, g) => {
+    acc[g] = mcqCourses.filter((c) => c.grade === g);
+    return acc;
+  }, {});
+  const generalMcqCourses = mcqCourses.filter((c) => !c.grade);
+
   const showTheory = typeParam === null || typeParam === "theory";
-  const showPastPapers = typeParam === null || typeParam === "pastpaper";
+  const showPastPapers = (typeParam === null && !gradeParam) || typeParam === "pastpaper";
+  const showMcq = typeParam === null || typeParam === "mcq";
 
   const theoryCount = showTheory
     ? gradesToShow.reduce((sum, g) => sum + (coursesByGrade[g]?.length ?? 0), 0)
     : 0;
   const pastPaperCount = showPastPapers ? pastPaperCourses.length : 0;
-  const totalCount = theoryCount + pastPaperCount;
+  const mcqCount = showMcq
+    ? gradesToShow.reduce((sum, g) => sum + (mcqByGrade[g]?.length ?? 0), 0) + (!gradeParam ? generalMcqCourses.length : 0)
+    : 0;
+  const totalCount = theoryCount + pastPaperCount + mcqCount;
 
   const pageTitle =
     typeParam === "pastpaper"
       ? "Past Paper Discussions"
-      : typeParam === "theory" && gradeParam
-        ? `Grade ${gradeParam} Theory`
-        : typeParam === "theory"
-          ? "Theory Courses"
-          : gradeParam
-            ? `Grade ${gradeParam} Courses`
-            : "Explore All Courses";
+      : typeParam === "mcq" && gradeParam
+        ? `Grade ${gradeParam} MCQ Practice`
+        : typeParam === "mcq"
+          ? "MCQ Practice Courses"
+          : typeParam === "theory" && gradeParam
+            ? `Grade ${gradeParam} Theory`
+            : typeParam === "theory"
+              ? "Theory Courses"
+              : gradeParam
+                ? `Grade ${gradeParam} Courses`
+                : "Explore All Courses";
 
   return (
     <div className="min-h-screen w-full bg-slate-50 selection:bg-[#9fe03c] selection:text-[#0b408e]">
@@ -119,25 +134,29 @@ export default async function Page({ searchParams }) {
               Theory ({theoryCourses.length})
             </FilterPill>
             <FilterPill
+              href="/courses?type=mcq"
+              active={typeParam === "mcq" && !gradeParam}
+            >
+              MCQ Practice ({mcqCourses.length})
+            </FilterPill>
+            <FilterPill
               href="/courses?type=pastpaper"
               active={typeParam === "pastpaper"}
             >
               Past Papers ({pastPaperCourses.length})
             </FilterPill>
-            {(typeParam === null || typeParam === "theory") && (
-              <>
-                <span className="text-white/20 select-none mx-1">|</span>
-                {GRADES.map((g) => (
-                  <FilterPill
-                    key={g}
-                    href={`/courses?type=theory&grade=${g}`}
-                    active={gradeParam === g && typeParam === "theory"}
-                  >
-                    Grade {g}
-                  </FilterPill>
-                ))}
-              </>
-            )}
+            <span className="text-white/20 select-none mx-1">|</span>
+            {GRADES.map((g) => {
+              const targetHref = typeParam
+                ? `/courses?type=${typeParam}&grade=${g}`
+                : `/courses?grade=${g}`;
+              const isActive = gradeParam === g;
+              return (
+                <FilterPill key={g} href={targetHref} active={isActive}>
+                  Grade {g}
+                </FilterPill>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -167,13 +186,11 @@ export default async function Page({ searchParams }) {
                 const gradeCourses = coursesByGrade[g];
                 if (!gradeCourses || gradeCourses.length === 0) return null;
                 return (
-                  <section key={g}>
-                    {!gradeParam && (
-                      <SectionHeading
-                        label={`Grade ${g} Theory`}
-                        count={gradeCourses.length}
-                      />
-                    )}
+                  <section key={`theory-${g}`}>
+                    <SectionHeading
+                      label={`Grade ${g} Theory`}
+                      count={gradeCourses.length}
+                    />
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                       {gradeCourses.map((course) => (
                         <CourseCardClient key={course.id} course={course} />
@@ -183,8 +200,43 @@ export default async function Page({ searchParams }) {
                 );
               })}
 
+            {showMcq && (
+              <>
+                {gradesToShow.map((g) => {
+                  const gradeMcqs = mcqByGrade[g];
+                  if (!gradeMcqs || gradeMcqs.length === 0) return null;
+                  return (
+                    <section key={`mcq-${g}`}>
+                      <SectionHeading
+                        label={`Grade ${g} MCQ Practice`}
+                        count={gradeMcqs.length}
+                      />
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        {gradeMcqs.map((course) => (
+                          <CourseCardClient key={course.id} course={course} />
+                        ))}
+                      </div>
+                    </section>
+                  );
+                })}
+                {!gradeParam && generalMcqCourses.length > 0 && (
+                  <section key="mcq-general">
+                    <SectionHeading
+                      label="MCQ Practice Sets"
+                      count={generalMcqCourses.length}
+                    />
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                      {generalMcqCourses.map((course) => (
+                        <CourseCardClient key={course.id} course={course} />
+                      ))}
+                    </div>
+                  </section>
+                )}
+              </>
+            )}
+
             {showPastPapers && pastPaperCourses.length > 0 && (
-              <section>
+              <section key="pastpapers">
                 {typeParam !== "pastpaper" && (
                   <SectionHeading
                     label="Past Paper Discussions & Marking Schemes"

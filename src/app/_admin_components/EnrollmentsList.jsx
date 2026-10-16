@@ -187,6 +187,7 @@ const COURSE_TYPE_STYLES = {
   past_papers: "bg-amber-100  text-amber-700",
   pastpapers: "bg-amber-100  text-amber-700",
   revision: "bg-teal-100   text-teal-700",
+  mcq: "bg-emerald-100 text-emerald-700",
 };
 
 // ─── Course grade badge helper ────────────────────────────────────────────────

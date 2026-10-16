@@ -53,7 +53,11 @@ export default function CourseCardClient({ course }) {
             <div className="absolute top-4 right-4 z-10">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#071933]/80 backdrop-blur-md border border-white/20 text-[#9fe03c] text-xs font-medium tracking-wide shadow-sm">
                 <Tag size={12} />
-                {isPastPaper ? "Past Paper" : `Grade ${course.grade} • Theory`}
+                {isPastPaper
+                  ? "Past Paper"
+                  : course.type === "mcq"
+                  ? course.grade ? `Grade ${course.grade} • MCQ` : "MCQ Practice"
+                  : `Grade ${course.grade} • Theory`}
               </span>
             </div>
 

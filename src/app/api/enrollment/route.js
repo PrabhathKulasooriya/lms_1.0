@@ -168,19 +168,43 @@ export async function POST(request) {
     }
 
     // ── Create ────────────────────────────────────────────────────────────────
-    const enrollment = await prisma.enrollments.create({
-      data: {
-        user_id: userIdInt,
-        course_id: courseIdInt,
-        expires_at: finalExpiresAt,
-      },
-      include: {
-        user: {
-          select: { id: true, first_name: true, last_name: true, email: true },
+    let enrollment;
+    try {
+      enrollment = await prisma.enrollments.create({
+        data: {
+          user_id: userIdInt,
+          course_id: courseIdInt,
+          expires_at: finalExpiresAt,
         },
-        course: { select: { id: true, title: true, grade: true, type: true } },
-      },
-    });
+        include: {
+          user: {
+            select: { id: true, first_name: true, last_name: true, email: true },
+          },
+          course: { select: { id: true, title: true, grade: true, type: true } },
+        },
+      });
+    } catch (createErr) {
+      if (createErr?.code === "P2002") {
+        await prisma.$executeRawUnsafe(
+          `SELECT setval(pg_get_serial_sequence('enrollments', 'id'), COALESCE((SELECT MAX(id) FROM enrollments), 1), true);`
+        );
+        enrollment = await prisma.enrollments.create({
+          data: {
+            user_id: userIdInt,
+            course_id: courseIdInt,
+            expires_at: finalExpiresAt,
+          },
+          include: {
+            user: {
+              select: { id: true, first_name: true, last_name: true, email: true },
+            },
+            course: { select: { id: true, title: true, grade: true, type: true } },
+          },
+        });
+      } else {
+        throw createErr;
+      }
+    }
 
     return ok({ message: "Enrollment created successfully", enrollment }, 201);
   } catch (error) {

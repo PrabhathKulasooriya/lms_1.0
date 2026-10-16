@@ -14,14 +14,14 @@ export async function POST(request) {
       );
     }
 
-    if (!["theory", "pastpaper"].includes(type)) {
+    if (!["theory", "pastpaper", "mcq"].includes(type)) {
       return NextResponse.json(
         { success: false, message: "Invalid course type" },
         { status: 400 },
       );
     }
 
-    // Grade is required for theory, must be null for pastpaper
+    // Grade is required for theory, optional for mcq, must be null for pastpaper
     if (type === "theory") {
       if (!grade) {
         return NextResponse.json(
@@ -36,6 +36,14 @@ export async function POST(request) {
           { status: 400 },
         );
       }
+    } else if (type === "mcq" && grade) {
+      const gradeNum = parseInt(grade);
+      if (gradeNum < 1 || gradeNum > 13) {
+        return NextResponse.json(
+          { success: false, message: "Grade must be between 1 and 13" },
+          { status: 400 },
+        );
+      }
     }
 
     const newCourse = await prisma.courses.create({
@@ -43,7 +51,7 @@ export async function POST(request) {
         title,
         description: description || "", 
         type,
-        grade: type === "theory" ? parseInt(grade) : null,
+        grade: type === "theory" ? parseInt(grade) : type === "mcq" && grade ? parseInt(grade) : null,
         price: parseInt(price),
         is_published: false,
       },
@@ -76,7 +84,7 @@ export async function PUT(request) {
       );
     }
 
-    if (type && !["theory", "pastpaper"].includes(type)) {
+    if (type && !["theory", "pastpaper", "mcq"].includes(type)) {
       return NextResponse.json(
         { success: false, message: "Invalid course type" },
         { status: 400 },
@@ -84,6 +92,14 @@ export async function PUT(request) {
     }
 
     if (type === "theory" && grade !== undefined) {
+      const gradeNum = parseInt(grade);
+      if (gradeNum < 1 || gradeNum > 13) {
+        return NextResponse.json(
+          { success: false, message: "Grade must be between 1 and 13" },
+          { status: 400 },
+        );
+      }
+    } else if (type === "mcq" && grade !== undefined && grade !== null && grade !== "") {
       const gradeNum = parseInt(grade);
       if (gradeNum < 1 || gradeNum > 13) {
         return NextResponse.json(
@@ -106,7 +122,7 @@ export async function PUT(request) {
     if (type === "pastpaper") {
       data.grade = null; // always clear grade for pastpapers
     } else if (grade !== undefined) {
-      data.grade = parseInt(grade);
+      data.grade = grade ? parseInt(grade) : null;
     }
 
     if (Object.keys(data).length === 0) {

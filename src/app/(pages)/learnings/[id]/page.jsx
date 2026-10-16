@@ -28,7 +28,7 @@ const getCourseData = unstable_cache(
     });
   },
   ["course-details"], // Cache key
-  { tags: ["courses-data"], revalidate: 86400 } // Revalidate every 24 hours,
+  { tags: ["courses-data"], revalidate: 86400 } // Revalidate every 24 hours - 86400,
 );
 
 export default async function LearningPage({ params, searchParams }) {

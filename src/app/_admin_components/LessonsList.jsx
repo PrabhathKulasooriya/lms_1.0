@@ -17,8 +17,10 @@ import {
   Layers,
   ChevronDown,
   ChevronUp,
+  FileQuestion,
 } from "lucide-react";
 import { toast } from "react-hot-toast";
+import McqBatchManager from "./McqBatchManager";
 
 const PAGE_SIZE = 20;
 
@@ -175,6 +177,11 @@ const LessonForm = ({
   const deleteResource = (index) =>
     setResources((prev) => prev.filter((_, i) => i !== index));
 
+  const formCourse = courses.find(
+    (c) => String(c.id) === String(form.course_id),
+  );
+  const isMcq = formCourse?.type === "mcq";
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!form.title.trim()) {
@@ -185,14 +192,17 @@ const LessonForm = ({
       toast.error("Please select a course");
       return;
     }
-    for (const r of resources) {
-      if (!r.title.trim()) {
-        toast.error("Every resource needs a title");
-        return;
-      }
-      if (!r.file_url.trim()) {
-        toast.error("Every resource needs a URL");
-        return;
+
+    if (!isMcq) {
+      for (const r of resources) {
+        if (!r.title.trim()) {
+          toast.error("Every resource needs a title");
+          return;
+        }
+        if (!r.file_url.trim()) {
+          toast.error("Every resource needs a URL");
+          return;
+        }
       }
     }
 
@@ -200,12 +210,16 @@ const LessonForm = ({
       course_id: parseInt(form.course_id),
       title: form.title.trim(),
       sequence: parseInt(form.sequence) || 1,
-      resources: resources.map((r, i) => ({ ...r, sequence: i })),
+      resources: isMcq ? [] : resources.map((r, i) => ({ ...r, sequence: i })),
     });
   };
 
   const base =
     "w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all";
+
+  const theoryCourses = courses.filter((c) => c.type === "theory");
+  const mcqCourses = courses.filter((c) => c.type === "mcq");
+  const pastPaperCourses = courses.filter((c) => c.type === "pastpaper");
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
@@ -228,13 +242,33 @@ const LessonForm = ({
               className={`${base} pl-9 bg-white`}
             >
               <option value="">Select course…</option>
-              {courses.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.title}
-                  {c.grade ? ` · G${c.grade}` : ""}
-                  {c.type ? ` [${c.type.replace(/_/g, " ")}]` : ""}
-                </option>
-              ))}
+              {theoryCourses.length > 0 && (
+                <optgroup label="Theory Courses">
+                  {theoryCourses.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.title} {c.grade ? ` · G${c.grade}` : ""}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
+              {mcqCourses.length > 0 && (
+                <optgroup label="MCQ Practice Courses">
+                  {mcqCourses.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.title} {c.grade ? ` · G${c.grade}` : ""}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
+              {pastPaperCourses.length > 0 && (
+                <optgroup label="Past Paper Courses">
+                  {pastPaperCourses.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.title}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
             </select>
           </div>
         </div>
@@ -250,7 +284,7 @@ const LessonForm = ({
             type="text"
             value={form.title}
             onChange={(e) => setForm((p) => ({ ...p, title: e.target.value }))}
-            placeholder="e.g. Introduction to Algebra"
+            placeholder={isMcq ? "e.g. Unit 01: Computer Hardware & Peripherals" : "e.g. Introduction to Algebra"}
             className={base}
           />
         </div>
@@ -276,45 +310,57 @@ const LessonForm = ({
         </div>
       </div>
 
-      {/* Resources section */}
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <label className="text-sm font-medium text-gray-700">Resources</label>
-          <span className="text-xs text-gray-400">
-            {resources.length} file{resources.length !== 1 ? "s" : ""}
-          </span>
+      {/* Resources section OR MCQ notice */}
+      {isMcq ? (
+        <div className="p-4 bg-emerald-50/70 border border-emerald-200/80 rounded-2xl space-y-1.5">
+          <div className="flex items-center gap-2 text-emerald-800 font-semibold text-xs uppercase tracking-wide">
+            <FileQuestion size={16} className="text-emerald-600" />
+            MCQ Course Lesson
+          </div>
+          <p className="text-xs text-emerald-700 leading-relaxed">
+            This lesson is for <strong>MCQ assessments only</strong>. Video/PDF resources are not needed. After saving this lesson, you can immediately add 10-question MCQ batches to it.
+          </p>
         </div>
+      ) : (
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <label className="text-sm font-medium text-gray-700">Resources</label>
+            <span className="text-xs text-gray-400">
+              {resources.length} file{resources.length !== 1 ? "s" : ""}
+            </span>
+          </div>
 
-        <div className="space-y-2">
-          {resources.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-8 border-2 border-dashed border-gray-200 rounded-xl text-gray-400">
-              <Layers size={24} className="mb-2 opacity-40" />
-              <p className="text-sm font-medium">No resources yet</p>
-              <p className="text-xs mt-0.5 opacity-70">
-                Add video or PDF links below
-              </p>
-            </div>
-          )}
-          {resources.map((r, i) => (
-            <ResourceRow
-              key={i}
-              resource={r}
-              index={i}
-              onChange={updateResource}
-              onDelete={deleteResource}
-            />
-          ))}
+          <div className="space-y-2">
+            {resources.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-8 border-2 border-dashed border-gray-200 rounded-xl text-gray-400">
+                <Layers size={24} className="mb-2 opacity-40" />
+                <p className="text-sm font-medium">No resources yet</p>
+                <p className="text-xs mt-0.5 opacity-70">
+                  Add video or PDF links below
+                </p>
+              </div>
+            )}
+            {resources.map((r, i) => (
+              <ResourceRow
+                key={i}
+                resource={r}
+                index={i}
+                onChange={updateResource}
+                onDelete={deleteResource}
+              />
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={addResource}
+            className="mt-2.5 w-full flex items-center justify-center gap-2 py-2.5 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl border border-dashed border-blue-200 transition-colors"
+          >
+            <Plus size={16} />
+            Add Resource
+          </button>
         </div>
-
-        <button
-          type="button"
-          onClick={addResource}
-          className="mt-2.5 w-full flex items-center justify-center gap-2 py-2.5 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl border border-dashed border-blue-200 transition-colors"
-        >
-          <Plus size={16} />
-          Add Resource
-        </button>
-      </div>
+      )}
 
       {/* Form actions */}
       <div className="flex gap-3 pt-1">
@@ -328,12 +374,18 @@ const LessonForm = ({
         <button
           type="submit"
           disabled={loading}
-          className="flex-1 py-2.5 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60 rounded-xl transition-colors"
+          className={`flex-1 py-2.5 text-sm font-medium text-white disabled:opacity-60 rounded-xl transition-colors ${
+            isMcq
+              ? "bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-100"
+              : "bg-blue-600 hover:bg-blue-700 shadow-md shadow-blue-100"
+          }`}
         >
           {loading
             ? "Processing…"
             : isCreate
-              ? "Create Lesson"
+              ? isMcq
+                ? "Create Lesson & Add MCQ Batch"
+                : "Create Lesson"
               : "Save Changes"}
         </button>
       </div>
@@ -388,10 +440,55 @@ const LessonList = ({ courses = [] }) => {
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [actionLoading, setActionLoading] = useState(false);
 
+  const [mcqModalLesson, setMcqModalLesson] = useState(null);
+  const [editingBatch, setEditingBatch] = useState(null); // { batch, lesson }
+  const [mcqBatchesMap, setMcqBatchesMap] = useState({});
+
+  const loadLessonBatches = async (lessonId) => {
+    try {
+      const res = await fetch(`/api/admin/mcq-batches?lessonId=${lessonId}`);
+      const data = await res.json();
+      if (data.success) {
+        setMcqBatchesMap((prev) => ({ ...prev, [lessonId]: data.batches || [] }));
+      }
+    } catch (err) {
+      console.error("Failed to load MCQ batches:", err);
+    }
+  };
+
+  const handleDeleteBatch = async (batchId, lessonId, e) => {
+    if (e) e.stopPropagation();
+    if (!window.confirm("Are you sure you want to delete this MCQ batch?")) return;
+    try {
+      const res = await fetch(`/api/admin/mcq-batches?id=${batchId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success("MCQ Batch deleted successfully");
+        loadLessonBatches(lessonId);
+      } else {
+        toast.error(data.message || "Failed to delete batch");
+      }
+    } catch {
+      toast.error("Failed to delete batch");
+    }
+  };
+
   const totalPages = Math.ceil(total / PAGE_SIZE);
   const selectedCourse = courses.find(
     (c) => String(c.id) === String(selectedCourseId),
   );
+  const isMcqCourse = selectedCourse?.type === "mcq";
+
+  // Preload batches when viewing an MCQ course
+  useEffect(() => {
+    if (isMcqCourse && lessons.length > 0) {
+      lessons.forEach((l) => {
+        loadLessonBatches(l.id);
+      });
+    }
+  }, [isMcqCourse, lessons]);
 
   // Debounce search
   useEffect(() => {
@@ -428,16 +525,18 @@ const LessonList = ({ courses = [] }) => {
   }, [selectedCourseId, page, debouncedSearch]);
 
   useEffect(() => {
-    loadLessons();
+    Promise.resolve().then(() => loadLessons());
   }, [loadLessons]);
 
   // CRUD handlers
   const handleCreate = async (formData) => {
     setActionLoading(true);
     try {
+      let createdLesson = null;
       await toast.promise(
         fetchJSON("/api/lessons", { method: "POST", body: formData }).then(
           (d) => {
+            createdLesson = d;
             if (
               String(formData.course_id) === String(selectedCourseId) ||
               !selectedCourseId
@@ -455,6 +554,12 @@ const LessonList = ({ courses = [] }) => {
         },
       );
       setCreateModalOpen(false);
+
+      // If created in an MCQ course, immediately open the MCQ batch modal!
+      const targetCourse = courses.find((c) => String(c.id) === String(formData.course_id));
+      if (targetCourse?.type === "mcq" && createdLesson) {
+        setMcqModalLesson(createdLesson);
+      }
     } finally {
       setActionLoading(false);
     }
@@ -485,12 +590,11 @@ const LessonList = ({ courses = [] }) => {
   };
 
   const handleDelete = (lesson) => {
-    if (
-      !window.confirm(
-        `Delete "${lesson.title}" and all its resources? This cannot be undone.`,
-      )
-    )
-      return;
+    const promptMsg = isMcqCourse
+      ? `Delete "${lesson.title}" and all its MCQ test batches? This cannot be undone.`
+      : `Delete "${lesson.title}" and all its resources? This cannot be undone.`;
+
+    if (!window.confirm(promptMsg)) return;
 
     toast.promise(
       fetchJSON(`/api/lessons/${lesson.id}`, { method: "DELETE" }).then((d) => {
@@ -516,25 +620,39 @@ const LessonList = ({ courses = [] }) => {
     handleDelete(lesson);
   };
 
+  const theoryCourses = courses.filter((c) => c.type === "theory");
+  const mcqCourses = courses.filter((c) => c.type === "mcq");
+  const pastPaperCourses = courses.filter((c) => c.type === "pastpaper");
+
   return (
     <>
       <div className="pt-2 w-full px-4 md:px-8 pb-8">
         {/* ── Toolbar ── */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
           <div className="flex items-center gap-2">
-            <BookOpen size={24} className="text-blue-600" />
+            <BookOpen size={24} className={isMcqCourse ? "text-emerald-600" : "text-blue-600"} />
             <h1 className="text-xl font-bold text-gray-900">Lessons</h1>
-            <span className="ml-1 px-2 py-0.5 text-xs font-semibold text-blue-700 bg-blue-100 rounded-full">
+            <span
+              className={`ml-1 px-2 py-0.5 text-xs font-semibold rounded-full ${
+                isMcqCourse
+                  ? "text-emerald-700 bg-emerald-100"
+                  : "text-blue-700 bg-blue-100"
+              }`}
+            >
               {total}
             </span>
           </div>
           <div className="flex items-center gap-3">
             <button
               onClick={() => setCreateModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-700 transition-all shadow-md shadow-blue-100"
+              className={`flex items-center gap-2 px-4 py-2 text-white text-sm font-semibold rounded-xl transition-all shadow-md ${
+                isMcqCourse
+                  ? "bg-emerald-600 hover:bg-emerald-700 shadow-emerald-100"
+                  : "bg-blue-600 hover:bg-blue-700 shadow-blue-100"
+              }`}
             >
               <SquarePlus size={18} />
-              Add Lesson
+              {isMcqCourse ? "Add MCQ Lesson" : "Add Lesson"}
             </button>
             <div className="relative">
               <Search
@@ -565,25 +683,53 @@ const LessonList = ({ courses = [] }) => {
                 setPage(1);
                 setExpandedId(null);
               }}
-              className="pl-9 pr-8 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all appearance-none min-w-[240px]"
+              className="pl-9 pr-8 py-2 text-sm border border-gray-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition-all appearance-none min-w-[260px]"
             >
               <option value="">— Select a course —</option>
-              {courses.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.title}
-                  {c.grade ? ` - G${c.grade} - ` : ""}
-                  {c.type ? c.type.charAt(0).toUpperCase() + c.type.slice(1).replace(/_/g, " ") : ""}
-                </option>
-              ))}
+              {theoryCourses.length > 0 && (
+                <optgroup label="Theory Courses">
+                  {theoryCourses.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.title} {c.grade ? `· Grade ${c.grade}` : ""}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
+              {mcqCourses.length > 0 && (
+                <optgroup label="MCQ Practice Courses">
+                  {mcqCourses.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.title} {c.grade ? `· Grade ${c.grade}` : ""} [MCQ]
+                    </option>
+                  ))}
+                </optgroup>
+              )}
+              {pastPaperCourses.length > 0 && (
+                <optgroup label="Past Paper Courses">
+                  {pastPaperCourses.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.title} [Past Paper]
+                    </option>
+                  ))}
+                </optgroup>
+              )}
             </select>
           </div>
           {selectedCourse && (
-            <span className="text-xs text-gray-400">
-              Showing lessons for{" "}
-              <span className="font-semibold text-gray-600">
-                {selectedCourse.grade ? `G${selectedCourse.grade}` : ""}{" "}
-                {selectedCourse.title}{" "}
-                {selectedCourse.type ? `[${selectedCourse.type}]` : ""}
+            <span className="text-xs text-gray-500 flex items-center gap-1.5">
+              <span>Showing:</span>
+              <span
+                className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                  isMcqCourse
+                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                    : selectedCourse.type === "pastpaper"
+                    ? "bg-purple-50 text-purple-700 border border-purple-200"
+                    : "bg-blue-50 text-blue-700 border border-blue-200"
+                }`}
+              >
+                {selectedCourse.grade ? `G${selectedCourse.grade} ` : ""}
+                {selectedCourse.title}
+                {isMcqCourse ? " • MCQ" : selectedCourse.type === "pastpaper" ? " • Past Paper" : " • Theory"}
               </span>
             </span>
           )}
@@ -595,16 +741,12 @@ const LessonList = ({ courses = [] }) => {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-100">
-                  {["#", "Title", "Resources", "Actions"].map((h, i) => (
-                    <th
-                      key={h}
-                      className={`px-5 py-3.5 font-semibold text-gray-600 ${
-                        i === 3 ? "text-right" : "text-left"
-                      }`}
-                    >
-                      {h}
-                    </th>
-                  ))}
+                  <th className="px-5 py-3.5 font-semibold text-gray-600 text-left w-14">#</th>
+                  <th className="px-5 py-3.5 font-semibold text-gray-600 text-left">Lesson Title</th>
+                  <th className="px-5 py-3.5 font-semibold text-gray-600 text-left">
+                    {isMcqCourse ? "MCQ Batches" : "Resources"}
+                  </th>
+                  <th className="px-5 py-3.5 font-semibold text-gray-600 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-50">
@@ -634,19 +776,28 @@ const LessonList = ({ courses = [] }) => {
                   lessons.map((lesson) => {
                     const isExpanded = expandedId === lesson.id;
                     const resourceCount = lesson.resources?.length ?? 0;
+                    const batchCount = mcqBatchesMap[lesson.id]?.length ?? 0;
 
                     return (
                       <React.Fragment key={lesson.id}>
                         {/* ── Lesson row ── */}
                         <tr
                           className="hover:bg-gray-50/70 transition-colors cursor-pointer"
-                          onClick={() =>
-                            setExpandedId(isExpanded ? null : lesson.id)
-                          }
+                          onClick={() => {
+                            const next = isExpanded ? null : lesson.id;
+                            setExpandedId(next);
+                            if (next && isMcqCourse) loadLessonBatches(next);
+                          }}
                         >
                           {/* Sequence */}
                           <td className="px-5 py-3.5 w-14">
-                            <span className="inline-flex w-7 h-7 items-center justify-center rounded-full bg-blue-100 text-blue-700 text-xs font-bold">
+                            <span
+                              className={`inline-flex w-7 h-7 items-center justify-center rounded-full text-xs font-bold ${
+                                isMcqCourse
+                                  ? "bg-emerald-100 text-emerald-700"
+                                  : "bg-blue-100 text-blue-700"
+                              }`}
+                            >
                               {lesson.sequence}
                             </span>
                           </td>
@@ -658,43 +809,63 @@ const LessonList = ({ courses = [] }) => {
                                 {lesson.title}
                               </p>
                               {isExpanded ? (
-                                <ChevronUp
-                                  size={14}
-                                  className="text-gray-400"
-                                />
+                                <ChevronUp size={14} className="text-gray-400" />
                               ) : (
-                                <ChevronDown
-                                  size={14}
-                                  className="text-gray-400"
-                                />
+                                <ChevronDown size={14} className="text-gray-400" />
                               )}
                             </div>
                           </td>
 
-                          {/* Resource pills */}
+                          {/* Column 3: MCQ Batches OR Resources */}
                           <td className="px-5 py-3.5">
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              <span className="text-xs text-gray-400 mr-1">
-                                {resourceCount}{" "}
-                                {resourceCount === 1 ? "file" : "files"}
-                              </span>
-                              {lesson.resources?.slice(0, 4).map((r) => (
-                                <ResourceTypeBadge key={r.id} type={r.type} />
-                              ))}
-                              {resourceCount > 4 && (
-                                <span className="text-xs text-gray-400">
-                                  +{resourceCount - 4}
+                            {isMcqCourse ? (
+                              batchCount > 0 ? (
+                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                                  <FileQuestion size={13} className="text-emerald-600" />
+                                  {batchCount} {batchCount === 1 ? "Batch" : "Batches"} ({batchCount * 10} Qs)
                                 </span>
-                              )}
-                            </div>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs text-gray-400 bg-gray-100">
+                                  0 Batches
+                                </span>
+                              )
+                            ) : (
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="text-xs text-gray-400 mr-1">
+                                  {resourceCount}{" "}
+                                  {resourceCount === 1 ? "file" : "files"}
+                                </span>
+                                {lesson.resources?.slice(0, 4).map((r) => (
+                                  <ResourceTypeBadge key={r.id} type={r.type} />
+                                ))}
+                                {resourceCount > 4 && (
+                                  <span className="text-xs text-gray-400">
+                                    +{resourceCount - 4}
+                                  </span>
+                                )}
+                              </div>
+                            )}
                           </td>
 
                           {/* Actions */}
                           <td className="px-4 py-3">
                             <div
-                              className="flex items-center justify-end gap-1"
+                              className="flex items-center justify-end gap-1.5"
                               onClick={(e) => e.stopPropagation()}
                             >
+                              {isMcqCourse && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setMcqModalLesson(lesson);
+                                  }}
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-colors"
+                                  title="Add MCQ Batch"
+                                >
+                                  <Plus size={13} />
+                                  <span>Add Batch</span>
+                                </button>
+                              )}
                               <button
                                 onClick={(e) => openEdit(lesson, e)}
                                 className="p-1.5 rounded-lg text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
@@ -713,57 +884,137 @@ const LessonList = ({ courses = [] }) => {
                           </td>
                         </tr>
 
-                        {/* ── Expanded resources ── */}
-                        {isExpanded && resourceCount > 0 && (
-                          <tr className="bg-blue-50/25">
+                        {/* ── Expanded row (Strict Separation: Resources for Theory, Batches for MCQ) ── */}
+                        {isExpanded && (
+                          <tr className={isMcqCourse ? "bg-emerald-50/20" : "bg-blue-50/25"}>
                             <td />
-                            <td colSpan={3} className="px-5 pb-4 pt-2">
-                              <div className="space-y-1.5">
-                                {lesson.resources.map((r, i) => {
-                                  const { Icon, color } = getResourceType(
-                                    r.type,
-                                  );
-                                  return (
-                                    <div
-                                      key={r.id}
-                                      className="flex items-center gap-3 text-xs text-gray-600 group"
-                                    >
-                                      <span className="w-5 h-5 shrink-0 rounded-full bg-gray-200 flex items-center justify-center font-semibold text-gray-500 text-[10px]">
-                                        {i + 1}
+                            <td colSpan={3} className="px-5 pb-5 pt-3 space-y-4">
+                              {isMcqCourse ? (
+                                /* MCQ Batches Section ONLY */
+                                <div>
+                                  <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center gap-2">
+                                      <FileQuestion size={16} className="text-emerald-600" />
+                                      <span className="text-xs font-bold text-gray-800 uppercase tracking-wider">
+                                        MCQ Assessment Batches ({mcqBatchesMap[lesson.id]?.length || 0})
                                       </span>
-                                      <Icon
-                                        size={13}
-                                        className={`shrink-0 ${color}`}
-                                      />
-                                      <span className="font-medium text-gray-700 truncate flex-1">
-                                        {r.title}
-                                      </span>
-                                      <a
-                                        href={r.file_url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="ml-auto flex items-center gap-1 text-blue-500 hover:text-blue-700 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                                        onClick={(e) => e.stopPropagation()}
-                                      >
-                                        <ExternalLink size={11} />
-                                        Open
-                                      </a>
                                     </div>
-                                  );
-                                })}
-                              </div>
-                            </td>
-                          </tr>
-                        )}
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setMcqModalLesson(lesson);
+                                      }}
+                                      className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-xs transition-colors"
+                                    >
+                                      <Plus size={14} />
+                                      Add MCQ Batch (10 Questions)
+                                    </button>
+                                  </div>
 
-                        {isExpanded && resourceCount === 0 && (
-                          <tr className="bg-blue-50/20">
-                            <td />
-                            <td
-                              colSpan={3}
-                              className="px-5 pb-4 pt-2 text-xs text-gray-400 italic"
-                            >
-                              No resources attached to this lesson.
+                                  {mcqBatchesMap[lesson.id]?.length > 0 ? (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                      {mcqBatchesMap[lesson.id].map((batch) => (
+                                        <div
+                                          key={batch.id}
+                                          className="p-3 bg-white rounded-xl border border-emerald-100 flex items-center justify-between gap-3 shadow-xs"
+                                        >
+                                          <div className="min-w-0">
+                                            <div className="flex items-center gap-2">
+                                              <span className="text-xs font-bold text-gray-900 truncate">
+                                                {batch.title}
+                                              </span>
+                                              <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-emerald-50 text-emerald-700 rounded-md">
+                                                Batch #{batch.sequence}
+                                              </span>
+                                            </div>
+                                            <div className="text-[11px] text-gray-500 mt-1">
+                                              {batch.totalQuestions || 10} Questions • 20 Minutes • {batch.attemptsCount || 0} Attempts
+                                            </div>
+                                          </div>
+                                          <div className="flex items-center gap-1 shrink-0">
+                                            <button
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                setEditingBatch({ batch, lesson });
+                                              }}
+                                              className="p-1.5 rounded-lg text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-colors"
+                                              title="Edit Batch & Questions"
+                                            >
+                                              <Edit size={14} />
+                                            </button>
+                                            <button
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleDeleteBatch(batch.id, lesson.id, e);
+                                              }}
+                                              className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                                              title="Delete Batch"
+                                            >
+                                              <Trash2 size={14} />
+                                            </button>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <div className="text-center py-6 border-2 border-dashed border-emerald-200/60 rounded-xl bg-white/50">
+                                      <FileQuestion size={24} className="mx-auto text-emerald-400 mb-1.5 opacity-60" />
+                                      <p className="text-xs font-medium text-gray-600">No MCQ batches added to this lesson yet.</p>
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setMcqModalLesson(lesson);
+                                        }}
+                                        className="mt-2 text-xs font-semibold text-emerald-600 hover:text-emerald-700 underline"
+                                      >
+                                        Click here to add the first batch of 10 questions
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
+                              ) : (
+                                /* Resources Section ONLY (Theory / Pastpaper) */
+                                <div>
+                                  <div className="flex items-center justify-between mb-2">
+                                    <span className="text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                      Lesson Resources ({resourceCount})
+                                    </span>
+                                  </div>
+                                  {resourceCount > 0 ? (
+                                    <div className="space-y-1.5">
+                                      {lesson.resources.map((r, i) => {
+                                        const { Icon, color } = getResourceType(r.type);
+                                        return (
+                                          <div
+                                            key={r.id}
+                                            className="flex items-center gap-3 text-xs text-gray-600 group bg-white/70 p-2 rounded-lg border border-gray-100"
+                                          >
+                                            <span className="w-5 h-5 shrink-0 rounded-full bg-gray-200 flex items-center justify-center font-semibold text-gray-500 text-[10px]">
+                                              {i + 1}
+                                            </span>
+                                            <Icon size={13} className={`shrink-0 ${color}`} />
+                                            <span className="font-medium text-gray-700 truncate flex-1">
+                                              {r.title}
+                                            </span>
+                                            <a
+                                              href={r.file_url}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              className="ml-auto flex items-center gap-1 text-blue-500 hover:text-blue-700 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                              onClick={(e) => e.stopPropagation()}
+                                            >
+                                              <ExternalLink size={11} />
+                                              Open
+                                            </a>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  ) : (
+                                    <p className="text-xs text-gray-400 italic">No resources attached to this lesson.</p>
+                                  )}
+                                </div>
+                              )}
                             </td>
                           </tr>
                         )}
@@ -839,7 +1090,7 @@ const LessonList = ({ courses = [] }) => {
       <Modal
         isOpen={createModalOpen}
         onClose={() => setCreateModalOpen(false)}
-        title="Add Lesson"
+        title={isMcqCourse ? "Add MCQ Lesson" : "Add Lesson"}
       >
         <LessonForm
           isCreate
@@ -858,7 +1109,12 @@ const LessonList = ({ courses = [] }) => {
           setEditModalOpen(false);
           setSelectedLesson(null);
         }}
-        title="Edit Lesson"
+        title={
+          selectedLesson &&
+          courses.find((c) => String(c.id) === String(selectedLesson.course_id))?.type === "mcq"
+            ? "Edit MCQ Lesson"
+            : "Edit Lesson"
+        }
       >
         {selectedLesson && (
           <LessonForm
@@ -874,6 +1130,27 @@ const LessonList = ({ courses = [] }) => {
           />
         )}
       </Modal>
+
+      {/* ── Admin MCQ Batch Creator & Editor Modal ── */}
+      <McqBatchManager
+        isOpen={!!mcqModalLesson || !!editingBatch}
+        lesson={editingBatch ? editingBatch.lesson : mcqModalLesson}
+        batchToEdit={editingBatch ? editingBatch.batch : null}
+        onClose={() => {
+          setMcqModalLesson(null);
+          setEditingBatch(null);
+        }}
+        onBatchSaved={() => {
+          const targetLessonId = editingBatch?.lesson?.id || mcqModalLesson?.id;
+          if (targetLessonId) loadLessonBatches(targetLessonId);
+          setMcqModalLesson(null);
+          setEditingBatch(null);
+        }}
+        onBatchCreated={() => {
+          if (mcqModalLesson) loadLessonBatches(mcqModalLesson.id);
+          setMcqModalLesson(null);
+        }}
+      />
     </>
   );
 };

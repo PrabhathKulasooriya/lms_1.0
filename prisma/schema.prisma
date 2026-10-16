@@ -31,6 +31,7 @@ model users {
   enrollments        enrollments[]
   verificationTokens VerificationToken[]
   bank_slips         bank_slips[]
+  mcq_results        mcq_results[]
 }
 
 enum Gender {
@@ -44,6 +45,7 @@ enum Gender {
 enum CourseType {
   theory
   pastpaper
+  mcq
 }
 
 model courses {
@@ -74,6 +76,7 @@ model lessons {
   
   course      courses     @relation(fields: [course_id], references: [id], onDelete: Cascade)
   resources   resources[]
+  mcq_batches mcq_batches[]
 }
 
 model resources {
@@ -210,3 +213,47 @@ model gallery_categories {
   name       String    @unique @db.VarChar(100)
   created_at DateTime? @default(now()) @db.Timestamptz(6)
 }
+
+// --- 5. MCQ ASSESSMENTS ---
+
+model mcq_batches {
+  id          Int           @id @default(autoincrement())
+  lesson_id   Int
+  title       String        @db.VarChar(255)
+  sequence    Int           @default(1)
+  created_at  DateTime?     @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime?     @updatedAt @db.Timestamptz(6)
+
+  lesson      lessons       @relation(fields: [lesson_id], references: [id], onDelete: Cascade)
+  questions   questions[]
+  results     mcq_results[]
+}
+
+model questions {
+  id             Int         @id @default(autoincrement())
+  batch_id       Int
+  question_text  String      @db.Text
+  option_a       String      @db.Text
+  option_b       String      @db.Text
+  option_c       String      @db.Text
+  option_d       String      @db.Text
+  correct_option String      @db.VarChar(10) // 'A', 'B', 'C', or 'D'
+  created_at     DateTime?   @default(now()) @db.Timestamptz(6)
+
+  batch          mcq_batches @relation(fields: [batch_id], references: [id], onDelete: Cascade)
+}
+
+model mcq_results {
+  id              Int         @id @default(autoincrement())
+  user_id         Int
+  batch_id        Int
+  score           Int
+  total_questions Int         @default(10)
+  percentage      Float
+  time_taken      Int         // time in seconds
+  user_answers    Json        // e.g. { "questionId": "selectedOption" }
+  completed_at    DateTime?   @default(now()) @db.Timestamptz(6)
+
+  user            users       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  batch           mcq_batches @relation(fields: [batch_id], references: [id], onDelete: Cascade)
+}

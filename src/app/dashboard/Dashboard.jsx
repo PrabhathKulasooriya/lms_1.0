@@ -14,6 +14,7 @@ import GlobalExpirySettings from "../_admin_components/GlobalExpirySettings";
 import BankSlipReview from "../_admin_components/BankSlipReview";
 import PendingSlips from "../_user_components/PendingSlips";
 import GalleryManager from "../_admin_components/GalleryManager";
+import McqHistory from "../_user_components/McqHistory";
 
 const Dashboard = ({ courses = [], user = null, enrollment = [] }) => {
   const [activeComponent, setActiveComponent] = useState("account");
@@ -81,6 +82,8 @@ const Dashboard = ({ courses = [], user = null, enrollment = [] }) => {
           {!isAdmin && activeComponent === "courses" && (
             <UserCourseList enrollments={enrollment} />
           )}
+
+          {activeComponent === "mcq-history" && <McqHistory />}
         </div>
       </main>
     </div>

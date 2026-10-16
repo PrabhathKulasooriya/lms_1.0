@@ -58,6 +58,7 @@ const CourseForm = ({
   });
 
   const istheory = form.type === "theory";
+  const showGrade = form.type === "theory" || form.type === "mcq";
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -79,7 +80,7 @@ const CourseForm = ({
       toast.error("Grade is required for theory courses");
       return;
     }
-    if (istheory && (Number(form.grade) < 1 || Number(form.grade) > 13)) {
+    if (form.grade && (Number(form.grade) < 1 || Number(form.grade) > 13)) {
       toast.error("Grade must be between 1 and 13");
       return;
     }
@@ -91,7 +92,7 @@ const CourseForm = ({
       title: form.title.trim(),
       description: form.description.trim() || null, // 👈 Cleans up empty inputs to null for Prisma
       type: form.type,
-      grade: istheory ? Number(form.grade) : null,
+      grade: form.type === "pastpaper" ? null : form.grade ? Number(form.grade) : null,
       price: Number(form.price),
     });
   };
@@ -141,32 +142,32 @@ const CourseForm = ({
         <label className="block text-sm font-medium text-gray-700 mb-1.5">
           Course Type
         </label>
-        <div className="grid grid-cols-2 gap-2">
-          {["theory", "pastpaper"].map((t) => (
+        <div className="grid grid-cols-3 gap-2">
+          {["theory", "pastpaper", "mcq"].map((t) => (
             <button
               key={t}
               type="button"
               onClick={() =>
                 handleChange({ target: { name: "type", value: t } })
               }
-              className={`py-2.5 text-sm font-medium rounded-xl border transition-all ${
+              className={`py-2.5 text-xs font-semibold rounded-xl border transition-all ${
                 form.type === t
-                  ? "bg-blue-600 text-white border-blue-600"
-                  : "bg-white text-gray-500 border-gray-200 hover:border-blue-300"
+                  ? "bg-blue-600 text-white border-blue-600 shadow-xs"
+                  : "bg-white text-gray-600 border-gray-200 hover:border-blue-300"
               }`}
             >
-              {t === "theory" ? "Theory" : "Past Paper"}
+              {t === "theory" ? "Theory" : t === "pastpaper" ? "Past Paper" : "MCQ"}
             </button>
           ))}
         </div>
       </div>
 
       {/* Grade + Price row — grade hidden for pastpaper */}
-      <div className={`grid gap-3 ${istheory ? "grid-cols-2" : "grid-cols-1"}`}>
-        {istheory && (
+      <div className={`grid gap-3 ${showGrade ? "grid-cols-2" : "grid-cols-1"}`}>
+        {showGrade && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Grade
+              Grade {form.type === "mcq" && <span className="text-xs text-gray-400 font-normal">(Optional)</span>}
             </label>
             <div className="relative">
               <Hash
@@ -442,14 +443,18 @@ const CourseList = ({ initialCourses }) => {
                       </td>
                       <td className="px-5 py-3.5">
                         <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
                             course.type === "pastpaper"
                               ? "bg-purple-100 text-purple-700"
+                              : course.type === "mcq"
+                              ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
                               : "bg-blue-100 text-blue-700"
                           }`}
                         >
                           {course.type === "pastpaper"
                             ? "Past Paper"
+                            : course.type === "mcq"
+                            ? "MCQ"
                             : "Theory"}
                         </span>
                       </td>
