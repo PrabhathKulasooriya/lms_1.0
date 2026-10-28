@@ -137,6 +137,7 @@ export default function YouTubePlayer({ url, title, onReady, onError }) {
     fs: "0",
     iv_load_policy: "3",
     playsinline: "1",
+    cc_load_policy: "0", // disable captions / subtitles by default
   });
 
   // CSS fullscreen layout. If the phone is held upright, rotate the player
