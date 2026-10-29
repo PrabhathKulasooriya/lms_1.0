@@ -189,7 +189,7 @@ export default async function CoursePage({ params }) {
 
                 {/* CTA */}
                 <div className="flex flex-col gap-2.5">
-                  {session && userRole === "admin" && (
+                  
                     <PurchaseButton
                       courseId={course.id}
                       userId={userId}
@@ -197,13 +197,6 @@ export default async function CoursePage({ params }) {
                       title={course.title}
                       isEnrolled={isEnrolled}
                     />
-                  )}
-
-                  {!session || userRole !== "admin" ? (
-                    <p className="flex items-center justify-center gap-2 py-2.5 rounded-2xl text-sm font-medium text-[#ffffff] border border-[#0b408e]/20  bg-[#0b408e] transition-all cursor-not-allowed">
-                      Available Soon!
-                    </p>
-                  ) : null}
 
                   {isEnrolled && (
                     <Link
