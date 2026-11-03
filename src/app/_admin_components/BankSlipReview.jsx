@@ -236,10 +236,7 @@ export default function BankSlipReview() {
       {/* Header Banner */}
       <div className="bg-white rounded-3xl p-6 md:p-8 border border-slate-200/80 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0b408e]/10 text-[#0b408e] text-xs font-bold uppercase mb-2">
-            <FileCheck2 size={14} />
-            <span>Admin Control Panel</span>
-          </div>
+          
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 tracking-tight">
             Bank Slip Payment Reviews
           </h1>
