@@ -21,12 +21,21 @@ export async function POST(request, { params }) {
       return err("Invalid slip ID");
     }
 
-    // Fetch Bank Slip
+    // Fetch Bank Slip with both single-course and cart-order relations
     const bankSlip = await prisma.bank_slips.findUnique({
       where: { id: slipId },
       include: {
         user: { select: { id: true, first_name: true, last_name: true, email: true } },
         course: { select: { id: true, title: true, grade: true, type: true } },
+        cart_order: {
+          include: {
+            items: {
+              include: {
+                course: { select: { id: true, title: true, grade: true, type: true } },
+              },
+            },
+          },
+        },
       },
     });
 
@@ -38,53 +47,148 @@ export async function POST(request, { params }) {
       return err("This payment slip has already been approved");
     }
 
-    // Determine Expiry Date for Enrollment
-    let expiresAt = null;
-    if (bankSlip.course.grade) {
-      const settingKey = `EXPIRY_DATE_G${bankSlip.course.grade}`;
-      const gradeExpirySetting = await prisma.system_settings.findUnique({
-        where: { key: settingKey },
-      });
-      if (gradeExpirySetting) {
-        expiresAt = new Date(gradeExpirySetting.value);
-      }
-    }
+    const isCartOrder = !!bankSlip.cart_order_id;
 
-    // Check existing enrollment
-    const existingEnrollment = await prisma.enrollments.findUnique({
-      where: {
-        user_id_course_id: {
-          user_id: bankSlip.user_id,
-          course_id: bankSlip.course_id,
-        },
-      },
-    });
+    if (isCartOrder) {
+      // ── CART ORDER APPROVAL: enroll in all courses ────────────────────────
+      const cartOrder = bankSlip.cart_order;
+      const courseItems = cartOrder.items;
 
-    // Run DB update + enrollment in transaction
-    await prisma.$transaction(async (tx) => {
-      // 1. Update slip status to APPROVED
-      await tx.bank_slips.update({
-        where: { id: slipId },
-        data: { status: "APPROVED" },
-      });
+      await prisma.$transaction(async (tx) => {
+        // 1. Approve the slip
+        await tx.bank_slips.update({
+          where: { id: slipId },
+          data: { status: "APPROVED" },
+        });
 
-      // 2. Create or activate enrollment if not present
-      if (!existingEnrollment) {
-        try {
-          await tx.enrollments.create({
-            data: {
-              user_id: bankSlip.user_id,
-              course_id: bankSlip.course_id,
-              expires_at: expiresAt,
-              is_active: true,
+        // 2. Mark cart order as PAID
+        await tx.cart_orders.update({
+          where: { id: cartOrder.id },
+          data: { status: "PAID" },
+        });
+
+        // 3. For each course in the order, create or activate enrollment
+        for (const item of courseItems) {
+          const courseId = item.course_id;
+          const grade = item.course?.grade;
+
+          // Determine expiry date for this course
+          let expiresAt = null;
+          if (grade) {
+            const settingKey = `EXPIRY_DATE_G${grade}`;
+            const gradeExpirySetting = await tx.system_settings.findUnique({
+              where: { key: settingKey },
+            });
+            if (gradeExpirySetting) {
+              expiresAt = new Date(gradeExpirySetting.value);
+            }
+          }
+
+          // Check if enrollment already exists
+          const existingEnrollment = await tx.enrollments.findUnique({
+            where: {
+              user_id_course_id: {
+                user_id: bankSlip.user_id,
+                course_id: courseId,
+              },
             },
           });
-        } catch (createErr) {
-          if (createErr?.code === "P2002") {
-            // Sequence desync recovery: resync sequence and retry
-            await tx.$executeRawUnsafe(
-              `SELECT setval(pg_get_serial_sequence('enrollments', 'id'), COALESCE((SELECT MAX(id) FROM enrollments), 1), true);`
-            );
+
+          if (!existingEnrollment) {
+            try {
+              await tx.enrollments.create({
+                data: {
+                  user_id: bankSlip.user_id,
+                  course_id: courseId,
+                  expires_at: expiresAt,
+                  is_active: true,
+                },
+              });
+            } catch (createErr) {
+              if (createErr?.code === "P2002") {
+                // Sequence desync recovery
+                await tx.$executeRawUnsafe(
+                  `SELECT setval(pg_get_serial_sequence('enrollments', 'id'), COALESCE((SELECT MAX(id) FROM enrollments), 1), true);`
+                );
+                await tx.enrollments.create({
+                  data: {
+                    user_id: bankSlip.user_id,
+                    course_id: courseId,
+                    expires_at: expiresAt,
+                    is_active: true,
+                  },
+                });
+              } else {
+                throw createErr;
+              }
+            }
+          } else if (!existingEnrollment.is_active) {
+            await tx.enrollments.update({
+              where: { id: existingEnrollment.id },
+              data: { is_active: true, expires_at: expiresAt },
+            });
+          }
+        }
+      });
+
+      // Build course title list for email
+      const courseTitles = courseItems
+        .map((i) => {
+          const c = i.course;
+          const typeLabel =
+            c.type === "mcq" ? " (MCQ Practice)" : c.type === "pastpaper" ? " (Past Paper)" : "";
+          return `${c.title}${c.grade ? ` (Grade ${c.grade})` : ""}${typeLabel}`;
+        })
+        .join(", ");
+
+      const userName =
+        `${bankSlip.user.first_name || ""} ${bankSlip.user.last_name || ""}`.trim() || "Student";
+
+      sendEnrollmentApprovedEmail(
+        bankSlip.user.email,
+        userName,
+        `${courseItems.length} course${courseItems.length > 1 ? "s" : ""}: ${courseTitles}`
+      );
+
+      return ok({
+        message: `Bank slip approved and student enrolled in ${courseItems.length} course${courseItems.length > 1 ? "s" : ""} successfully!`,
+      });
+
+    } else {
+      // ── SINGLE COURSE APPROVAL (original logic — unchanged) ───────────────
+      // Determine Expiry Date for Enrollment
+      let expiresAt = null;
+      if (bankSlip.course?.grade) {
+        const settingKey = `EXPIRY_DATE_G${bankSlip.course.grade}`;
+        const gradeExpirySetting = await prisma.system_settings.findUnique({
+          where: { key: settingKey },
+        });
+        if (gradeExpirySetting) {
+          expiresAt = new Date(gradeExpirySetting.value);
+        }
+      }
+
+      // Check existing enrollment
+      const existingEnrollment = await prisma.enrollments.findUnique({
+        where: {
+          user_id_course_id: {
+            user_id: bankSlip.user_id,
+            course_id: bankSlip.course_id,
+          },
+        },
+      });
+
+      // Run DB update + enrollment in transaction
+      await prisma.$transaction(async (tx) => {
+        // 1. Update slip status to APPROVED
+        await tx.bank_slips.update({
+          where: { id: slipId },
+          data: { status: "APPROVED" },
+        });
+
+        // 2. Create or activate enrollment if not present
+        if (!existingEnrollment) {
+          try {
             await tx.enrollments.create({
               data: {
                 user_id: bankSlip.user_id,
@@ -93,32 +197,48 @@ export async function POST(request, { params }) {
                 is_active: true,
               },
             });
-          } else {
-            throw createErr;
+          } catch (createErr) {
+            if (createErr?.code === "P2002") {
+              // Sequence desync recovery: resync sequence and retry
+              await tx.$executeRawUnsafe(
+                `SELECT setval(pg_get_serial_sequence('enrollments', 'id'), COALESCE((SELECT MAX(id) FROM enrollments), 1), true);`
+              );
+              await tx.enrollments.create({
+                data: {
+                  user_id: bankSlip.user_id,
+                  course_id: bankSlip.course_id,
+                  expires_at: expiresAt,
+                  is_active: true,
+                },
+              });
+            } else {
+              throw createErr;
+            }
           }
+        } else if (!existingEnrollment.is_active) {
+          await tx.enrollments.update({
+            where: { id: existingEnrollment.id },
+            data: { is_active: true, expires_at: expiresAt },
+          });
         }
-      } else if (!existingEnrollment.is_active) {
-        await tx.enrollments.update({
-          where: { id: existingEnrollment.id },
-          data: { is_active: true, expires_at: expiresAt },
-        });
-      }
-    });
+      });
 
-    // Format full course title with Grade / Type
-    const courseTypeLabel =
-      bankSlip.course.type === "mcq"
-        ? " (MCQ Practice)"
-        : bankSlip.course.type === "pastpaper"
-        ? " (Past Paper)"
-        : "";
-    const fullCourseTitle = `${bankSlip.course.title}${bankSlip.course.grade ? ` (Grade ${bankSlip.course.grade})` : ""}${courseTypeLabel}`;
+      // Format full course title with Grade / Type
+      const courseTypeLabel =
+        bankSlip.course?.type === "mcq"
+          ? " (MCQ Practice)"
+          : bankSlip.course?.type === "pastpaper"
+          ? " (Past Paper)"
+          : "";
+      const fullCourseTitle = `${bankSlip.course?.title}${bankSlip.course?.grade ? ` (Grade ${bankSlip.course.grade})` : ""}${courseTypeLabel}`;
 
-    // Send Approval Email to Student
-    const userName = `${bankSlip.user.first_name || ""} ${bankSlip.user.last_name || ""}`.trim() || "Student";
-    sendEnrollmentApprovedEmail(bankSlip.user.email, userName, fullCourseTitle);
+      // Send Approval Email to Student
+      const userName =
+        `${bankSlip.user.first_name || ""} ${bankSlip.user.last_name || ""}`.trim() || "Student";
+      sendEnrollmentApprovedEmail(bankSlip.user.email, userName, fullCourseTitle);
 
-    return ok({ message: "Bank slip approved and student enrolled successfully!" });
+      return ok({ message: "Bank slip approved and student enrolled successfully!" });
+    }
   } catch (error) {
     console.error("[POST /api/bank-slips/[id]/approve]", error);
     return err("Internal Server Error: " + (error.message || ""), 500);

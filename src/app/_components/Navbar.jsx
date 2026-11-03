@@ -5,13 +5,14 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import { Menu, X, BookOpen, LogIn, Mail, Home, LogOut, Images } from "lucide-react";
+import { Menu, X, BookOpen, LogIn, Mail, Home, LogOut, Images, ShoppingCart } from "lucide-react";
 import logo from "@/assets/logos/logo_1.png";
-
+import { useCart } from "./CartContext";
 
 const rightNavLinks = [
   { name: "Home", href: "/", icon: Home },
   { name: "Courses", href: "/courses", icon: BookOpen },
+  { name: "Cart", href: "/cart", icon: ShoppingCart },
   { name: "Gallery", href: "/gallery", icon: Images },
   { name: "Contact Us", href: "/contact", icon: Mail },
 ];
@@ -22,9 +23,8 @@ const Navbar = () => {
   const pathname = usePathname();
   const router = useRouter();
 
-  const dashboardPath = pathname.startsWith("/dashboard");
-
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
+  const { cartCount } = useCart();
 
   const toggleMenu = () => setIsOpen(!isOpen);
   const closeMenu = () => setIsOpen(false);
@@ -59,14 +59,14 @@ const Navbar = () => {
   };
 
   const baseClasses =
-    "flex items-center gap-1.5 px-3 py-2 text-white hover:text-[#FFD700] transition-all duration-300 hover:scale-105 rounded-md font-medium text-md cursor-pointer";
+    "flex items-center gap-1.5 px-3 py-2 text-white hover:text-[#FFD700] transition-colors duration-200 rounded-md font-medium text-md cursor-pointer";
   const authButtonBase =
-    "flex items-center gap-1.5 px-2 py-2 rounded-full font-semibold text-md transition-all duration-300";
+    "flex items-center gap-1.5 px-2 py-2 rounded-full font-semibold text-md transition-colors duration-200";
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 ${ dashboardPath ? "bg-primary" : "bg-gray-900/40"} backdrop-blur-md shadow-lg`}>
-      <div className="max-w-screen">
-        <div className="flex flex-row items-center justify-between h-16 w-screen">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-gray-900/40 backdrop-blur-md border-b border-white/10 shadow-lg">
+      <div className="w-full">
+        <div className="flex flex-row items-center justify-between h-16 w-full">
           {/* LOGO */}
           <div className="flex items-center justify-start md:w-1/4 pl-4 md:pl-8">
             <Link
@@ -78,31 +78,37 @@ const Navbar = () => {
             </Link>
           </div>
 
-          {/* DESKTOP NAV LINKS */}
+          {/* DESKTOP NAV LINKS (CENTER) */}
           <div className="hidden md:flex items-center justify-center space-x-2 md:w-1/2">
-            {rightNavLinks.map((link) => (
-              <Link
-                href={link.href}
-                key={link.name}
-                onClick={() => handleNavClick(link.href)}
-                className={baseClasses}
-              >
-
-                {link.name}
-              </Link>
-            ))}
-           
+            {rightNavLinks.map((link) => {
+              const isCart = link.href === "/cart";
+              return (
+                <Link
+                  href={link.href}
+                  key={link.name}
+                  onClick={() => handleNavClick(link.href)}
+                  className={`${baseClasses} relative`}
+                >
+                  {link.name}
+                  {isCart && cartCount > 0 && (
+                    <span className="ml-1 min-w-4 h-4 bg-[#9fe03c] text-[#010048] text-[10px] font-black rounded-full flex items-center justify-center px-1 leading-none shadow-xs">
+                      {cartCount > 99 ? "99+" : cartCount}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
           </div>
 
-          {/* DESKTOP AUTH */}
+          {/* DESKTOP AUTH (RIGHT) */}
           <div className="hidden md:flex flex-row items-center justify-end md:w-1/4 pr-6">
             {session ? (
               <div className="flex items-center">
                 <Link
                   href="/dashboard"
-                  className={`${authButtonBase} text-[#9fe03c] hover:scale-105 hover:text-accent`}
+                  className={`${authButtonBase} text-[#9fe03c] hover:text-accent`}
                 >
-                  <span className="text-white  font-bold">
+                  <span className="text-white font-bold">
                     Dashboard
                   </span>
                 </Link>
@@ -110,7 +116,7 @@ const Navbar = () => {
                 <div className="w-px h-6 bg-white mx-3"></div>
                 <button
                   onClick={() => signOut({ callbackUrl: "/" })}
-                  className={`${authButtonBase} text-greenaccent hover:scale-105  cursor-pointer`}
+                  className={`${authButtonBase} text-greenaccent cursor-pointer`}
                 >
                   <LogOut className="w-4 h-4" />
                   Logout
@@ -120,14 +126,14 @@ const Navbar = () => {
               <>
                 <Link
                   href="/register"
-                  className={`${authButtonBase} text-[#9fe03c] hover:scale-105 hover:text-accent`}
+                  className={`${authButtonBase} text-[#9fe03c] hover:text-accent`}
                 >
                   Register
                 </Link>
                 <div className="w-px h-6 bg-white mx-3"></div>
                 <Link
                   href="/login"
-                  className={`${authButtonBase} text-zinc-50 hover:scale-105 hover:text-accent`}
+                  className={`${authButtonBase} text-zinc-50 hover:text-accent`}
                 >
                   <LogIn className="w-4 h-4" />
                   Login
@@ -136,11 +142,25 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* MOBILE TOGGLE */}
-          <div className="flex md:hidden mx-2">
+          {/* MOBILE: Cart Icon + Menu Toggle */}
+          <div className="flex md:hidden items-center mx-2 gap-2">
+            <Link
+              href="/cart"
+              className="relative p-2 rounded-full text-white hover:text-[#9fe03c] transition-colors cursor-pointer"
+              aria-label={`Cart (${cartCount} items)`}
+              title="Cart"
+            >
+              <ShoppingCart size={22} />
+              {cartCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 bg-[#9fe03c] text-[#010048] text-[9px] font-black rounded-full flex items-center justify-center px-1 leading-none shadow-xs">
+                  {cartCount > 99 ? "99+" : cartCount}
+                </span>
+              )}
+            </Link>
+
             <button
               onClick={toggleMenu}
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-300 hover:text-white z-[60] transition-all duration-300 relative"
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-300 hover:text-white z-[60] transition-all duration-300 relative cursor-pointer"
             >
               {isOpen ? (
                 <X size={28} className="text-white" />
@@ -171,28 +191,36 @@ const Navbar = () => {
       >
         <div className="flex flex-col items-center pt-24 space-y-8 h-full">
           {/* MOBILE NAV LINKS */}
-          {rightNavLinks.map((link) => (
-            <Link
-              key={link.name}
-              href={link.href}
-              onClick={() => handleNavClick(link.href)}
-              className="flex items-center gap-4 text-xl font-medium text-white hover:text-greenaccent transition-colors cursor-pointer"
-            >
-              <link.icon className="w-6 h-6" />
-              {link.name}
-            </Link>
-          ))}
+          {rightNavLinks.map((link) => {
+            const isCart = link.href === "/cart";
+            return (
+              <Link
+                key={link.name}
+                href={link.href}
+                onClick={() => handleNavClick(link.href)}
+                className="flex items-center gap-4 text-xl font-medium text-white hover:text-greenaccent transition-colors cursor-pointer"
+              >
+                <link.icon className="w-6 h-6" />
+                <span>{link.name}</span>
+                {isCart && cartCount > 0 && (
+                  <span className="ml-1 min-w-5 h-5 bg-[#9fe03c] text-[#010048] text-xs font-black rounded-full flex items-center justify-center px-1.5 leading-none">
+                    {cartCount > 99 ? "99+" : cartCount}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
 
           <div className="w-2/3 h-px bg-white/10 my-4"></div>
 
           {/* MOBILE AUTH */}
-          <div className="flex flex-col w-full px-8 gap-5">
+          <div className="flex flex-col w-full px-8 gap-4">
             {session ? (
               <>
                 <Link
                   href="/dashboard"
                   onClick={closeMenu}
-                  className="w-full flex items-center justify-center gap-3 py-3.5 rounded-full border border-white text-white font-semibold   transition-all hover:scale-[1.02] cursor-pointer"
+                  className="w-full flex items-center justify-center gap-3 py-3.5 rounded-full border border-white text-white font-semibold transition-all hover:scale-[1.02] cursor-pointer"
                 >
                   <span className="text-white font-bold">
                     {session.user.role === "admin"
@@ -206,7 +234,7 @@ const Navbar = () => {
                     signOut({ callbackUrl: "/" });
                     closeMenu();
                   }}
-                  className="w-full flex items-center justify-center gap-3 py-3.5 rounded-full border border-greenaccent text-greenaccent font-semibold   transition-all hover:scale-[1.02] cursor-pointer"
+                  className="w-full flex items-center justify-center gap-3 py-3.5 rounded-full border border-greenaccent text-greenaccent font-semibold transition-all hover:scale-[1.02] cursor-pointer"
                 >
                   <LogOut className="w-5 h-5" />
                   Logout

@@ -1,50 +1,43 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { unstable_cache } from "next/cache";
-import CheckoutClient from "@/app/_components/CheckoutClient";
 
-const getCourses = unstable_cache(
-  async () => {
-    return await prisma.courses.findMany({
-      where: { is_published: true },
-      orderBy: { created_at: "desc" },
-    });
-  },
-  ["courses-data"],
-  { tags: ["courses-data"], revalidate: 86400 },
-);
-
-export default async function CheckoutPage({ params }) {
+export default async function LegacyCourseCheckoutPage({ params }) {
   const { id } = await params;
   const courseId = parseInt(id, 10);
 
-  // ── Auth guard ────────────────────────────────────────────────────────────
   const session = await auth();
   if (!session?.user) {
-    redirect(`/login?callbackUrl=/courses/${courseId}/checkout`);
+    redirect(`/login?callbackUrl=/cart`);
   }
 
-  // ── Load course ────────────────────────────────────────────────────────────
-  const allCourses = await getCourses();
-  const course = allCourses.find((c) => c.id === courseId);
+  const userId = parseInt(session.user.id);
 
-  if (!course) {
-    redirect("/courses");
+  if (courseId && !isNaN(courseId)) {
+    // Check enrollment
+    const enrollment = await prisma.enrollments.findFirst({
+      where: {
+        user_id: userId,
+        course_id: courseId,
+        is_active: true,
+      },
+    });
+
+    if (enrollment) {
+      redirect(`/learnings/${courseId}`);
+    }
+
+    // Ensure it's in the cart
+    try {
+      await prisma.cart_items.upsert({
+        where: { user_id_course_id: { user_id: userId, course_id: courseId } },
+        create: { user_id: userId, course_id: courseId },
+        update: {},
+      });
+    } catch (err) {
+      console.error("[LegacyCourseCheckoutPage] auto add to cart error:", err);
+    }
   }
 
-  // ── Already enrolled? Send straight to learning ───────────────────────────
-  const enrollment = await prisma.enrollments.findFirst({
-    where: {
-      user_id: parseInt(session.user.id),
-      course_id: courseId,
-      is_active: true,
-    },
-  });
-
-  if (enrollment) {
-    redirect(`/learnings/${courseId}`);
-  }
-
-  return <CheckoutClient course={course} courseId={courseId} />;
+  redirect("/cart");
 }
