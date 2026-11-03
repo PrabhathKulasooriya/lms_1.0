@@ -164,7 +164,7 @@ export default function CourseViewer({ course }) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: MCQ Hub OR Video/PDF Player */}
         {isMcqCourse ? (
-          <div className="lg:col-span-2 bg-gradient-to-br from-[#071933] to-[#0b408e] text-white rounded-3xl p-8 flex flex-col justify-between shadow-sm min-h-[420px] relative overflow-hidden border border-slate-700/50">
+          <div className="lg:col-span-2 bg-gradient-to-br from-[#071933] to-[#0b408e] text-white rounded-2xl p-6 lg:p-8 flex flex-col justify-between shadow-sm w-full lg:aspect-video relative overflow-hidden border border-slate-700/50">
             <div className="absolute top-0 right-0 -mt-12 -mr-12 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-xs font-semibold mb-4">
