@@ -23,6 +23,38 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 
+// Helper: Extract all courses associated with a bank slip (cart order items or single course)
+function getSlipCourses(slip) {
+  if (slip?.cart_order?.items && slip.cart_order.items.length > 0) {
+    return slip.cart_order.items.map((item) => ({
+      ...item.course,
+      purchasedPrice: item.price_at_purchase ?? item.course?.price,
+    }));
+  }
+  if (slip?.course) {
+    return [
+      {
+        ...slip.course,
+        purchasedPrice: slip.amount ?? slip.course.price,
+      },
+    ];
+  }
+  return [];
+}
+
+// Helper: Format full course title with grade and type
+function formatCourseTitle(course) {
+  if (!course) return "Unknown Course";
+  const gradeStr = course.grade ? ` (Grade ${course.grade})` : "";
+  const typeStr =
+    course.type === "pastpaper"
+      ? " (Past Paper)"
+      : course.type === "mcq"
+      ? " (MCQ)"
+      : "";
+  return `${course.title}${gradeStr}${typeStr}`;
+}
+
 export default function BankSlipReview() {
   const [bankSlips, setBankSlips] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -63,13 +95,14 @@ export default function BankSlipReview() {
       const searchLower = search.toLowerCase();
       const userName = `${slip.user?.first_name || ""} ${slip.user?.last_name || ""}`.toLowerCase();
       const userEmail = (slip.user?.email || "").toLowerCase();
-      const courseTitle = (slip.course?.title || "").toLowerCase();
+      const courses = getSlipCourses(slip);
+      const allCourseTitles = courses.map((c) => formatCourseTitle(c).toLowerCase()).join(" ");
 
       const matchesSearch =
         !search ||
         userName.includes(searchLower) ||
         userEmail.includes(searchLower) ||
-        courseTitle.includes(searchLower);
+        allCourseTitles.includes(searchLower);
 
       return matchesTab && matchesSearch;
     })
@@ -154,6 +187,20 @@ export default function BankSlipReview() {
     if (!printWindow) return;
 
     const userName = `${slip.user?.first_name || ""} ${slip.user?.last_name || ""}`;
+    const courses = getSlipCourses(slip);
+    const coursesHtml =
+      courses.length > 1
+        ? `<ul style="margin: 4px 0 0 16px; padding: 0;">${courses
+            .map(
+              (c) =>
+                `<li><strong>${formatCourseTitle(c)}</strong> - LKR ${Number(
+                  c.purchasedPrice || c.price
+                ).toLocaleString()}</li>`
+            )
+            .join("")}</ul>`
+        : courses.length === 1
+        ? formatCourseTitle(courses[0])
+        : "N/A";
     printWindow.document.write(`
       <html>
         <head>
@@ -172,7 +219,7 @@ export default function BankSlipReview() {
             <p><strong>Email:</strong> ${slip.user?.email || "N/A"}</p>
             <p><strong>Mobile:</strong> ${slip.user?.mobile || "N/A"}</p>
             <p><strong>Address:</strong> ${slip.user?.address || "N/A"}</p>
-            <p><strong>Course:</strong> ${slip.course ? `${slip.course.title}${slip.course.grade ? ` (Grade ${slip.course.grade})` : ""}${slip.course.type === "pastpaper" ? " (Past Paper)" : ""}` : "N/A"}</p>
+            <p><strong>Course(s) (${courses.length}):</strong> ${coursesHtml}</p>
             <p><strong>Amount:</strong> LKR ${Number(slip.amount).toLocaleString()}</p>
             <p><strong>Submitted Date:</strong> ${new Date(slip.created_at).toLocaleString()}</p>
           </div>
@@ -314,16 +361,74 @@ export default function BankSlipReview() {
                         )}
                       </td>
 
-                      {/* Course & Amount */}
-                      <td className="py-4 px-6">
-                        <div className="font-bold text-slate-800 line-clamp-1">
-                          {slip.course
-                            ? `${slip.course.title}${slip.course.grade ? ` (Grade ${slip.course.grade})` : ""}${slip.course.type === "pastpaper" ? " (Past Paper)" : ""}`
-                            : "N/A"}
-                        </div>
-                        <div className="text-xs font-extrabold text-[#0b408e] mt-0.5">
-                          LKR {Number(slip.amount).toLocaleString()}
-                        </div>
+                      {/* Course & Amount - supports single and multi-course cart orders */}
+                      <td className="py-4 px-6 max-w-xs md:max-w-sm">
+                        {(() => {
+                          const courses = getSlipCourses(slip);
+                          const isMultiCourse = courses.length > 1;
+
+                          if (courses.length === 0) {
+                            return (
+                              <div>
+                                <span className="text-slate-400 italic">No course details</span>
+                                <div className="text-xs font-extrabold text-[#0b408e] mt-0.5">
+                                  LKR {Number(slip.amount).toLocaleString()}
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          if (!isMultiCourse) {
+                            const c = courses[0];
+                            return (
+                              <div>
+                                <div className="font-bold text-slate-800 leading-snug" title={formatCourseTitle(c)}>
+                                  {formatCourseTitle(c)}
+                                </div>
+                                <div className="text-xs font-extrabold text-[#0b408e] mt-1">
+                                  LKR {Number(slip.amount).toLocaleString()}
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <div className="space-y-1.5">
+                              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#0b408e]/10 text-[#0b408e] text-[10px] font-bold">
+                                <BookOpen size={11} />
+                                <span>Combined Order ({courses.length} Courses)</span>
+                              </div>
+
+                              <div className="space-y-1 pl-1">
+                                {courses.map((course, idx) => (
+                                  <div
+                                    key={course.id || idx}
+                                    className="flex items-center justify-between gap-3 text-[11px]"
+                                  >
+                                    <span
+                                      className="font-medium text-slate-700 truncate max-w-[190px]"
+                                      title={formatCourseTitle(course)}
+                                    >
+                                      • {formatCourseTitle(course)}
+                                    </span>
+                                    <span className="text-slate-400 font-mono text-[10px] shrink-0">
+                                      LKR {Number(course.purchasedPrice || course.price).toLocaleString()}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+
+                              <div className="pt-1 border-t border-slate-100 flex items-center justify-between">
+                                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                                  Total Paid:
+                                </span>
+                                <span className="text-xs font-black text-[#0b408e]">
+                                  LKR {Number(slip.amount).toLocaleString()}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </td>
 
                       {/* Status */}
@@ -421,9 +526,21 @@ export default function BankSlipReview() {
         <div className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white rounded-3xl max-w-3xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
             <div className="p-4 px-6 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="text-base font-extrabold text-slate-800">
-                Payment Slip Preview - #{previewSlip.id}
-              </h3>
+              <div>
+                <h3 className="text-base font-extrabold text-slate-800">
+                  Payment Slip Preview - #{previewSlip.id}
+                </h3>
+                <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                  {getSlipCourses(previewSlip).map((c, i) => (
+                    <span key={i} className="inline-flex items-center text-[11px] font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">
+                      {formatCourseTitle(c)}
+                    </span>
+                  ))}
+                  <span className="text-xs font-black text-[#0b408e] ml-1">
+                    (Total: LKR {Number(previewSlip.amount).toLocaleString()})
+                  </span>
+                </div>
+              </div>
               <button
                 onClick={() => setPreviewSlip(null)}
                 className="p-1.5 rounded-xl hover:bg-slate-100 text-slate-500"
